@@ -1,47 +1,83 @@
-# FormField React Component
+# ResponsiveTable
 
-FormField is a powerful React component designed to streamline the creation of form fields with built-in support for validation, labels, hints, and optional indicators.
+ResponsiveTable is a reusable React component that displays tabular data in a responsive layout.
 
-## Installation
+## Features
 
-```js
-npm install jattac.libs.web.form-field
+- Handles mobile and desktop layouts
+- Customizable columns
+- Dynamic column definitions
+- Card-style mobile view
+- Generic types for flexible data
+
+## Usage
+
+```jsx
+<ResponsiveTable columnDefinitions={columns} data={data} />
 ```
 
-## Example
+- 'columnDefinitions' defines an array of columns, which can be a simple configuration object or dynamic function
+- 'data' is an array of data objects to display in rows
 
-```js
-import React from 'react';
-import FormField from 'jattac.libs.web.form-field';
+The component handles switching layout based on screen width to optimize for desktop and mobile.
 
-const MyForm = () => {
-  const validationErrors = [
-    // Your validation errors here
-  ];
+## Custom Columns
 
-  return (
-    <form>
-      <FormField
-        label="Email"
-        id="email"
-        validationErrors={[{ key: 'email', errors: ['Invalid email address'] }]}
-        optional={true}
-        hint="We'll never share your email with anyone else."
-      >
-        <input type="email" />
-      </FormField>
+Columns can be configured using the 'IResponsiveTableColumnDefinition' interface.
 
-      {/* Add more FormField components for other form elements */}
-    </form>
-  );
-};
-```
+Some key configuration options:
+
+- 'displayLabel': Header label
+- 'dataKey': Maps column to data property
+- 'cellRenderer': Renders cell value
+
+See docs for more details on customization.
+
+## Dynamic Columns
+
+Column definitions can also be a function allowing dynamic configurations per row.
+
+## Styling
+
+Use CSS modules or global styles to customize visual layout:
+
+- '.responsiveTable': Root table
+- '.card': Mobile card containers
 
 ## Props
 
-- **label** (required): The label for the form field.
-- **id** (required): A unique identifier for the form field.
-- **children** (required): The content of the form field, typically an input element.
-- **validationErrors**: An array of validation errors for the form field.
-- **optional**: A boolean indicating whether the field is optional. Defaults to false.
-- **hint**: Additional information or guidance for the form field.
+Prop definitions provide detailed specification of component contract.
+
+### IProps
+
+```ts
+interface IProps<TData> {
+  /** Column definitions */
+  columnDefinitions: ColumnDefinition<TData>[];
+
+  /** Table data rows */
+  data: TData[];
+
+  /** Optional styling */
+  className?: string;
+
+  /** row click handler */
+  onRowClicked?: (row: TData) => void;
+}
+```
+
+```ts
+type ColumnDefinition<TData> =
+  | IResponsiveTableColumnDefinition<TData>
+  | ((rowData: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>);
+```
+
+```ts
+interface IResponsiveTableColumnDefinition<TData> {
+  displayLabel: string | ReactNode;
+
+  dataKey?: keyof TData;
+
+  cellRenderer: (rowData: TData) => ReactNode;
+}
+```
