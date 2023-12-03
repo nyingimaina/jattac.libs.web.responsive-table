@@ -1,0 +1,54 @@
+.card {
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background-color: #f0f0f0;
+  padding: 10px;
+  font-weight: bold;
+}
+
+.card-body {
+  padding: 10px;
+}
+
+/* Apply styles to the table with the specific class 'custom-table' */
+.responsiveTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.responsiveTable thead {
+  position: sticky;
+}
+
+/* Style the table header */
+.responsiveTable th,
+.responsiveTable td {
+  padding: 12px;
+  text-align: left;
+}
+
+.responsiveTable th {
+  background-color: #f2f2f2;
+}
+
+/* Alternate row colors */
+.responsiveTable tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Change background color on hover */
+.responsiveTable tr:hover {
+  background-color: #d9edf7;
+}
+
+.tableContainer {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
