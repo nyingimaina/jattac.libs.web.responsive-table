@@ -37,13 +37,6 @@ See docs for more details on customization.
 
 Column definitions can also be a function allowing dynamic configurations per row.
 
-## Styling
-
-Use CSS modules or global styles to customize visual layout:
-
-- '.responsiveTable': Root table
-- '.card': Mobile card containers
-
 ## Props
 
 Prop definitions provide detailed specification of component contract.
@@ -63,6 +56,9 @@ interface IProps<TData> {
 
   /** row click handler */
   onRowClicked?: (row: TData) => void;
+
+  /** not data component */
+  noDataComponent?: ReactNode;
 }
 ```
 

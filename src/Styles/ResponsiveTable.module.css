@@ -52,3 +52,10 @@
   overflow-x: auto;
   margin-bottom: 20px;
 }
+
+.noData {
+  text-align: center;
+  font-weight: bold;
+  color: #999;
+  padding: 20px;
+}
