@@ -25,11 +25,19 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
   }
 
   private get data(): TData[] {
-    if (Array.isArray(this.props.data) && this.props.data.length === 0) {
+    if (Array.isArray(this.props.data) && this.props.data.length > 0) {
       return this.props.data;
     } else {
       return [];
     }
+  }
+
+  private get noDataSvg(): ReactNode {
+    return (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="#ccc" height="40" width="40" viewBox="0 0 24 24">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-14h2v6h-2zm0 8h2v2h-2z" />
+      </svg>
+    );
   }
 
   private get hasData(): boolean {
@@ -37,7 +45,14 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
   }
 
   private get noDataComponent(): ReactNode {
-    return this.props.noDataComponent || <div className={styles.noData}>No data</div>;
+    return (
+      this.props.noDataComponent || (
+        <div className={styles.noDataWrapper}>
+          {this.noDataSvg}
+          <div className={styles.noData}>No data</div>
+        </div>
+      )
+    );
   }
 
   componentDidMount(): void {
@@ -62,7 +77,10 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
     columnDefinition: ColumnDefinition<TData>,
     rowIndex: number,
   ): IResponsiveTableColumnDefinition<TData> {
-    return columnDefinition instanceof Function ? columnDefinition(this.props.data[0], rowIndex) : columnDefinition;
+    if (!this.hasData) {
+      return { displayLabel: '', cellRenderer: () => '' };
+    }
+    return columnDefinition instanceof Function ? columnDefinition(this.data[0], rowIndex) : columnDefinition;
   }
 
   render() {
@@ -72,7 +90,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
     if (this.state.isMobile) {
       return (
         <div>
-          {this.props.data.map((row, rowIndex) => (
+          {this.data.map((row, rowIndex) => (
             <div key={rowIndex} className={styles['card']}>
               <div className={styles['card-header']}> </div>
               <div className={styles['card-body']}>
@@ -104,7 +122,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
             </tr>
           </thead>
           <tbody>
-            {this.props.data.map((row, rowIndex) => (
+            {this.data.map((row, rowIndex) => (
               <tr key={rowIndex}>
                 {this.props.columnDefinitions.map((columnDefinition, colIndex) => (
                   <td key={colIndex}>{this.getColumnDefinition(columnDefinition, rowIndex).cellRenderer(row)}</td>

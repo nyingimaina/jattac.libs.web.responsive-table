@@ -53,9 +53,17 @@
   margin-bottom: 20px;
 }
 
+.noDataWrapper {
+  color: #ca3333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  gap: 10px;
+}
+
 .noData {
   text-align: center;
   font-weight: bold;
-  color: #999;
-  padding: 20px;
+  padding: 30px;
 }
