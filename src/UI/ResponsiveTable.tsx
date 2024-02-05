@@ -1,4 +1,4 @@
-import React, { Component, ReactNode } from 'react';
+import React, { CSSProperties, Component, ReactNode } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
 import IResponsiveTableColumnDefinition from '../Data/IResponsiveTableColumnDefinition';
 
@@ -9,7 +9,7 @@ interface IProps<TData> {
   columnDefinitions: ColumnDefinition<TData>[];
   data: TData[];
   noDataComponent?: ReactNode;
-  fixedHeader?: boolean;
+  maxHeight?: string;
 }
 
 interface IState {
@@ -84,37 +84,39 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
     return columnDefinition instanceof Function ? columnDefinition(this.data[0], rowIndex) : columnDefinition;
   }
 
-  render() {
-    if (!this.hasData) {
-      return this.noDataComponent;
-    }
-    if (this.state.isMobile) {
-      return (
-        <div>
-          {this.data.map((row, rowIndex) => (
-            <div key={rowIndex} className={styles['card']}>
-              <div className={styles['card-header']}> </div>
-              <div className={styles['card-body']}>
-                {this.props.columnDefinitions.map((columnDefinition, colIndex) => {
-                  const colDef = this.getColumnDefinition(columnDefinition, rowIndex);
-                  return (
-                    <div key={colIndex}>
-                      <p>
-                        <span className="font-bold">{colDef.displayLabel}:</span> {colDef.cellRenderer(row)}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    const tableContainerClass = this.props.fixedHeader === true ? styles.tableContainerFixed : styles.tableContainer;
+  private get mobileView(): ReactNode {
     return (
-      <div className={tableContainerClass}>
+      <div>
+        {this.data.map((row, rowIndex) => (
+          <div key={rowIndex} className={styles['card']}>
+            <div className={styles['card-header']}> </div>
+            <div className={styles['card-body']}>
+              {this.props.columnDefinitions.map((columnDefinition, colIndex) => {
+                const colDef = this.getColumnDefinition(columnDefinition, rowIndex);
+                return (
+                  <div key={colIndex}>
+                    <p>
+                      <span className="font-bold">{colDef.displayLabel}:</span> {colDef.cellRenderer(row)}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  private get largeScreenView(): ReactNode {
+    const useFixedHeaders = this.props.maxHeight ? true : false;
+
+    const fixedHeadersStyle = useFixedHeaders
+      ? ({ maxHeight: this.props.maxHeight, overflowY: 'auto' } as CSSProperties)
+      : {};
+
+    return (
+      <div style={fixedHeadersStyle}>
         <table className={styles['responsiveTable']}>
           <thead>
             <tr>
@@ -135,6 +137,17 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
         </table>
       </div>
     );
+  }
+
+  render() {
+    if (!this.hasData) {
+      return this.noDataComponent;
+    }
+    if (this.state.isMobile) {
+      return this.mobileView;
+    }
+
+    return this.largeScreenView;
   }
 }
 
