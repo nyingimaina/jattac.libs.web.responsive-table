@@ -67,3 +67,31 @@
   font-weight: bold;
   padding: 30px;
 }
+
+/* Add new class for fixed rows */
+.tableContainerFixed {
+  overflow-x: auto;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+/* Apply styles to the fixed rows */
+.tableContainerFixed thead {
+  position: sticky;
+  top: 0; /* Fix the header at the top */
+}
+
+/* Style the table header for fixed rows */
+.tableContainerFixed th {
+  background-color: #f2f2f2;
+}
+
+/* Alternate row colors for fixed rows */
+.tableContainerFixed tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Change background color on hover for fixed rows */
+.tableContainerFixed tr:hover {
+  background-color: #d9edf7;
+}

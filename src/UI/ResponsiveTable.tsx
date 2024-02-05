@@ -9,6 +9,7 @@ interface IProps<TData> {
   columnDefinitions: ColumnDefinition<TData>[];
   data: TData[];
   noDataComponent?: ReactNode;
+  fixedHeader?: boolean;
 }
 
 interface IState {
@@ -111,8 +112,9 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
       );
     }
 
+    const tableContainerClass = this.props.fixedHeader === true ? styles.tableContainerFixed : styles.tableContainer;
     return (
-      <div className={styles.tableContainer}>
+      <div className={tableContainerClass}>
         <table className={styles['responsiveTable']}>
           <thead>
             <tr>
