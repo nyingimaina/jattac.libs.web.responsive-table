@@ -45,6 +45,15 @@
   background-color: #d9edf7;
 }
 
+.clickableHeader {
+  cursor: pointer;
+  color: #007bff;
+}
+
+.clickableHeader:hover {
+  text-decoration: underline;
+}
+
 .noDataWrapper {
   color: #ca3333;
   display: flex;

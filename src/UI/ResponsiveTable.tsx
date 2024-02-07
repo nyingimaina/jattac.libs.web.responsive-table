@@ -84,6 +84,36 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
     return columnDefinition instanceof Function ? columnDefinition(this.data[0], rowIndex) : columnDefinition;
   }
 
+  private getRawColumnDefinition(columnDefinition: ColumnDefinition<TData>): IResponsiveTableColumnDefinition<TData> {
+    let rawColumnDefinition: IResponsiveTableColumnDefinition<TData> = {} as IResponsiveTableColumnDefinition<TData>;
+    if (columnDefinition instanceof Function) {
+      rawColumnDefinition = columnDefinition(this.data[0], 0);
+    } else {
+      rawColumnDefinition = columnDefinition as IResponsiveTableColumnDefinition<TData>;
+    }
+    return rawColumnDefinition;
+  }
+
+  private onHeaderClickCallback(columnDefinition: ColumnDefinition<TData>): ((id: string) => void) | undefined {
+    const rawColumnDefinition = this.getRawColumnDefinition(columnDefinition);
+    if (rawColumnDefinition.interactivity && rawColumnDefinition.interactivity.onHeaderClick) {
+      return rawColumnDefinition.interactivity.onHeaderClick;
+    } else {
+      return undefined;
+    }
+  }
+
+  private getClickableHeaderClassName(
+    onHeaderClickCallback: ((id: string) => void) | undefined,
+    colDef: ColumnDefinition<TData>,
+  ): string {
+    const rawColumnDefinition = this.getRawColumnDefinition(colDef);
+    const clickableHeaderClassName = onHeaderClickCallback
+      ? rawColumnDefinition.interactivity!.className || styles.clickableHeader
+      : '';
+    return clickableHeaderClassName;
+  }
+
   private get mobileView(): ReactNode {
     return (
       <div>
@@ -93,10 +123,20 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
             <div className={styles['card-body']}>
               {this.props.columnDefinitions.map((columnDefinition, colIndex) => {
                 const colDef = this.getColumnDefinition(columnDefinition, rowIndex);
+                const onHeaderClickCallback = this.onHeaderClickCallback(colDef);
+                const clickableHeaderClassName = this.getClickableHeaderClassName(onHeaderClickCallback, colDef);
                 return (
                   <div key={colIndex}>
                     <p>
-                      <span className="font-bold">{colDef.displayLabel}:</span> {colDef.cellRenderer(row)}
+                      <span
+                        className={`font-bold ${clickableHeaderClassName}`}
+                        onClick={
+                          onHeaderClickCallback ? () => onHeaderClickCallback(colDef.interactivity!.id) : undefined
+                        }
+                      >
+                        {colDef.displayLabel}:
+                      </span>{' '}
+                      {colDef.cellRenderer(row)}
                     </p>
                   </div>
                 );
@@ -120,9 +160,26 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
         <table className={styles['responsiveTable']}>
           <thead>
             <tr>
-              {this.props.columnDefinitions.map((columnDefinition, colIndex) => (
-                <th key={colIndex}>{this.getColumnDefinition(columnDefinition, 0).displayLabel}</th>
-              ))}
+              {this.props.columnDefinitions.map((columnDefinition, colIndex) => {
+                const onHeaderClickCallback = this.onHeaderClickCallback(columnDefinition);
+                const clickableHeaderClassName = this.getClickableHeaderClassName(
+                  onHeaderClickCallback,
+                  columnDefinition,
+                );
+                return (
+                  <th
+                    key={colIndex}
+                    className={`${clickableHeaderClassName}`}
+                    onClick={
+                      onHeaderClickCallback
+                        ? () => onHeaderClickCallback(this.getColumnDefinition(columnDefinition, 0).interactivity!.id)
+                        : undefined
+                    }
+                  >
+                    {this.getColumnDefinition(columnDefinition, 0).displayLabel}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>

@@ -2,6 +2,10 @@ import { ReactNode } from 'react';
 
 export default interface IResponsiveTableColumnDefinition<TData> {
   displayLabel: ReactNode;
-  dataKey?: keyof TData;
   cellRenderer: (data: TData) => ReactNode;
+  interactivity?: {
+    id: string;
+    onHeaderClick?: (id: string) => void;
+    className?: string;
+  };
 }
