@@ -10,6 +10,7 @@ interface IProps<TData> {
   data: TData[];
   noDataComponent?: ReactNode;
   maxHeight?: string;
+  onRowClick?: (item: TData) => void;
 }
 
 interface IState {
@@ -114,11 +115,27 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
     return clickableHeaderClassName;
   }
 
+  private get rowClickFunction(): (item: TData) => void {
+    if (this.props.onRowClick) {
+      return this.props.onRowClick;
+    } else {
+      return () => {};
+    }
+  }
+
+  private get rowClickStyle(): CSSProperties {
+    if (this.props.onRowClick) {
+      return { cursor: 'pointer' } as CSSProperties;
+    } else {
+      return {};
+    }
+  }
+
   private get mobileView(): ReactNode {
     return (
       <div>
         {this.data.map((row, rowIndex) => (
-          <div key={rowIndex} className={styles['card']}>
+          <div key={rowIndex} className={styles['card']} onClick={() => this.rowClickFunction(row)}>
             <div className={styles['card-header']}> </div>
             <div className={styles['card-body']}>
               {this.props.columnDefinitions.map((columnDefinition, colIndex) => {
@@ -186,7 +203,11 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
             {this.data.map((row, rowIndex) => (
               <tr key={rowIndex}>
                 {this.props.columnDefinitions.map((columnDefinition, colIndex) => (
-                  <td key={colIndex}>{this.getColumnDefinition(columnDefinition, rowIndex).cellRenderer(row)}</td>
+                  <td onClick={() => this.rowClickFunction(row)} key={colIndex}>
+                    <span style={{ ...this.rowClickStyle }}>
+                      {this.getColumnDefinition(columnDefinition, rowIndex).cellRenderer(row)}
+                    </span>
+                  </td>
                 ))}
               </tr>
             ))}
