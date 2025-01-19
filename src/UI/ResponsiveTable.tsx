@@ -135,7 +135,15 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
     return (
       <div>
         {this.data.map((row, rowIndex) => (
-          <div key={rowIndex} className={styles['card']} onClick={() => this.rowClickFunction(row)}>
+          <div
+            key={rowIndex}
+            className={styles['card']}
+            onClick={(e) => {
+              this.rowClickFunction(row);
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+          >
             <div className={styles['card-header']}> </div>
             <div className={styles['card-body']}>
               {this.props.columnDefinitions.map((columnDefinition, colIndex) => {
