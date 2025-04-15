@@ -1,79 +1,196 @@
 # ResponsiveTable
 
-ResponsiveTable is a reusable React component that displays tabular data in a responsive layout.
+ResponsiveTable is a React component designed to create responsive tables that adapt seamlessly to both desktop and mobile screens. It simplifies the process of building tables with dynamic layouts and custom behaviors.
 
-## Features
+## Installation
 
-- Handles mobile and desktop layouts
-- Customizable columns
-- Dynamic column definitions
-- Card-style mobile view
-- Generic types for flexible data
+To install ResponsiveTable, use npm:
 
-## Usage
+```bash
+npm install jattac.libs.web.responsive-table
+```
+
+## Why Use ResponsiveTable?
+
+- **Mobile-Friendly**: Automatically adjusts to look great on small screens.
+- **Customizable**: Define how each column looks and behaves.
+- **Dynamic**: Supports flexible column setups, even changing them based on the data.
+- **Easy to Use**: Simple API for quick integration into your React project.
+
+## How to Use It
+
+Here’s a quick example:
 
 ```jsx
-<ResponsiveTable columnDefinitions={columns} data={data} />
+import ResponsiveTable from 'jattac.libs.web.responsive-table';
+
+const columns = [
+  {
+    displayLabel: 'Name',
+    dataKey: 'name',
+    cellRenderer: (row) => row.name,
+  },
+  {
+    displayLabel: 'Age',
+    dataKey: 'age',
+    cellRenderer: (row) => row.age,
+  },
+];
+
+const data = [
+  { name: 'Alice', age: 25 },
+  { name: 'Bob', age: 30 },
+];
+
+<ResponsiveTable columnDefinitions={columns} data={data} />;
 ```
 
-- 'columnDefinitions' defines an array of columns, which can be a simple configuration object or dynamic function
-- 'data' is an array of data objects to display in rows
+### Explanation
 
-The component handles switching layout based on screen width to optimize for desktop and mobile.
+- **`columnDefinitions`**: Defines the columns of the table. Each column has a label (`displayLabel`), a key to match the data (`dataKey`), and a function to render the cell (`cellRenderer`).
+- **`data`**: The rows of the table, where each object represents a row.
 
-## Custom Columns
+## Key Features
 
-Columns can be configured using the 'IResponsiveTableColumnDefinition' interface.
+### 1. Mobile and Desktop Layouts
 
-Some key configuration options:
+- On small screens, the table switches to a card-style layout for better readability.
 
-- 'displayLabel': Header label
-- 'dataKey': Maps column to data property
-- 'cellRenderer': Renders cell value
+### 2. Custom Columns
 
-See docs for more details on customization.
+- Customize how each column looks and behaves. For example, you can add clickable headers or custom styles.
 
-## Dynamic Columns
+### 3. Dynamic Columns
 
-Column definitions can also be a function allowing dynamic configurations per row.
+- Columns can be defined dynamically based on the data or external conditions. This allows you to create tables that adapt to different datasets or user preferences.
 
-## Props
+#### Example 1: Conditional Columns
 
-Prop definitions provide detailed specification of component contract.
+You can show or hide columns based on a condition:
 
-### IProps
+```jsx
+const isAdmin = true; // Example condition
 
-```ts
-interface IProps<TData> {
-  /** Column definitions */
-  columnDefinitions: ColumnDefinition<TData>[];
+const columns = [
+  {
+    displayLabel: 'Name',
+    dataKey: 'name',
+    cellRenderer: (row) => row.name,
+  },
+  isAdmin && {
+    displayLabel: 'Actions',
+    dataKey: 'actions',
+    cellRenderer: (row) => <button onClick={() => alert(row.name)}>Edit</button>,
+  },
+].filter(Boolean); // Remove undefined columns
 
-  /** Table data rows */
-  data: TData[];
+const data = [{ name: 'Alice' }, { name: 'Bob' }];
 
-  /** Optional styling */
-  className?: string;
-
-  /** row click handler */
-  onRowClicked?: (row: TData) => void;
-
-  /** not data component */
-  noDataComponent?: ReactNode;
-}
+<ResponsiveTable columnDefinitions={columns} data={data} />;
 ```
 
-```ts
-type ColumnDefinition<TData> =
-  | IResponsiveTableColumnDefinition<TData>
-  | ((rowData: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>);
+#### Example 2: Dynamic Column Labels
+
+You can change column labels dynamically based on user preferences or locale:
+
+```jsx
+const userLocale = 'fr'; // Example locale
+
+const columnLabels = {
+  en: { name: 'Name', age: 'Age' },
+  fr: { name: 'Nom', age: 'Âge' },
+};
+
+const columns = [
+  {
+    displayLabel: columnLabels[userLocale].name,
+    dataKey: 'name',
+    cellRenderer: (row) => row.name,
+  },
+  {
+    displayLabel: columnLabels[userLocale].age,
+    dataKey: 'age',
+    cellRenderer: (row) => row.age,
+  },
+];
+
+const data = [
+  { name: 'Alice', age: 25 },
+  { name: 'Bob', age: 30 },
+];
+
+<ResponsiveTable columnDefinitions={columns} data={data} />;
 ```
 
-```ts
-interface IResponsiveTableColumnDefinition<TData> {
-  displayLabel: string | ReactNode;
+#### Example 3: Columns Based on Data
 
-  dataKey?: keyof TData;
+You can generate columns dynamically based on the dataset:
 
-  cellRenderer: (rowData: TData) => ReactNode;
-}
+```jsx
+const data = [
+  { name: 'Alice', age: 25, city: 'New York' },
+  { name: 'Bob', age: 30, city: 'Los Angeles' },
+];
+
+const columns = Object.keys(data[0]).map((key) => ({
+  displayLabel: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize key
+  dataKey: key,
+  cellRenderer: (row) => row[key],
+}));
+
+<ResponsiveTable columnDefinitions={columns} data={data} />;
 ```
+
+#### Example 4: Adding Columns Dynamically Using a Function
+
+You can define columns dynamically by using a function that takes the row data and optionally the row index. This is useful for creating columns based on specific row properties or conditions.
+
+```jsx
+const columns = [
+  {
+    displayLabel: 'Name',
+    dataKey: 'name',
+    cellRenderer: (row) => row.name,
+  },
+  {
+    displayLabel: 'Dynamic Column',
+    dataKey: 'dynamic',
+    cellRenderer: (row, rowIndex) => {
+      if (rowIndex % 2 === 0) {
+        return `Even Row: ${row.name}`;
+      } else {
+        return `Odd Row: ${row.name}`;
+      }
+    },
+  },
+];
+
+const data = [
+  { name: 'Alice', age: 25 },
+  { name: 'Bob', age: 30 },
+  { name: 'Charlie', age: 35 },
+];
+
+<ResponsiveTable columnDefinitions={columns} data={data} />;
+```
+
+### Explanation
+
+- **Dynamic Column Logic**: The `cellRenderer` function for the dynamic column checks the row index and displays different content for even and odd rows.
+- **Flexibility**: This approach allows you to create highly customized columns based on row-specific data or conditions.
+
+### 4. No Data? No Problem!
+
+- If there’s no data to display, you can show a custom message or graphic.
+
+## Why It’s Designed This Way
+
+- **Flexibility**: Works for both simple and complex data tables.
+- **User-Friendly**: Automatically adapts to different screen sizes.
+- **Customizable**: Lets you control how your data is displayed.
+
+## Advantages
+
+- Saves time: No need to build responsive tables from scratch.
+- Easy to maintain: Clear and simple API.
+- Works out of the box: Handles common table features like empty states and dynamic layouts.
