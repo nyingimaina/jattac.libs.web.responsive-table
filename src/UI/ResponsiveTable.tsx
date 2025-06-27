@@ -2,7 +2,7 @@ import React, { CSSProperties, Component, ReactNode } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
 import IResponsiveTableColumnDefinition from '../Data/IResponsiveTableColumnDefinition';
 
-type ColumnDefinition<TData> =
+export type ColumnDefinition<TData> =
   | IResponsiveTableColumnDefinition<TData>
   | ((data: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>);
 interface IProps<TData> {
