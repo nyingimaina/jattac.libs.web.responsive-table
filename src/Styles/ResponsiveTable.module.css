@@ -101,7 +101,77 @@
   text-decoration: underline;
 }
 
+.responsiveTable tfoot {
+  background-color: var(--table-header-bg);
+  border-top: 2px solid var(--table-border-color);
+  font-weight: 600;
+}
+
+.footerCell {
+  padding: 1rem;
+  text-align: right;
+}
+
 /* No Data State */
+
+/* Staggered Entrance Animation */
+.animatedRow {
+  animation: fadeInUp 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Skeleton Loader */
+.skeleton {
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonText {
+  height: 1.2em;
+  width: 100%;
+}
+
+.skeletonCard {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border-color);
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 1rem;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
 .noDataWrapper {
   color: var(--text-color-muted); /* Softer color */
   display: flex;

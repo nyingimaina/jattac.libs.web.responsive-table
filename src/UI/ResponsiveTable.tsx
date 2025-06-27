@@ -1,6 +1,7 @@
 import React, { CSSProperties, Component, ReactNode } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
 import IResponsiveTableColumnDefinition from '../Data/IResponsiveTableColumnDefinition';
+import IFooterRowDefinition from '../Data/IFooterRowDefinition';
 
 export type ColumnDefinition<TData> =
   | IResponsiveTableColumnDefinition<TData>
@@ -11,6 +12,10 @@ interface IProps<TData> {
   noDataComponent?: ReactNode;
   maxHeight?: string;
   onRowClick?: (item: TData) => void;
+  footerRows?: IFooterRowDefinition[];
+  mobileBreakpoint?: number;
+  isLoading?: boolean;
+  animateOnLoad?: boolean;
 }
 
 interface IState {
@@ -19,10 +24,26 @@ interface IState {
 
 // Class component
 class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
+  private debouncedResize: () => void;
+
   constructor(props: IProps<TData>) {
     super(props);
     this.state = {
       isMobile: false,
+    };
+
+    this.debouncedResize = this.debounce(this.handleResize, 200);
+  }
+
+  private get mobileBreakpoint(): number {
+    return this.props.mobileBreakpoint || 600;
+  }
+
+  private debounce(func: () => void, delay: number): () => void {
+    let timeout: NodeJS.Timeout;
+    return () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(), delay);
     };
   }
 
@@ -58,20 +79,17 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
   }
 
   componentDidMount(): void {
-    this.setState(() => {
-      return { isMobile: window.innerWidth <= 600 };
-    });
-
-    window.addEventListener('resize', this.handleResize);
+    this.handleResize(); // Initial check
+    window.addEventListener('resize', this.debouncedResize);
   }
 
   componentWillUnmount(): void {
-    window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener('resize', this.debouncedResize);
   }
 
   handleResize = (): void => {
-    this.setState(() => {
-      return { isMobile: window.innerWidth <= 600 };
+    this.setState({
+      isMobile: window.innerWidth <= this.mobileBreakpoint,
     });
   };
 
@@ -131,13 +149,98 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
     }
   }
 
+  private get tableFooter(): ReactNode {
+    if (!this.props.footerRows || this.props.footerRows.length === 0) {
+      return null;
+    }
+
+    return (
+      <tfoot>
+        {this.props.footerRows.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.columns.map((col, colIndex) => (
+              <td key={colIndex} colSpan={col.colSpan} className={styles.footerCell}>
+                {col.cellRenderer()}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tfoot>
+    );
+  }
+
+  private get mobileFooter(): ReactNode {
+    if (!this.props.footerRows || this.props.footerRows.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className={styles['card']}>
+        <div className={styles['card-body']}>
+          {this.props.footerRows.map((row, rowIndex) => (
+            <div key={rowIndex}>
+              {row.columns.map((col, colIndex) => (
+                <div key={colIndex}>{col.cellRenderer()}</div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  private get skeletonView(): ReactNode {
+    const skeletonRowCount = 5; // Or make this configurable
+    const columnCount = this.props.columnDefinitions.length;
+
+    if (this.state.isMobile) {
+      return (
+        <div>
+          {[...Array(skeletonRowCount)].map((_, i) => (
+            <div key={i} className={styles.skeletonCard}>
+              {[...Array(columnCount)].map((_, j) => (
+                <div key={j} className={`${styles.skeleton} ${styles.skeletonText}`} style={{ marginBottom: '0.5rem' }} />
+              ))}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <table className={styles.responsiveTable}>
+        <thead>
+          <tr>
+            {[...Array(columnCount)].map((_, i) => (
+              <th key={i}>
+                <div className={`${styles.skeleton} ${styles.skeletonText}`} />
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {[...Array(skeletonRowCount)].map((_, i) => (
+            <tr key={i}>
+              {[...Array(columnCount)].map((_, j) => (
+                <td key={j}>
+                  <div className={`${styles.skeleton} ${styles.skeletonText}`} />
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
   private get mobileView(): ReactNode {
     return (
       <div>
         {this.data.map((row, rowIndex) => (
           <div
             key={rowIndex}
-            className={styles['card']}
+            className={`${styles['card']} ${this.props.animateOnLoad ? styles.animatedRow : ''}`}
+            style={{ animationDelay: `${rowIndex * 0.05}s` }}
             onClick={(e) => {
               this.rowClickFunction(row);
               e.stopPropagation();
@@ -169,6 +272,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
             </div>
           </div>
         ))}
+        {this.mobileFooter}
       </div>
     );
   }
@@ -210,7 +314,11 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
           </thead>
           <tbody>
             {this.data.map((row, rowIndex) => (
-              <tr key={rowIndex}>
+              <tr
+                key={rowIndex}
+                className={this.props.animateOnLoad ? styles.animatedRow : ''}
+                style={{ animationDelay: `${rowIndex * 0.05}s` }}
+              >
                 {this.props.columnDefinitions.map((columnDefinition, colIndex) => (
                   <td onClick={() => this.rowClickFunction(row)} key={colIndex}>
                     <span style={{ ...this.rowClickStyle }}>
@@ -221,12 +329,17 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
               </tr>
             ))}
           </tbody>
+          {this.tableFooter}
         </table>
       </div>
     );
   }
 
   render() {
+    if (this.props.isLoading) {
+      return this.skeletonView;
+    }
+
     if (!this.hasData) {
       return this.noDataComponent;
     }
