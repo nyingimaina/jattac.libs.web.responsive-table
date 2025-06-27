@@ -151,17 +151,17 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
                 const onHeaderClickCallback = this.onHeaderClickCallback(colDef);
                 const clickableHeaderClassName = this.getClickableHeaderClassName(onHeaderClickCallback, colDef);
                 return (
-                  <div key={colIndex}>
+                  <div key={colIndex} className={styles['card-row']}>
                     <p>
                       <span
-                        className={`font-bold ${clickableHeaderClassName}`}
+                        className={`${styles['card-label']} ${clickableHeaderClassName}`}
                         onClick={
                           onHeaderClickCallback ? () => onHeaderClickCallback(colDef.interactivity!.id) : undefined
                         }
                       >
                         {colDef.displayLabel}:
-                      </span>{' '}
-                      {colDef.cellRenderer(row)}
+                      </span>
+                      <span className={styles['card-value']}>{colDef.cellRenderer(row)}</span>
                     </p>
                   </div>
                 );

@@ -1,70 +1,122 @@
-.card {
-  border: 1px solid #ccc;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+/* Using CSS variables for a more maintainable and themeable design */
+:root {
+  --table-border-color: #e0e0e0;
+  --table-header-bg: #f8f9fa;
+  --table-row-hover-bg: #f1f3f5;
+  --table-row-stripe-bg: #fdfdfd;
+  --card-bg: #ffffff;
+  --card-border-color: #e0e0e0;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --text-color: #212529;
+  --text-color-muted: #6c757d;
+  --interactive-color: #0056b3;
 }
 
+/* Mobile Card View */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border-color);
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* This is not used in the component, but keeping it styled in case it's added back */
 .card-header {
-  background-color: #f0f0f0;
-  padding: 10px;
-  font-weight: bold;
+  background-color: var(--table-header-bg);
+  padding: 0.75rem 1rem;
+  font-weight: 600; /* Bolder */
+  border-bottom: 1px solid var(--table-border-color);
 }
 
 .card-body {
-  padding: 10px;
+  padding: 1rem;
+  font-size: 0.9rem;
 }
 
+.card-body p {
+  margin: 0 0 0.75rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-body p:last-child {
+  margin-bottom: 0;
+}
+
+.card-body span:first-child {
+  font-weight: 600;
+  color: var(--text-color);
+  margin-right: 0.5rem;
+}
+
+/* Desktop Table View */
 .responsiveTable {
   width: 100%;
   border-collapse: collapse;
+  color: var(--text-color);
 }
 
 .responsiveTable thead th {
-  background-color: #f2f2f2;
+  background-color: var(--table-header-bg);
   position: sticky;
   top: 0;
   z-index: 2;
+  font-weight: 600;
+  text-align: left;
+  padding: 1rem;
+  border-bottom: 2px solid var(--table-border-color);
 }
 
-.responsiveTable th,
 .responsiveTable td {
-  padding: 12px;
-  border-bottom: 1px solid #dddddd;
+  padding: 1rem;
+  border-bottom: 1px solid var(--table-border-color);
   text-align: left;
 }
 
-/* Alternate row colors */
-.responsiveTable tr:nth-child(even) {
-  background-color: #f9f9f9;
+/* Remove alternating row colors for a cleaner look */
+.responsiveTable tr {
+  background-color: var(--card-bg);
+  transition: background-color 0.2s ease-in-out;
 }
 
-/* Change background color on hover */
+/* Modern hover effect */
 .responsiveTable tr:hover {
-  background-color: #d9edf7;
+  background-color: var(--table-row-hover-bg);
 }
 
+/* Clickable Header Style */
 .clickableHeader {
   cursor: pointer;
-  color: #007bff;
+  color: var(--interactive-color);
 }
 
 .clickableHeader:hover {
   text-decoration: underline;
 }
 
+/* No Data State */
 .noDataWrapper {
-  color: #ca3333;
+  color: var(--text-color-muted); /* Softer color */
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
   gap: 10px;
+  padding: 40px;
+  background-color: var(--table-header-bg);
+  border: 1px dashed var(--table-border-color);
+  border-radius: 8px;
 }
 
 .noData {
   text-align: center;
-  font-weight: bold;
-  padding: 30px;
+  font-weight: 500; /* Less aggressive than bold */
+  font-size: 1rem;
 }
