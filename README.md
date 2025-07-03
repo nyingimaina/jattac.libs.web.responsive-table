@@ -8,7 +8,7 @@ ResponsiveTable is a powerful, lightweight, and fully responsive React component
 - **Highly Customizable**: Tailor the look and feel of columns, headers, and footers.
 - **Dynamic Data Handling**: Define columns and footers based on your data or application state.
 - **Delightful Animations**: Includes an optional skeleton loader and staggered row entrance animations.
-- **Interactive Elements**: Easily add click handlers for rows and headers.
+- **Interactive Elements**: Easily add click handlers for rows, headers, and footer cells.
 - **Performant**: Built with performance in mind, including debounced resize handling.
 - **Easy to Use**: A simple and intuitive API for quick integration.
 
@@ -96,7 +96,7 @@ import ResponsiveTable from 'jattac.libs.web.responsive-table';
 const ClickableRows = () => {
   const columns = [
     { displayLabel: 'Product', cellRenderer: (row) => row.product },
-    { displayLabel: 'Price', cellRenderer: (row) => `$${row.price.toFixed(2)}` },
+    { displayLabel: 'Price', cellRenderer: (row) => `${row.price.toFixed(2)}` },
   ];
 
   const data = [
@@ -183,9 +183,9 @@ const DynamicColumns = ({ isAdmin }) => {
 };
 ```
 
-### Example 5: Adding a Table Footer for Summaries
+### Example 5: Advanced Footer with Labels and Interactivity
 
-You can add a footer to display summary information, such as totals or averages. The footer is also responsive and will appear correctly in both desktop and mobile views.
+You can add a footer to display summary information, such as totals or averages. The footer is also responsive and will appear correctly in both desktop and mobile views. With the enhanced footer functionality, you can provide explicit labels for mobile view and add click handlers to footer cells.
 
 ```jsx
 import React from 'react';
@@ -195,7 +195,7 @@ const TableWithFooter = () => {
   const columns = [
     { displayLabel: 'Item', cellRenderer: (row) => row.item },
     { displayLabel: 'Quantity', cellRenderer: (row) => row.quantity },
-    { displayLabel: 'Price', cellRenderer: (row) => `$${row.price.toFixed(2)}` },
+    { displayLabel: 'Price', cellRenderer: (row) => `${row.price.toFixed(2)}` },
   ];
 
   const data = [
@@ -215,7 +215,9 @@ const TableWithFooter = () => {
         },
         {
           colSpan: 1,
+          displayLabel: 'Total',
           cellRenderer: () => <strong>${total.toFixed(2)}</strong>,
+          onCellClick: () => alert('Total clicked!'),
         },
       ],
     },
@@ -260,10 +262,13 @@ const TableWithFooter = () => {
 
 ### `IFooterColumnDefinition`
 
-| Property       | Type              | Required | Description                                              |
-| -------------- | ----------------- | -------- | -------------------------------------------------------- |
-| `colSpan`      | `number`          | Yes      | The number of columns the footer cell should span.       |
-| `cellRenderer` | `() => ReactNode` | Yes      | A function that returns the content for the footer cell. |
+| Property       | Type              | Required | Description                                                                    |
+| -------------- | ----------------- | -------- | ------------------------------------------------------------------------------ |
+| `colSpan`      | `number`          | Yes      | The number of columns the footer cell should span.                               |
+| `cellRenderer` | `() => ReactNode` | Yes      | A function that returns the content for the footer cell.                         |
+| `displayLabel` | `ReactNode`       | No       | An optional, explicit label for the footer cell, especially for mobile view.   |
+| `onCellClick`  | `() => void`      | No       | An optional click handler for the footer cell.                                 |
+| `className`    | `string`          | No       | Optional class name for custom styling of the footer cell.                     |
 
 ## License
 

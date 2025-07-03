@@ -159,7 +159,12 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
         {this.props.footerRows.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.columns.map((col, colIndex) => (
-              <td key={colIndex} colSpan={col.colSpan} className={styles.footerCell}>
+              <td
+                key={colIndex}
+                colSpan={col.colSpan}
+                className={`${styles.footerCell} ${col.className || ''} ${col.onCellClick ? styles.clickableFooterCell : ''}`}
+                onClick={col.onCellClick}
+              >
                 {col.cellRenderer()}
               </td>
             ))}
@@ -175,13 +180,29 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
     }
 
     return (
-      <div className={styles['card']}>
-        <div className={styles['card-body']}>
+      <div className={styles.footerCard}>
+        <div className={styles['footer-card-body']}>
           {this.props.footerRows.map((row, rowIndex) => (
             <div key={rowIndex}>
-              {row.columns.map((col, colIndex) => (
-                <div key={colIndex}>{col.cellRenderer()}</div>
-              ))}
+              {row.columns.map((col, colIndex) => {
+                const label = col.displayLabel;
+                return (
+                  <p
+                    key={colIndex}
+                    className={`${styles['footer-card-row']} ${col.className || ''} ${
+                      col.onCellClick ? styles.clickableFooterCell : ''
+                    }`}
+                    onClick={col.onCellClick}
+                  >
+                    {label && (
+                      <span className={styles['card-label']}>
+                        {label}:
+                      </span>
+                    )}
+                    <span className={styles['card-value']}>{col.cellRenderer()}</span>
+                  </p>
+                );
+              })}
             </div>
           ))}
         </div>

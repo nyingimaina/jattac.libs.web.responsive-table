@@ -112,6 +112,35 @@
   text-align: right;
 }
 
+.clickableFooterCell {
+  cursor: pointer;
+  color: var(--interactive-color);
+}
+
+.clickableFooterCell:hover {
+  text-decoration: underline;
+}
+
+.footerCard {
+  background-color: var(--table-header-bg);
+  border: 1px solid var(--card-border-color);
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+.footer-card-body {
+  padding: 1rem;
+  font-size: 0.9rem;
+}
+
+.footer-card-row {
+  margin: 0 0 0.75rem;
+  display: flex;
+  justify-content: space-between;
+}
+
 /* No Data State */
 
 /* Staggered Entrance Animation */
