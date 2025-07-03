@@ -50,7 +50,7 @@
   margin-bottom: 0;
 }
 
-.card-body span:first-child {
+.card-label {
   font-weight: 600;
   color: var(--text-color);
   margin-right: 0.5rem;
@@ -80,10 +80,14 @@
   text-align: left;
 }
 
-/* Remove alternating row colors for a cleaner look */
 .responsiveTable tr {
   background-color: var(--card-bg);
   transition: background-color 0.2s ease-in-out;
+}
+
+/* Subtle striping for better readability */
+.responsiveTable tr:nth-child(even) {
+  background-color: var(--table-row-stripe-bg);
 }
 
 /* Modern hover effect */
@@ -110,6 +114,7 @@
 .footerCell {
   padding: 1rem;
   text-align: right;
+  font-weight: 600;
 }
 
 .clickableFooterCell {
@@ -124,10 +129,11 @@
 .footerCard {
   background-color: var(--table-header-bg);
   border: 1px solid var(--card-border-color);
+  border-top: 2px solid var(--table-border-color);
   margin-bottom: 1rem;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: var(--card-shadow);
+  box-shadow: none;
 }
 
 .footer-card-body {
@@ -139,6 +145,7 @@
   margin: 0 0 0.75rem;
   display: flex;
   justify-content: space-between;
+  font-weight: 600;
 }
 
 /* No Data State */

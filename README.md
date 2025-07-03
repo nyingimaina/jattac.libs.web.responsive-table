@@ -266,7 +266,7 @@ const TableWithFooter = () => {
 | -------------- | ----------------- | -------- | ------------------------------------------------------------------------------ |
 | `colSpan`      | `number`          | Yes      | The number of columns the footer cell should span.                               |
 | `cellRenderer` | `() => ReactNode` | Yes      | A function that returns the content for the footer cell.                         |
-| `displayLabel` | `ReactNode`       | No       | An optional, explicit label for the footer cell, especially for mobile view.   |
+| `displayLabel` | `ReactNode`       | No       | An optional, explicit label for the footer cell. In mobile view, if `colSpan` is 1 and this is not provided, the corresponding column header will be used as a fallback. This is required for `colSpan` > 1 if you want a label to be displayed. |
 | `onCellClick`  | `() => void`      | No       | An optional click handler for the footer cell.                                 |
 | `className`    | `string`          | No       | Optional class name for custom styling of the footer cell.                     |
 

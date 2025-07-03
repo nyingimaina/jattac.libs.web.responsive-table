@@ -182,29 +182,35 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
     return (
       <div className={styles.footerCard}>
         <div className={styles['footer-card-body']}>
-          {this.props.footerRows.map((row, rowIndex) => (
-            <div key={rowIndex}>
-              {row.columns.map((col, colIndex) => {
-                const label = col.displayLabel;
-                return (
-                  <p
-                    key={colIndex}
-                    className={`${styles['footer-card-row']} ${col.className || ''} ${
-                      col.onCellClick ? styles.clickableFooterCell : ''
-                    }`}
-                    onClick={col.onCellClick}
-                  >
-                    {label && (
-                      <span className={styles['card-label']}>
-                        {label}:
-                      </span>
-                    )}
-                    <span className={styles['card-value']}>{col.cellRenderer()}</span>
-                  </p>
-                );
-              })}
-            </div>
-          ))}
+          {this.props.footerRows.map((row, rowIndex) => {
+            let currentColumnIndex = 0;
+            return (
+              <div key={rowIndex}>
+                {row.columns.map((col, colIndex) => {
+                  let label = col.displayLabel;
+                  if (!label && col.colSpan === 1) {
+                    const header = this.props.columnDefinitions[currentColumnIndex];
+                    if (header) {
+                      label = this.getRawColumnDefinition(header).displayLabel;
+                    }
+                  }
+                  currentColumnIndex += col.colSpan;
+                  return (
+                    <p
+                      key={colIndex}
+                      className={`${styles['footer-card-row']} ${col.className || ''} ${
+                        col.onCellClick ? styles.clickableFooterCell : ''
+                      }`}
+                      onClick={col.onCellClick}
+                    >
+                      {label && <span className={styles['card-label']}>{label}</span>}
+                      <span className={styles['card-value']}>{col.cellRenderer()}</span>
+                    </p>
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -283,7 +289,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
                           onHeaderClickCallback ? () => onHeaderClickCallback(colDef.interactivity!.id) : undefined
                         }
                       >
-                        {colDef.displayLabel}:
+                        {colDef.displayLabel}
                       </span>
                       <span className={styles['card-value']}>{colDef.cellRenderer(row)}</span>
                     </p>
