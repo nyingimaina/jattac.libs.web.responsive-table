@@ -15,7 +15,17 @@ This document outlines the sequence of Git commands to perform at the end of eve
 
 2.  **Commit changes on `develop` (if not already done):**
     ```bash
-    git commit -m "feat(release): Prepare for new release"
+    git commit -m "feat(release): Release vX.Y.Z
+
+Summarize the key changes, new features, bug fixes, and any breaking changes
+introduced in this release. This message should provide a high-level overview
+of what's new since the last release.
+
+Example:
+- Introduced extensible plugin system with Filter and Infinite Scroll plugins.
+- Refactored animation props into a dedicated object.
+- Added virtualized scrolling for large datasets.
+- Updated dependencies."
     # Or, if you have a multi-line message, use a temporary file:
     # echo "Your detailed commit message" > commit_message.txt
     # git commit -F commit_message.txt
