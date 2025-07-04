@@ -2,6 +2,7 @@ import React, { CSSProperties, Component, ReactNode } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
 import IResponsiveTableColumnDefinition from '../Data/IResponsiveTableColumnDefinition';
 import IFooterRowDefinition from '../Data/IFooterRowDefinition';
+import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
 
 export type ColumnDefinition<TData> =
   | IResponsiveTableColumnDefinition<TData>
@@ -16,20 +17,23 @@ interface IProps<TData> {
   mobileBreakpoint?: number;
   isLoading?: boolean;
   animateOnLoad?: boolean;
+  plugins?: IResponsiveTablePlugin<TData>[];
 }
 
-interface IState {
+interface IState<TData> {
   isMobile: boolean;
+  processedData: TData[];
 }
 
 // Class component
-class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
+class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   private debouncedResize: () => void;
 
   constructor(props: IProps<TData>) {
     super(props);
     this.state = {
       isMobile: false,
+      processedData: props.data,
     };
 
     this.debouncedResize = this.debounce(this.handleResize, 200);
@@ -48,8 +52,8 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
   }
 
   private get data(): TData[] {
-    if (Array.isArray(this.props.data) && this.props.data.length > 0) {
-      return this.props.data;
+    if (Array.isArray(this.state.processedData) && this.state.processedData.length > 0) {
+      return this.state.processedData;
     } else {
       return [];
     }
@@ -81,10 +85,43 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
   componentDidMount(): void {
     this.handleResize(); // Initial check
     window.addEventListener('resize', this.debouncedResize);
+    this.initializePlugins();
   }
 
   componentWillUnmount(): void {
     window.removeEventListener('resize', this.debouncedResize);
+  }
+
+  componentDidUpdate(prevProps: IProps<TData>) {
+    if (prevProps.data !== this.props.data) {
+      this.processData();
+    }
+  }
+
+  private initializePlugins() {
+    if (this.props.plugins) {
+      this.props.plugins.forEach((plugin) => {
+        if (plugin.onPluginInit) {
+          plugin.onPluginInit({
+            getData: () => this.props.data,
+            forceUpdate: () => this.processData(),
+          });
+        }
+      });
+    }
+    this.processData();
+  }
+
+  private processData() {
+    let processedData = [...this.props.data];
+    if (this.props.plugins) {
+      this.props.plugins.forEach((plugin) => {
+        if (plugin.processData) {
+          processedData = plugin.processData(processedData);
+        }
+      });
+    }
+    this.setState({ processedData });
   }
 
   handleResize = (): void => {
@@ -362,19 +399,32 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState> {
     );
   }
 
+  private renderPluginHeaders() {
+    if (!this.props.plugins) {
+      return null;
+    }
+
+    return this.props.plugins.map((plugin) => {
+      if (plugin.renderHeader) {
+        return <div key={plugin.id}>{plugin.renderHeader()}</div>;
+      }
+      return null;
+    });
+  }
+
   render() {
     if (this.props.isLoading) {
       return this.skeletonView;
     }
 
-    if (!this.hasData) {
-      return this.noDataComponent;
-    }
-    if (this.state.isMobile) {
-      return this.mobileView;
-    }
-
-    return this.largeScreenView;
+    return (
+      <div>
+        {this.renderPluginHeaders()}
+        {!this.hasData && this.noDataComponent}
+        {this.hasData && this.state.isMobile && this.mobileView}
+        {this.hasData && !this.state.isMobile && this.largeScreenView}
+      </div>
+    );
   }
 }
 

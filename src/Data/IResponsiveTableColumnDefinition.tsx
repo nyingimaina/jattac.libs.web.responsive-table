@@ -8,4 +8,5 @@ export default interface IResponsiveTableColumnDefinition<TData> {
     onHeaderClick?: (id: string) => void;
     className?: string;
   };
+  getFilterableValue?: (data: TData) => string | number;
 }

@@ -226,3 +226,28 @@
   font-weight: 500; /* Less aggressive than bold */
   font-size: 1rem;
 }
+
+.row-exit {
+  opacity: 0;
+  transform: scaleY(0);
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.row-enter {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
+
+.row-flash {
+  animation: flash 0.5s ease-out;
+}
+
+@keyframes flash {
+  0% {
+    background-color: var(--table-row-hover-bg);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
