@@ -3,6 +3,8 @@ import styles from '../Styles/ResponsiveTable.module.css';
 import IResponsiveTableColumnDefinition from '../Data/IResponsiveTableColumnDefinition';
 import IFooterRowDefinition from '../Data/IFooterRowDefinition';
 import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
+import { FilterPlugin } from '../Plugins/FilterPlugin';
+import { InfiniteScrollPlugin } from '../Plugins/InfiniteScrollPlugin';
 import { FixedSizeList as List } from 'react-window';
 
 export type ColumnDefinition<TData> =
@@ -16,8 +18,6 @@ interface IProps<TData> {
   onRowClick?: (item: TData) => void;
   footerRows?: IFooterRowDefinition[];
   mobileBreakpoint?: number;
-  isLoading?: boolean;
-  animateOnLoad?: boolean;
   plugins?: IResponsiveTablePlugin<TData>[];
   infiniteScrollProps?: {
     enableInfiniteScroll?: boolean;
@@ -25,6 +25,14 @@ interface IProps<TData> {
     hasMore?: boolean;
     loadingMoreComponent?: ReactNode;
     noMoreDataComponent?: ReactNode;
+  };
+  filterProps?: {
+    showFilter?: boolean;
+    filterPlaceholder?: string;
+  };
+  animationProps?: {
+    isLoading?: boolean;
+    animateOnLoad?: boolean;
   };
 }
 
@@ -119,18 +127,44 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   }
 
   private initializePlugins() {
+    const activePlugins: IResponsiveTablePlugin<TData>[] = [];
+
+    // Add explicitly provided plugins first
     if (this.props.plugins) {
-      this.props.plugins.forEach((plugin) => {
-        if (plugin.onPluginInit) {
-          plugin.onPluginInit({
-            getData: () => this.props.data,
-            forceUpdate: () => this.processData(),
-            getScrollableElement: () => this.tableContainerRef.current,
-          });
-        }
-      });
+      activePlugins.push(...this.props.plugins);
     }
-    this.processData();
+
+    // Automatically add FilterPlugin if filterProps are provided and not already present
+    if (this.props.filterProps?.showFilter && !activePlugins.some(p => p.id === 'filter')) {
+      activePlugins.push(new FilterPlugin());
+    }
+
+    // Automatically add InfiniteScrollPlugin if infiniteScrollProps are provided and not already present
+    if (this.props.infiniteScrollProps?.enableInfiniteScroll && !activePlugins.some(p => p.id === 'infinite-scroll')) {
+      activePlugins.push(new InfiniteScrollPlugin());
+    }
+
+    activePlugins.forEach((plugin) => {
+      if (plugin.onPluginInit) {
+        plugin.onPluginInit({
+          getData: () => this.props.data,
+          forceUpdate: () => this.processData(),
+          getScrollableElement: () => this.tableContainerRef.current,
+          infiniteScrollProps: this.props.infiniteScrollProps,
+          filterProps: this.props.filterProps,
+          columnDefinitions: this.props.columnDefinitions,
+        });
+      }
+    });
+
+    // Process data with all active plugins
+    let processedData = [...this.props.data];
+    activePlugins.forEach((plugin) => {
+      if (plugin.processData) {
+        processedData = plugin.processData(processedData);
+      }
+    });
+    this.setState({ processedData });
   }
 
   private processData() {
@@ -324,7 +358,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
         {this.data.map((row, rowIndex) => (
           <div
             key={rowIndex}
-            className={`${styles['card']} ${this.props.animateOnLoad ? styles.animatedRow : ''}`}
+                        className={`${styles['card']} ${this.props.animationProps?.animateOnLoad ? styles.animatedRow : ''}`}
             style={{ animationDelay: `${rowIndex * 0.05}s` }}
             onClick={(e) => {
               this.rowClickFunction(row);
@@ -376,7 +410,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
       return (
         <tr
           key={index}
-          className={this.props.animateOnLoad ? styles.animatedRow : ''}
+          className={this.props.animationProps?.animateOnLoad ? styles.animatedRow : ''}
           style={{ ...style, animationDelay: `${index * 0.05}s` }}
         >
           {this.props.columnDefinitions.map((columnDefinition, colIndex) => (
@@ -433,7 +467,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
               this.data.map((row, rowIndex) => (
                 <tr
                   key={rowIndex}
-                  className={this.props.animateOnLoad ? styles.animatedRow : ''}
+                  className={this.props.animationProps?.animateOnLoad ? styles.animatedRow : ''}
                   style={{ animationDelay: `${rowIndex * 0.05}s` }}
                 >
                   {this.props.columnDefinitions.map((columnDefinition, colIndex) => (
@@ -481,7 +515,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   }
 
   render() {
-    if (this.props.isLoading) {
+    if (this.props.animationProps?.isLoading) {
       return this.skeletonView;
     }
 

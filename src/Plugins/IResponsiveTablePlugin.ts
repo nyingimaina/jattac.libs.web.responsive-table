@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { ColumnDefinition } from '../UI/ResponsiveTable';
 
 export interface IResponsiveTablePlugin<TData> {
   // A unique identifier for the plugin
@@ -24,6 +25,9 @@ export interface IPluginAPI<TData> {
   // Function to force the table to re-render
   forceUpdate: () => void;
 
+  // Function to get the column definitions from the table
+  columnDefinitions: ColumnDefinition<TData>[];
+
   // Function to get the scrollable element of the table
   getScrollableElement?: () => HTMLElement | null;
 
@@ -34,5 +38,11 @@ export interface IPluginAPI<TData> {
     hasMore?: boolean;
     loadingMoreComponent?: ReactNode;
     noMoreDataComponent?: ReactNode;
+  };
+
+  // Optional: Filter props from the ResponsiveTable component
+  filterProps?: {
+    showFilter?: boolean;
+    filterPlaceholder?: string;
   };
 }

@@ -6,10 +6,8 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
   public id = 'filter';
   private filterText = '';
   private api!: IPluginAPI<TData>;
-  private columnDefinitions: IResponsiveTableColumnDefinition<TData>[];
 
-  constructor(columnDefinitions: IResponsiveTableColumnDefinition<TData>[]) {
-    this.columnDefinitions = columnDefinitions;
+  constructor() {
   }
 
   public onPluginInit = (api: IPluginAPI<TData>) => {
@@ -17,11 +15,14 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
   };
 
   public renderHeader = () => {
+    if (!this.api.filterProps?.showFilter) {
+      return null;
+    }
     return (
       <div style={{ float: 'right', marginBottom: '1rem' }}>
         <input
           type="text"
-          placeholder="Search..."
+          placeholder={this.api.filterProps.filterPlaceholder || "Search..."}
           onChange={this.handleFilterChange}
           style={{
             padding: '0.5rem',
@@ -34,19 +35,28 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
   };
 
   public processData = (data: TData[]): TData[] => {
-    if (!this.filterText) {
+    if (!this.filterText || !this.api.columnDefinitions) {
       return data;
     }
 
     const lowercasedFilter = this.filterText.toLowerCase();
 
     return data.filter((row) => {
-      return this.columnDefinitions.some((colDef) => {
-        if (colDef.getFilterableValue) {
-          const value = colDef.getFilterableValue(row);
+      return this.api.columnDefinitions!.some((colDef) => {
+        // If colDef is a function, it won't have getFilterableValue, so skip it.
+        if (typeof colDef === 'function') {
+          return false;
+        }
+
+        // Now we know colDef is an object (IResponsiveTableColumnDefinition<TData>)
+        const typedColDef = colDef as IResponsiveTableColumnDefinition<TData>;
+
+        // Check if getFilterableValue exists and is a function
+        if (typedColDef.getFilterableValue && typeof typedColDef.getFilterableValue === 'function') {
+          const value = typedColDef.getFilterableValue(row);
           return value?.toString().toLowerCase().includes(lowercasedFilter);
         }
-        return false;
+        return false; // If getFilterableValue is not present or not a function
       });
     });
   };
