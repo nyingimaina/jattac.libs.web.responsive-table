@@ -1,8 +1,9 @@
-import React, { CSSProperties, Component, ReactNode } from 'react';
+import React, { CSSProperties, Component, ReactNode, createRef } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
 import IResponsiveTableColumnDefinition from '../Data/IResponsiveTableColumnDefinition';
 import IFooterRowDefinition from '../Data/IFooterRowDefinition';
 import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
+import { FixedSizeList as List } from 'react-window';
 
 export type ColumnDefinition<TData> =
   | IResponsiveTableColumnDefinition<TData>
@@ -18,22 +19,32 @@ interface IProps<TData> {
   isLoading?: boolean;
   animateOnLoad?: boolean;
   plugins?: IResponsiveTablePlugin<TData>[];
+  infiniteScrollProps?: {
+    enableInfiniteScroll?: boolean;
+    onLoadMore?: (currentData: TData[]) => Promise<TData[] | null>;
+    hasMore?: boolean;
+    loadingMoreComponent?: ReactNode;
+    noMoreDataComponent?: ReactNode;
+  };
 }
 
 interface IState<TData> {
   isMobile: boolean;
   processedData: TData[];
+  isLoadingMore: boolean;
 }
 
 // Class component
 class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   private debouncedResize: () => void;
+  private tableContainerRef = createRef<HTMLDivElement>();
 
   constructor(props: IProps<TData>) {
     super(props);
     this.state = {
       isMobile: false,
       processedData: props.data,
+      isLoadingMore: false,
     };
 
     this.debouncedResize = this.debounce(this.handleResize, 200);
@@ -96,6 +107,15 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
     if (prevProps.data !== this.props.data) {
       this.processData();
     }
+
+    // Handle infinite scroll loading
+    if (this.props.infiniteScrollProps?.enableInfiniteScroll && this.props.infiniteScrollProps?.hasMore && !this.state.isLoadingMore && this.props.infiniteScrollProps?.onLoadMore) {
+      // This condition will be met when the parent component updates `data` and `hasMore`
+      // after a successful load, or when `hasMore` becomes true.
+      // The actual load trigger is within the InfiniteScrollPlugin via `onItemsRendered`
+      // or `handleScroll`.
+
+    }
   }
 
   private initializePlugins() {
@@ -105,6 +125,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
           plugin.onPluginInit({
             getData: () => this.props.data,
             forceUpdate: () => this.processData(),
+            getScrollableElement: () => this.tableContainerRef.current,
           });
         }
       });
@@ -348,8 +369,29 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
       ? ({ maxHeight: this.props.maxHeight, overflowY: 'auto' } as CSSProperties)
       : {};
 
+    const Row = ({ index, style }: { index: number; style: CSSProperties }) => {
+      const row = this.data[index];
+      if (!row) return null; // Should not happen with correct item count
+
+      return (
+        <tr
+          key={index}
+          className={this.props.animateOnLoad ? styles.animatedRow : ''}
+          style={{ ...style, animationDelay: `${index * 0.05}s` }}
+        >
+          {this.props.columnDefinitions.map((columnDefinition, colIndex) => (
+            <td onClick={() => this.rowClickFunction(row)} key={colIndex}>
+              <span style={{ ...this.rowClickStyle }}>
+                {this.getColumnDefinition(columnDefinition, index).cellRenderer(row)}
+              </span>
+            </td>
+          ))}
+        </tr>
+      );
+    };
+
     return (
-      <div style={fixedHeadersStyle}>
+      <div style={fixedHeadersStyle} ref={this.tableContainerRef}>
         <table className={styles['responsiveTable']} style={{ zIndex: -1 }}>
           <thead>
             <tr>
@@ -377,24 +419,37 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
             </tr>
           </thead>
           <tbody>
-            {this.data.map((row, rowIndex) => (
-              <tr
-                key={rowIndex}
-                className={this.props.animateOnLoad ? styles.animatedRow : ''}
-                style={{ animationDelay: `${rowIndex * 0.05}s` }}
+            {this.props.infiniteScrollProps?.enableInfiniteScroll ? (
+              <List
+                height={fixedHeadersStyle.maxHeight ? (typeof fixedHeadersStyle.maxHeight === 'string' ? parseFloat(fixedHeadersStyle.maxHeight) : fixedHeadersStyle.maxHeight) : 500} // Default height if not provided
+                itemCount={this.data.length}
+                itemSize={50} // Average row height, can be made configurable
+                width={'100%'}
+                outerRef={this.tableContainerRef} // Pass ref to outer element for scroll events
               >
-                {this.props.columnDefinitions.map((columnDefinition, colIndex) => (
-                  <td onClick={() => this.rowClickFunction(row)} key={colIndex}>
-                    <span style={{ ...this.rowClickStyle }}>
-                      {this.getColumnDefinition(columnDefinition, rowIndex).cellRenderer(row)}
-                    </span>
-                  </td>
-                ))}
-              </tr>
-            ))}
+                {Row}
+              </List>
+            ) : (
+              this.data.map((row, rowIndex) => (
+                <tr
+                  key={rowIndex}
+                  className={this.props.animateOnLoad ? styles.animatedRow : ''}
+                  style={{ animationDelay: `${rowIndex * 0.05}s` }}
+                >
+                  {this.props.columnDefinitions.map((columnDefinition, colIndex) => (
+                    <td onClick={() => this.rowClickFunction(row)} key={colIndex}>
+                      <span style={{ ...this.rowClickStyle }}>
+                        {this.getColumnDefinition(columnDefinition, rowIndex).cellRenderer(row)}
+                      </span>
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
           </tbody>
           {this.tableFooter}
         </table>
+        {this.renderPluginFooters()}
       </div>
     );
   }
@@ -407,6 +462,19 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
     return this.props.plugins.map((plugin) => {
       if (plugin.renderHeader) {
         return <div key={plugin.id}>{plugin.renderHeader()}</div>;
+      }
+      return null;
+    });
+  }
+
+  private renderPluginFooters() {
+    if (!this.props.plugins) {
+      return null;
+    }
+
+    return this.props.plugins.map((plugin) => {
+      if (plugin.renderFooter) {
+        return <div key={plugin.id + '-footer'}>{plugin.renderFooter()}</div>;
       }
       return null;
     });

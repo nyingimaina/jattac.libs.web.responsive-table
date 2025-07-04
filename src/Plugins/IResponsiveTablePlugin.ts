@@ -7,6 +7,9 @@ export interface IResponsiveTablePlugin<TData> {
   // Optional: Renders a UI component above the table
   renderHeader?: () => ReactNode;
 
+  // Optional: Renders a UI component below the table
+  renderFooter?: () => ReactNode;
+
   // Optional: Processes the data before it's rendered
   processData?: (data: TData[]) => TData[];
 
@@ -20,4 +23,16 @@ export interface IPluginAPI<TData> {
 
   // Function to force the table to re-render
   forceUpdate: () => void;
+
+  // Function to get the scrollable element of the table
+  getScrollableElement?: () => HTMLElement | null;
+
+  // Optional: Infinite scroll props from the ResponsiveTable component
+  infiniteScrollProps?: {
+    enableInfiniteScroll?: boolean;
+    onLoadMore?: (currentData: TData[]) => Promise<TData[] | null>;
+    hasMore?: boolean;
+    loadingMoreComponent?: ReactNode;
+    noMoreDataComponent?: ReactNode;
+  };
 }
