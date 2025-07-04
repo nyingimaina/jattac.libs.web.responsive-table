@@ -72,3 +72,9 @@ Example:
     ```
 
 This sequence ensures a clean release process, updating `master`, creating a version tag, and synchronizing both branches with the remote.
+
+10. **Delete temporary files:**
+    ```bash
+    del commit_message.txt
+    ```
+    *Ensure to delete any temporary files created during the release process.*
