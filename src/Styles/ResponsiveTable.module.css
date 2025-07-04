@@ -2,8 +2,8 @@
 :root {
   --table-border-color: #e0e0e0;
   --table-header-bg: #f8f9fa;
-  --table-row-hover-bg: #f1f3f5;
-  --table-row-stripe-bg: #fdfdfd;
+  --table-row-hover-bg: #e9ecef;
+  --table-row-stripe-bg: #f2f2f2;
   --card-bg: #ffffff;
   --card-border-color: #e0e0e0;
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
