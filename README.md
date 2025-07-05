@@ -82,7 +82,7 @@ const AnimatedTable = () => {
     }, 2000);
   }, []);
 
-  return <ResponsiveTable columnDefinitions={columns} data={data} isLoading={isLoading} animateOnLoad={true} />;
+  return <ResponsiveTable columnDefinitions={columns} data={data} animationProps={{ isLoading, animateOnLoad: true }} />;
 };
 ```
 
@@ -530,6 +530,8 @@ const SortableTable = () => {
 
 ---
 
+---
+
 ## API Reference
 
 ### `ResponsiveTable` Props
@@ -538,8 +540,6 @@ const SortableTable = () => {
 | ------------------- | ------------------------------------ | -------- | ----------------------------------------------------------------------------------- |
 | `columnDefinitions` | `IResponsiveTableColumnDefinition[]` | Yes      | An array of objects defining the table columns.                                     |
 | `data`              | `TData[]`                            | Yes      | An array of data objects to populate the table rows.                                |
-| `isLoading`         | `boolean`                            | No       | If `true`, displays a skeleton loader. Defaults to `false`.                         |
-| `animateOnLoad`     | `boolean`                            | No       | If `true`, animates the rows with a staggered entrance effect. Defaults to `false`. |
 | `footerRows`        | `IFooterRowDefinition[]`             | No       | An array of objects defining the table footer.                                      |
 | `onRowClick`        | `(item: TData) => void`              | No       | A callback function that is triggered when a row is clicked.                        |
 | `noDataComponent`   | `ReactNode`                          | No       | A custom component to display when there is no data.                                |
@@ -548,6 +548,7 @@ const SortableTable = () => {
 | `plugins`           | `IResponsiveTablePlugin<TData>[]`    | No       | An array of plugin instances to extend table functionality.                         |
 | `infiniteScrollProps`| `object`                            | No       | Configuration for the built-in infinite scroll plugin.                              |
 | `filterProps`       | `object`                            | No       | Configuration for the built-in filter plugin.                                       |
+| `animationProps`    | `object`                             | No       | Configuration for animations, including `isLoading` and `animateOnLoad`.            |
 
 ### `IResponsiveTableColumnDefinition`
 

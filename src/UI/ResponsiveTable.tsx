@@ -426,7 +426,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
 
     return (
       <div style={fixedHeadersStyle} ref={this.tableContainerRef}>
-        <table className={styles['responsiveTable']} style={{ zIndex: -1 }}>
+        <table className={styles['responsiveTable']}>
           <thead>
             <tr>
               {this.props.columnDefinitions.map((columnDefinition, colIndex) => {
@@ -439,7 +439,6 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
                   <th
                     key={colIndex}
                     className={`${clickableHeaderClassName}`}
-                    style={{ zIndex: 0 }}
                     onClick={
                       onHeaderClickCallback
                         ? () => onHeaderClickCallback(this.getColumnDefinition(columnDefinition, 0).interactivity!.id)

@@ -1,5 +1,5 @@
 /* Using CSS variables for a more maintainable and themeable design */
-:root {
+.responsiveTable {
   --table-border-color: #e0e0e0;
   --table-header-bg: #f8f9fa;
   --table-row-hover-bg: #e9ecef;
