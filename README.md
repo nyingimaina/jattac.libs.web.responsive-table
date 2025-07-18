@@ -228,6 +228,50 @@ const TableWithFooter = () => {
 };
 ```
 
+### Example 6: Disabling the Page-Level Sticky Header (ELI5)
+
+**Explain Like I'm 5:** Imagine you have a super long grocery list on a piece of paper (the webpage). The titles of the columns are "Item", "Quantity", and "Price" (the table header).
+
+Normally, as you slide the paper up to see items at the bottom, the titles disappear off the top.
+
+This table has a special power: by default, the header "sticks" to the top of your view so you never forget which column is which.
+
+But what if you don't want it to stick? The `enablePageLevelStickyHeader={false}` prop is like a magic switch. Flipping it to `false` tells the header to scroll away normally with the rest of the page.
+
+```jsx
+import React from 'react';
+import ResponsiveTable from 'jattac.libs.web.responsive-table';
+
+const NonStickyHeaderTable = () => {
+  // We need enough data to make the page scroll
+  const data = Array.from({ length: 50 }, (_, i) => ({
+    id: i + 1,
+    item: `Item #${i + 1}`,
+    description: 'This is a sample item.',
+  }));
+
+  const columns = [
+    { displayLabel: 'ID', cellRenderer: (row) => row.id },
+    { displayLabel: 'Item', cellRenderer: (row) => row.item },
+    { displayLabel: 'Description', cellRenderer: (row) => row.description },
+  ];
+
+  return (
+    <div>
+      <h1 style={{ height: '50vh', display: 'flex', alignItems: 'center' }}>
+        Scroll down to see the table
+      </h1>
+      <ResponsiveTable
+        columnDefinitions={columns}
+        data={data}
+        enablePageLevelStickyHeader={false} // <-- Here's the magic switch!
+      />
+      <div style={{ height: '50vh' }} />
+    </div>
+  );
+};
+```
+
 ---
 
 ## Plugin System
@@ -536,19 +580,20 @@ const SortableTable = () => {
 
 ### `ResponsiveTable` Props
 
-| Prop                | Type                                 | Required | Description                                                                         |
-| ------------------- | ------------------------------------ | -------- | ----------------------------------------------------------------------------------- |
-| `columnDefinitions` | `IResponsiveTableColumnDefinition[]` | Yes      | An array of objects defining the table columns.                                     |
-| `data`              | `TData[]`                            | Yes      | An array of data objects to populate the table rows.                                |
-| `footerRows`        | `IFooterRowDefinition[]`             | No       | An array of objects defining the table footer.                                      |
-| `onRowClick`        | `(item: TData) => void`              | No       | A callback function that is triggered when a row is clicked.                        |
-| `noDataComponent`   | `ReactNode`                          | No       | A custom component to display when there is no data.                                |
-| `maxHeight`         | `string`                             | No       | Sets a maximum height for the table body, making it scrollable.                     |
-| `mobileBreakpoint`  | `number`                             | No       | The pixel width at which the table switches to the mobile view. Defaults to `600`.  |
-| `plugins`           | `IResponsiveTablePlugin<TData>[]`    | No       | An array of plugin instances to extend table functionality.                         |
-| `infiniteScrollProps`| `object`                            | No       | Configuration for the built-in infinite scroll plugin.                              |
-| `filterProps`       | `object`                            | No       | Configuration for the built-in filter plugin.                                       |
-| `animationProps`    | `object`                             | No       | Configuration for animations, including `isLoading` and `animateOnLoad`.            |
+| Prop                          | Type                                 | Required | Description                                                                                                 |
+| ----------------------------- | ------------------------------------ | -------- | ----------------------------------------------------------------------------------------------------------- |
+| `columnDefinitions`           | `IResponsiveTableColumnDefinition[]` | Yes      | An array of objects defining the table columns.                                                             |
+| `data`                        | `TData[]`                            | Yes      | An array of data objects to populate the table rows.                                                        |
+| `footerRows`                  | `IFooterRowDefinition[]`             | No       | An array of objects defining the table footer.                                                              |
+| `onRowClick`                  | `(item: TData) => void`              | No       | A callback function that is triggered when a row is clicked.                                                |
+| `noDataComponent`             | `ReactNode`                          | No       | A custom component to display when there is no data.                                                        |
+| `maxHeight`                   | `string`                             | No       | Sets a maximum height for the table body, making it scrollable.                                             |
+| `mobileBreakpoint`            | `number`                             | No       | The pixel width at which the table switches to the mobile view. Defaults to `600`.                          |
+| `enablePageLevelStickyHeader` | `boolean`                            | No       | If `false`, disables the header from sticking to the top of the page on scroll. Defaults to `true`.        |
+| `plugins`                     | `IResponsiveTablePlugin<TData>[]`    | No       | An array of plugin instances to extend table functionality.                                                 |
+| `infiniteScrollProps`         | `object`                             | No       | Configuration for the built-in infinite scroll plugin.                                                      |
+| `filterProps`                 | `object`                             | No       | Configuration for the built-in filter plugin.                                                               |
+| `animationProps`              | `object`                             | No       | Configuration for animations, including `isLoading` and `animateOnLoad`.                                    |
 
 ### `IResponsiveTableColumnDefinition`
 

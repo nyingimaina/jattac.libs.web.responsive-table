@@ -1,0 +1,5 @@
+feat(release): Release v0.2.3
+
+- Add enablePageLevelStickyHeader prop to allow disabling the page-level sticky header.
+- Update README with documentation and examples for the new prop.
+- Adjust z-index for sticky headers to be more conservative.

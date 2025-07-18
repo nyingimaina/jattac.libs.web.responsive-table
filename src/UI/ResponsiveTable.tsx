@@ -19,6 +19,7 @@ interface IProps<TData> {
   footerRows?: IFooterRowDefinition[];
   mobileBreakpoint?: number;
   plugins?: IResponsiveTablePlugin<TData>[];
+  enablePageLevelStickyHeader?: boolean;
   infiniteScrollProps?: {
     enableInfiniteScroll?: boolean;
     onLoadMore?: (currentData: TData[]) => Promise<TData[] | null>;
@@ -40,12 +41,14 @@ interface IState<TData> {
   isMobile: boolean;
   processedData: TData[];
   isLoadingMore: boolean;
+  isHeaderSticky: boolean;
 }
 
 // Class component
 class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   private debouncedResize: () => void;
   private tableContainerRef = createRef<HTMLDivElement>();
+  private headerRef = createRef<HTMLTableSectionElement>();
 
   constructor(props: IProps<TData>) {
     super(props);
@@ -53,6 +56,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
       isMobile: false,
       processedData: props.data,
       isLoadingMore: false,
+      isHeaderSticky: false,
     };
 
     this.debouncedResize = this.debounce(this.handleResize, 200);
@@ -104,11 +108,17 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   componentDidMount(): void {
     this.handleResize(); // Initial check
     window.addEventListener('resize', this.debouncedResize);
+    if (this.props.enablePageLevelStickyHeader !== false) {
+      window.addEventListener('scroll', this.handleScroll);
+    }
     this.initializePlugins();
   }
 
   componentWillUnmount(): void {
     window.removeEventListener('resize', this.debouncedResize);
+    if (this.props.enablePageLevelStickyHeader !== false) {
+      window.removeEventListener('scroll', this.handleScroll);
+    }
   }
 
   componentDidUpdate(prevProps: IProps<TData>) {
@@ -125,6 +135,16 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
 
     }
   }
+
+  private handleScroll = (): void => {
+    if (this.headerRef.current && !this.props.maxHeight) {
+      const { top } = this.headerRef.current.getBoundingClientRect();
+      const isSticky = top <= 0;
+      if (isSticky !== this.state.isHeaderSticky) {
+        this.setState({ isHeaderSticky: isSticky });
+      }
+    }
+  };
 
   private initializePlugins() {
     const activePlugins: IResponsiveTablePlugin<TData>[] = [];
@@ -427,7 +447,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
     return (
       <div style={fixedHeadersStyle} ref={this.tableContainerRef}>
         <table className={styles['responsiveTable']}>
-          <thead>
+          <thead ref={this.headerRef} className={this.state.isHeaderSticky ? styles.stickyHeader : ''}>
             <tr>
               {this.props.columnDefinitions.map((columnDefinition, colIndex) => {
                 const onHeaderClickCallback = this.onHeaderClickCallback(columnDefinition);
