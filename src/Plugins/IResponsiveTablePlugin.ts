@@ -19,7 +19,7 @@ export interface IResponsiveTablePlugin<TData> {
   onPluginInit?: (api: IPluginAPI<TData>) => void;
 
   // Optional: Provides props to be spread on the table header (<th>) elements
-  getHeaderProps?: (columnDefinition: IResponsiveTableColumnDefinition<TData>) => React.HTMLAttributes<HTMLElement>;
+  getHeaderProps?: (columnDefinition: IResponsiveTableColumnDefinition<TData>) => React.HTMLAttributes<HTMLElement> & { className?: string };
 }
 
 export interface IPluginAPI<TData> {

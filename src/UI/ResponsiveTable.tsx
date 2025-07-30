@@ -245,12 +245,12 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
     return clickableHeaderClassName;
   }
 
-  private getHeaderProps(columnDefinition: ColumnDefinition<TData>) {
-    let headerProps = {};
+  private getHeaderProps(columnDefinition: ColumnDefinition<TData>): React.HTMLAttributes<HTMLElement> & { className?: string } {
+    let headerProps: React.HTMLAttributes<HTMLElement> & { className?: string } = {};
     if (this.props.plugins) {
       this.props.plugins.forEach((plugin) => {
-        if ((plugin as any).getHeaderProps) {
-          Object.assign(headerProps, (plugin as any).getHeaderProps(this.getRawColumnDefinition(columnDefinition)));
+        if (plugin.getHeaderProps) {
+          Object.assign(headerProps, plugin.getHeaderProps(this.getRawColumnDefinition(columnDefinition)));
         }
       });
     }
@@ -469,11 +469,17 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
                 );
                 const headerProps = this.getHeaderProps(columnDefinition);
 
+                // Combine class names: existing clickable, and plugin-provided (mapped to CSS Modules)
+                const combinedClassName = `${clickableHeaderClassName} ${headerProps.className ? styles[headerProps.className] : ''}`.trim();
+
+                // Remove className from headerProps to avoid duplication
+                const { className, ...restHeaderProps } = headerProps;
+
                 return (
                   <th
                     key={colIndex}
-                    className={`${clickableHeaderClassName}`}
-                    {...headerProps}
+                    className={combinedClassName}
+                    {...restHeaderProps}
                   >
                     {this.getColumnDefinition(columnDefinition, 0).displayLabel}
                     <span className={styles.sortIcon}></span>
