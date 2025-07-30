@@ -105,6 +105,74 @@
   text-decoration: underline;
 }
 
+/* Sortable Header Styles */
+.responsiveTable th.sortable {
+  cursor: pointer;
+  position: relative;
+  padding-right: 2rem; /* Space for the icon */
+}
+
+.responsiveTable th .sortIcon {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  opacity: 0.4;
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.responsiveTable th.sortable:hover .sortIcon {
+  opacity: 1;
+}
+
+/* Default unsorted icon (up and down arrows) */
+.responsiveTable th.sortable .sortIcon::before,
+.responsiveTable th.sortable .sortIcon::after {
+  content: '';
+  position: absolute;
+  display: block;
+  width: 0;
+  height: 0;
+  border-left: 0.4em solid transparent;
+  border-right: 0.4em solid transparent;
+}
+
+.responsiveTable th.sortable .sortIcon::before {
+  border-bottom: 0.4em solid var(--text-color);
+  top: 0.1em;
+}
+
+.responsiveTable th.sortable .sortIcon::after {
+  border-top: 0.4em solid var(--text-color);
+  bottom: 0.1em;
+}
+
+/* Sorted Ascending Icon */
+.responsiveTable th.sorted-asc .sortIcon,
+.responsiveTable th.sorted-desc .sortIcon {
+  opacity: 1;
+}
+
+.responsiveTable th.sorted-asc .sortIcon::before {
+  border-bottom-color: var(--interactive-color);
+}
+
+.responsiveTable th.sorted-asc .sortIcon::after {
+  opacity: 0.4;
+}
+
+/* Sorted Descending Icon */
+.responsiveTable th.sorted-desc .sortIcon::after {
+  border-top-color: var(--interactive-color);
+}
+
+.responsiveTable th.sorted-desc .sortIcon::before {
+  opacity: 0.4;
+}
+
+
 .responsiveTable tfoot {
   background-color: var(--table-header-bg);
   border-top: 2px solid var(--table-border-color);

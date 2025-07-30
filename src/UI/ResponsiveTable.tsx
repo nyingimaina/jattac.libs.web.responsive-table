@@ -245,6 +245,18 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
     return clickableHeaderClassName;
   }
 
+  private getHeaderProps(columnDefinition: ColumnDefinition<TData>) {
+    let headerProps = {};
+    if (this.props.plugins) {
+      this.props.plugins.forEach((plugin) => {
+        if ((plugin as any).getHeaderProps) {
+          Object.assign(headerProps, (plugin as any).getHeaderProps(this.getRawColumnDefinition(columnDefinition)));
+        }
+      });
+    }
+    return headerProps;
+  }
+
   private get rowClickFunction(): (item: TData) => void {
     if (this.props.onRowClick) {
       return this.props.onRowClick;
@@ -455,17 +467,16 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
                   onHeaderClickCallback,
                   columnDefinition,
                 );
+                const headerProps = this.getHeaderProps(columnDefinition);
+
                 return (
                   <th
                     key={colIndex}
                     className={`${clickableHeaderClassName}`}
-                    onClick={
-                      onHeaderClickCallback
-                        ? () => onHeaderClickCallback(this.getColumnDefinition(columnDefinition, 0).interactivity!.id)
-                        : undefined
-                    }
+                    {...headerProps}
                   >
                     {this.getColumnDefinition(columnDefinition, 0).displayLabel}
+                    <span className={styles.sortIcon}></span>
                   </th>
                 );
               })}
@@ -514,6 +525,10 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
 
     return this.props.plugins.map((plugin) => {
       if (plugin.renderHeader) {
+        // For sort plugin, only render header in mobile view
+        if (plugin.id === 'sort' && !this.state.isMobile) {
+          return null;
+        }
         return <div key={plugin.id}>{plugin.renderHeader()}</div>;
       }
       return null;
