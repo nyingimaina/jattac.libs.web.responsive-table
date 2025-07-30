@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { ColumnDefinition } from '../UI/ResponsiveTable';
-import IResponsiveTableColumnDefinition from '../Data/IResponsiveTableColumnDefinition';
+import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumnDefinition';
 
 export interface IResponsiveTablePlugin<TData> {
   // A unique identifier for the plugin

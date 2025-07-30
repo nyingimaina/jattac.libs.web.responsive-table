@@ -1,6 +1,6 @@
 import React from 'react';
 import { IResponsiveTablePlugin, IPluginAPI } from './IResponsiveTablePlugin';
-import IResponsiveTableColumnDefinition from '../Data/IResponsiveTableColumnDefinition';
+import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumnDefinition';
 
 export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
   public id = 'filter';
@@ -51,8 +51,8 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
         // Now we know colDef is an object (IResponsiveTableColumnDefinition<TData>)
         const typedColDef = colDef as IResponsiveTableColumnDefinition<TData>;
 
-        // Check if getFilterableValue exists and is a function
-        if (typedColDef.getFilterableValue && typeof typedColDef.getFilterableValue === 'function') {
+        // Use a type guard to check if getFilterableValue exists on this branch of the union
+        if ('getFilterableValue' in typedColDef && typedColDef.getFilterableValue) {
           const value = typedColDef.getFilterableValue(row);
           return value?.toString().toLowerCase().includes(lowercasedFilter);
         }

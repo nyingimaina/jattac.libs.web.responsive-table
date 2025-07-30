@@ -70,11 +70,15 @@
   z-index: 1;
   font-weight: 600;
   text-align: left;
-  padding: 1rem;
+  padding: 1rem; /* Keep padding for the th itself */
   border-bottom: 2px solid var(--table-border-color);
-  display: flex; /* Use flexbox for alignment */
+}
+
+.headerInnerWrapper {
+  display: flex; /* Use flexbox for alignment within the th */
   align-items: center; /* Vertically center content */
   justify-content: space-between; /* Push icon to the right */
+  width: 100%; /* Ensure it takes full width of th */
 }
 
 .headerContent {
@@ -82,7 +86,7 @@
   overflow: hidden; /* Hide overflowing content */
   text-overflow: ellipsis; /* Show ellipsis for truncated text */
   white-space: nowrap; /* Prevent text from wrapping */
-  padding-right: 1rem; /* Space between text and icon */
+  padding-right: 0.5rem; /* Subtle space between text and icon */
 }
 
 .responsiveTable td {

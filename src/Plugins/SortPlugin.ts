@@ -1,6 +1,6 @@
 
 import { IResponsiveTablePlugin, IPluginAPI } from './IResponsiveTablePlugin';
-import IResponsiveTableColumnDefinition, { SortDirection } from '../Data/IResponsiveTableColumnDefinition';
+import { IResponsiveTableColumnDefinition, SortDirection } from '../Data/IResponsiveTableColumnDefinition';
 
 // Type-safe sort comparer helpers
 const createSortComparers = <TData>() => ({
@@ -51,20 +51,20 @@ export class SortPlugin<TData> implements IResponsiveTablePlugin<TData> {
     }
 
     const columnDef = this.api.columnDefinitions.find(
-      (col) => (col as IResponsiveTableColumnDefinition<TData>).dataKey === this.sortColumn
+      (col) => ('dataKey' in col && col.dataKey === this.sortColumn)
     ) as IResponsiveTableColumnDefinition<TData> | undefined;
 
-    if (!columnDef) {
+    if (!columnDef || !('dataKey' in columnDef)) {
       return data;
     }
 
     const sortedData = [...data].sort((a, b) => {
-      if (columnDef.sortComparer) {
+      if ('sortComparer' in columnDef && columnDef.sortComparer) {
         return columnDef.sortComparer(a, b, this.sortDirection!);
       }
 
       let aValue, bValue;
-      if (columnDef.getSortableValue) {
+      if ('getSortableValue' in columnDef && columnDef.getSortableValue) {
         aValue = columnDef.getSortableValue(a);
         bValue = columnDef.getSortableValue(b);
       } else {
@@ -81,10 +81,15 @@ export class SortPlugin<TData> implements IResponsiveTablePlugin<TData> {
   };
 
   public getHeaderProps = (columnDef: IResponsiveTableColumnDefinition<TData>) => {
-    const { dataKey, sortComparer, getSortableValue } = columnDef;
-    const isSortable = !!(sortComparer || getSortableValue);
+    // Ensure dataKey exists for sortable columns
+    if (!('dataKey' in columnDef)) {
+      return {};
+    }
 
-    if (!isSortable || !dataKey) {
+    const { dataKey } = columnDef;
+    const isSortable = ('sortComparer' in columnDef && !!columnDef.sortComparer) || ('getSortableValue' in columnDef && !!columnDef.getSortableValue);
+
+    if (!isSortable) {
       return {};
     }
 

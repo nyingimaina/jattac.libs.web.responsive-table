@@ -1,6 +1,6 @@
 import React, { CSSProperties, Component, ReactNode, createRef } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
-import IResponsiveTableColumnDefinition from '../Data/IResponsiveTableColumnDefinition';
+import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumnDefinition';
 import IFooterRowDefinition from '../Data/IFooterRowDefinition';
 import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
 import { FilterPlugin } from '../Plugins/FilterPlugin';
@@ -481,10 +481,12 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
                     className={combinedClassName}
                     {...restHeaderProps}
                   >
-                    <div className={styles.headerContent}>
-                      {this.getColumnDefinition(columnDefinition, 0).displayLabel}
+                    <div className={styles.headerInnerWrapper}>
+                      <div className={styles.headerContent}>
+                        {this.getColumnDefinition(columnDefinition, 0).displayLabel}
+                      </div>
+                      <span className={styles.sortIcon}></span>
                     </div>
-                    <span className={styles.sortIcon}></span>
                   </th>
                 );
               })}
