@@ -111,7 +111,7 @@ export class SortPlugin<TData> implements IResponsiveTablePlugin<TData> {
     return {
       onClick: onHeaderClick,
       className: sortClassName,
-      'aria-sort': this.sortColumn === dataKey ? (this.sortDirection === 'asc' ? 'ascending' : 'descending') : 'none',
+      'aria-sort': (this.sortColumn === dataKey ? (this.sortDirection === 'asc' ? 'ascending' : 'descending') : 'none') as 'none' | 'ascending' | 'descending',
     };
   };
 }

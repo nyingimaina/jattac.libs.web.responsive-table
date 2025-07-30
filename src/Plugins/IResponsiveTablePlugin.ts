@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { ColumnDefinition } from '../UI/ResponsiveTable';
+import IResponsiveTableColumnDefinition from '../Data/IResponsiveTableColumnDefinition';
 
 export interface IResponsiveTablePlugin<TData> {
   // A unique identifier for the plugin
@@ -16,6 +17,9 @@ export interface IResponsiveTablePlugin<TData> {
 
   // Optional: A callback that the table can use to provide the plugin with its own API
   onPluginInit?: (api: IPluginAPI<TData>) => void;
+
+  // Optional: Provides props to be spread on the table header (<th>) elements
+  getHeaderProps?: (columnDefinition: IResponsiveTableColumnDefinition<TData>) => React.HTMLAttributes<HTMLElement>;
 }
 
 export interface IPluginAPI<TData> {
