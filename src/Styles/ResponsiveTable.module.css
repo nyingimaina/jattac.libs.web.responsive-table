@@ -119,59 +119,38 @@
   transform: translateY(-50%);
   width: 1rem;
   height: 1rem;
-  opacity: 0.4;
-  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.4; /* Ghosted by default */
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Default unsorted icon (funnel) */
+.responsiveTable th.sortable .sortIcon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236c757d'%3E%3Cpath d='M10 18h4v-2h-4v2zm-6-8v2h16V8H4zm3-6h10v2H7V2z'/%3E%3C/svg%3E");
 }
 
 .responsiveTable th.sortable:hover .sortIcon {
   opacity: 1;
 }
 
-/* Default unsorted icon (up and down arrows) */
-.responsiveTable th.sortable .sortIcon::before,
-.responsiveTable th.sortable .sortIcon::after {
-  content: '';
-  position: absolute;
-  display: block;
-  width: 0;
-  height: 0;
-  border-left: 0.4em solid transparent;
-  border-right: 0.4em solid transparent;
-}
-
-.responsiveTable th.sortable .sortIcon::before {
-  border-bottom: 0.4em solid var(--text-color);
-  top: 0.1em;
-}
-
-.responsiveTable th.sortable .sortIcon::after {
-  border-top: 0.4em solid var(--text-color);
-  bottom: 0.1em;
+/* Ensure cursor applies to content within sortable header */
+.responsiveTable th.sortable > * {
+  cursor: inherit;
 }
 
 /* Sorted Ascending Icon */
-.responsiveTable th.sorted-asc .sortIcon,
-.responsiveTable th.sorted-desc .sortIcon {
-  opacity: 1;
-}
-
-.responsiveTable th.sorted-asc .sortIcon::before {
-  border-bottom-color: var(--interactive-color);
-}
-
-.responsiveTable th.sorted-asc .sortIcon::after {
-  opacity: 0.4;
+.responsiveTable th.sorted-asc .sortIcon {
+  opacity: 1; /* Always prominent when sorted */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230056b3'%3E%3Cpath d='M7 14l5-5 5 5z'/%3E%3C/svg%3E");
 }
 
 /* Sorted Descending Icon */
-.responsiveTable th.sorted-desc .sortIcon::after {
-  border-top-color: var(--interactive-color);
+.responsiveTable th.sorted-desc .sortIcon {
+  opacity: 1; /* Always prominent when sorted */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230056b3'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
 }
-
-.responsiveTable th.sorted-desc .sortIcon::before {
-  opacity: 0.4;
-}
-
 
 .responsiveTable tfoot {
   background-color: var(--table-header-bg);
