@@ -1,4 +1,4 @@
-# ResponsiveTable: A Modern and Flexible React Table Component
+'''# ResponsiveTable: A Modern and Flexible React Table Component
 
 ResponsiveTable is a powerful, lightweight, and fully responsive React component for creating beautiful and functional tables. It’s designed to look great on any device, adapting from a traditional table layout on desktops to a clean, card-based view on mobile screens.
 
@@ -11,7 +11,7 @@ ResponsiveTable is a powerful, lightweight, and fully responsive React component
 - **Interactive Elements**: Easily add click handlers for rows, headers, and footer cells.
 - **Performant**: Built with performance in mind, including debounced resize handling.
 - **Easy to Use**: A simple and intuitive API for quick integration.
-- **Extensible Plugin System**: Easily add new functionalities like filtering, infinite scrolling, or custom behaviors.
+- **Extensible Plugin System**: Easily add new functionalities like filtering, sorting, or infinite scrolling.
 
 ## Installation
 
@@ -123,7 +123,7 @@ import ResponsiveTable from 'jattac.libs.web.responsive-table';
 
 const CustomCells = () => {
   const columns = [
-    { displayLabel: 'User', cellRenderer: (row) => <strong>{row.user}</strong> },
+    { displayLabel: <strong>User</strong>, cellRenderer: (row) => <strong>{row.user}</strong> },
     {
       displayLabel: 'Status',
       cellRenderer: (row) => (
@@ -284,8 +284,8 @@ Plugins are passed to the `ResponsiveTable` component via the `plugins` prop, wh
 
 ```jsx
 import React from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-import { FilterPlugin } from 'jattac.libs.web.responsive-table/dist/Plugins/FilterPlugin'; // Adjust path as needed
+// Note: All plugins are exported from the main package entry point.
+import ResponsiveTable, { FilterPlugin } from 'jattac.libs.web.responsive-table';
 
 const MyTableWithPlugins = () => {
   const columns = [
@@ -314,6 +314,145 @@ const MyTableWithPlugins = () => {
 
 ### Built-in Plugins
 
+#### `SortPlugin`
+
+The `SortPlugin` provides powerful, type-safe, and highly customizable column sorting. It adds intuitive UI cues, allowing users to click column headers to sort the data in ascending, descending, or original order.
+
+**Enabling the `SortPlugin`:**
+
+To use the plugin, you must first import it and provide a generic instance of it to the `plugins` prop. The real power comes from making the plugin instance generic with your data type, which provides type-safety and IDE autocompletion for the sort comparer helpers.
+
+```jsx
+import React from 'react';
+import ResponsiveTable, { IResponsiveTableColumnDefinition, SortPlugin } from 'jattac.libs.web.responsive-table';
+
+// Define the shape of your data
+interface User {
+  id: number;
+  name: string;
+  signupDate: string;
+  logins: number;
+}
+
+// 1. Create a single, generic instance of the plugin.
+//    This is the ONLY setup step required.
+const sortPlugin = new SortPlugin<User>({
+  initialSortColumn: 'logins',
+  initialSortDirection: 'desc',
+});
+
+// 2. Define the columns, using the helpers directly from the plugin instance.
+const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
+  // ... see examples below
+];
+
+const UserTable = ({ users }) => (
+  <ResponsiveTable
+    columnDefinitions={columnDefinitions}
+    data={users}
+    // 3. Pass the already-configured plugin to the table.
+    plugins={[sortPlugin]}
+  />
+);
+```
+
+**How to Make Columns Sortable (Opt-In):**
+
+A column is made sortable by adding either a `sortComparer` or a `getSortableValue` property to its definition.
+
+*   `sortComparer`: A function that defines the exact comparison logic. This is the most powerful option and should be used for complex data types or custom logic.
+*   `getSortableValue`: A simpler function that just returns the primitive value (string, number, etc.) to be used in a default comparison.
+
+**Example 1: Using Type-Safe Comparer Helpers**
+
+The `SortPlugin` instance provides a `comparers` object with pre-built, type-safe helper functions to eliminate boilerplate for common sorting scenarios. This is the recommended approach.
+
+```jsx
+const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
+  {
+    displayLabel: 'Name',
+    dataKey: 'name',
+    cellRenderer: (user) => user.name,
+    // The plugin instance itself provides the type-safe helpers.
+    // The string 'name' is fully type-checked against the User interface.
+    sortComparer: sortPlugin.comparers.caseInsensitiveString('name'),
+  },
+  {
+    displayLabel: 'Signup Date',
+    dataKey: 'signupDate',
+    cellRenderer: (user) => new Date(user.signupDate).toLocaleDateString(),
+    // IDE autocompletion for 'signupDate' works perfectly.
+    sortComparer: sortPlugin.comparers.date('signupDate'),
+  },
+  {
+    displayLabel: 'Logins',
+    dataKey: 'logins',
+    cellRenderer: (user) => user.logins,
+    sortComparer: sortPlugin.comparers.numeric('logins'),
+  },
+  {
+    displayLabel: 'Actions',
+    // This column is NOT sortable because it has no sort-related properties.
+    cellRenderer: (user) => <button>View</button>,
+  },
+];
+```
+
+**Example 2: Writing a Custom `sortComparer`**
+
+For unique requirements, you can write your own comparison function from scratch.
+
+```jsx
+const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
+  {
+    displayLabel: 'Name',
+    dataKey: 'name',
+    cellRenderer: (user) => user.name,
+    // Writing custom logic for a case-sensitive sort
+    sortComparer: (a, b, direction) => {
+      const nameA = a.name; // No .toLowerCase()
+      const nameB = b.name;
+      if (nameA < nameB) return direction === 'asc' ? -1 : 1;
+      if (nameA > nameB) return direction === 'asc' ? 1 : -1;
+      return 0;
+    },
+  },
+];
+```
+
+**Example 3: Using `getSortableValue` for Simple Cases**
+
+If you don't need special logic, `getSortableValue` is a concise way to enable default sorting on a property.
+
+```jsx
+const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
+  {
+    displayLabel: 'Logins',
+    dataKey: 'logins',
+    cellRenderer: (user) => user.logins,
+    // This enables a simple, default numerical sort on the 'logins' property.
+    getSortableValue: (user) => user.logins,
+  },
+];
+```
+
+**Plugin Options (via `new SortPlugin(options)`):**
+
+| Prop                  | Type (`keyof TData`) | Description                                                                 |
+| --------------------- | -------------------- | --------------------------------------------------------------------------- |
+| `initialSortColumn`   | `string`             | The `dataKey` of the column to sort by initially.                           |
+| `initialSortDirection`| `'asc' \| 'desc'`    | The direction for the initial sort.                                         |
+
+**`SortPlugin.comparers` API:**
+
+The `comparers` object on your `SortPlugin` instance provides the following helper methods. Each method is a factory that takes a `dataKey` (which is type-checked against your data model) and returns a `sortComparer` function.
+
+| Method                  | Description                                                                 |
+| ----------------------- | --------------------------------------------------------------------------- |
+| `numeric(dataKey)`      | Performs a standard numerical sort.                                         |
+| `caseInsensitiveString(dataKey)` | Performs a case-insensitive alphabetical sort.                     |
+| `date(dataKey)`         | Correctly sorts dates, assuming the data is a valid date string or timestamp. |
+
 #### `FilterPlugin`
 
 Provides a search input to filter table data. It can be enabled by setting `filterProps.showFilter` to `true` on the `ResponsiveTable` component. For columns to be filterable, you must provide a `getFilterableValue` function in their `IResponsiveTableColumnDefinition`.
@@ -328,7 +467,7 @@ Provides a search input to filter table data. It can be enabled by setting `filt
 **Example with `FilterPlugin`:**
 
 ```jsx
-import React, { useState } from 'react';
+import React from 'react';
 import ResponsiveTable from 'jattac.libs.web.responsive-table';
 
 const FilterableTable = () => {
@@ -437,143 +576,6 @@ const InfiniteScrollTable = () => {
 };
 ```
 
-### Extending Functionality with Custom Plugins
-
-Developers can create their own custom plugins to add unique features to the `ResponsiveTable`. This is achieved by implementing the `IResponsiveTablePlugin` interface.
-
-**`IResponsiveTablePlugin<TData>` Interface:**
-
-| Property       | Type                                 | Description                                                                 |
-| -------------- | ------------------------------------ | --------------------------------------------------------------------------- |
-| `id`           | `string`                             | A unique identifier for the plugin.                                         |
-| `renderHeader?`| `() => ReactNode`                    | Optional. A function that returns a React component to be rendered above the table. |
-| `renderFooter?`| `() => ReactNode`                    | Optional. A function that returns a React component to be rendered below the table. |
-| `processData?` | `(data: TData[]) => TData[]`         | Optional. A function that processes the table data before it is rendered. Useful for sorting, filtering, or transforming data. |
-| `onPluginInit?`| `(api: IPluginAPI<TData>) => void`   | Optional. A callback function that provides the plugin with an API to interact with the `ResponsiveTable` component. |
-
-**`IPluginAPI<TData>` Interface:**
-
-This interface provides methods and properties for plugins to interact with the `ResponsiveTable` component.
-
-| Property             | Type                                 | Description                                                                 |
-| -------------------- | ------------------------------------ | --------------------------------------------------------------------------- |
-| `getData`            | `() => TData[]`                      | Returns the current raw data array being used by the table.                 |
-| `forceUpdate`        | `() => void`                         | Forces the `ResponsiveTable` component to re-render. Useful after a plugin modifies internal state that affects rendering. |
-| `columnDefinitions`  | `ColumnDefinition<TData>[]`          | Provides access to the table's column definitions.                          |
-| `getScrollableElement?`| `() => HTMLElement | null`         | Optional. Returns the HTML element that is scrollable, if `maxHeight` is set. Useful for implementing scroll-based features. |
-| `infiniteScrollProps?`| `object`                            | Optional. Provides access to the `infiniteScrollProps` passed to the `ResponsiveTable`. |
-| `filterProps?`       | `object`                            | Optional. Provides access to the `filterProps` passed to the `ResponsiveTable`. |
-
-**Example: Custom Sorting Plugin**
-
-This example demonstrates a simple sorting plugin that allows sorting by a specified column.
-
-```typescript
-// src/Plugins/SortPlugin.ts
-import React from 'react';
-import { IResponsiveTablePlugin, IPluginAPI } from './IResponsiveTablePlugin';
-import IResponsiveTableColumnDefinition from '../Data/IResponsiveTableColumnDefinition';
-
-export class SortPlugin<TData> implements IResponsiveTablePlugin<TData> {
-  public id = 'sort';
-  private api!: IPluginAPI<TData>;
-  private sortColumn: string | null = null;
-  private sortDirection: 'asc' | 'desc' = 'asc';
-
-  public onPluginInit = (api: IPluginAPI<TData>) => {
-    this.api = api;
-  };
-
-  public renderHeader = () => {
-    return (
-      <div style={{ marginBottom: '1rem' }}>
-        Sort by:
-        <select onChange={this.handleColumnChange} style={{ marginLeft: '0.5rem' }}>
-          <option value="">None</option>
-          {this.api.columnDefinitions.map((colDef) => {
-            const rawColDef = colDef as IResponsiveTableColumnDefinition<TData>;
-            if (rawColDef.dataKey) {
-              return <option key={rawColDef.dataKey} value={rawColDef.dataKey}>{rawColDef.displayLabel}</option>;
-            }
-            return null;
-          })}
-        </select>
-        {this.sortColumn && (
-          <button onClick={this.toggleSortDirection} style={{ marginLeft: '0.5rem' }}>
-            {this.sortDirection === 'asc' ? 'Ascending' : 'Descending'}
-          </button>
-        )}
-      </div>
-    );
-  };
-
-  public processData = (data: TData[]): TData[] => {
-    if (!this.sortColumn) {
-      return data;
-    }
-
-    const sortedData = [...data].sort((a, b) => {
-      const aValue = a[this.sortColumn as keyof TData];
-      const bValue = b[this.sortColumn as keyof TData];
-
-      if (aValue < bValue) return this.sortDirection === 'asc' ? -1 : 1;
-      if (aValue > bValue) return this.sortDirection === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    return sortedData;
-  };
-
-  private handleColumnChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    this.sortColumn = e.target.value || null;
-    this.api.forceUpdate();
-  };
-
-  private toggleSortDirection = () => {
-    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    this.api.forceUpdate();
-  };
-}
-
-// Usage in your component:
-```jsx
-import React from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-import { SortPlugin } from './SortPlugin'; // Assuming SortPlugin.ts is in the same directory
-
-const SortableTable = () => {
-  const data = [
-    { id: 1, name: 'Alice', age: 30 },
-    { id: 2, name: 'Bob', age: 25 },
-    { id: 3, name: 'Charlie', age: 35 },
-  ];
-
-  const columns = [
-    { displayLabel: 'ID', dataKey: 'id', cellRenderer: (row) => row.id },
-    { displayLabel: 'Name', dataKey: 'name', cellRenderer: (row) => row.name },
-    { displayLabel: 'Age', dataKey: 'age', cellRenderer: (row) => row.age },
-  ];
-
-  return (
-    <ResponsiveTable
-      columnDefinitions={columns}
-      data={data}
-      plugins={[new SortPlugin()]}
-    />
-  );
-};
-```
-
-**Other Plugin Ideas (beyond Filtering and Infinite Scroll):**
-
--   **Column Resizing Plugin:** Allows users to drag column headers to resize columns.
--   **Row Selection Plugin:** Adds checkboxes to rows for multi-row selection.
--   **Export Data Plugin:** Provides buttons to export table data to CSV, Excel, or PDF.
--   **Drag-and-Drop Reordering Plugin:** Enables reordering of rows or columns via drag and drop.
--   **Column Visibility Toggle Plugin:** Allows users to show/hide specific columns.
-
----
-
 ---
 
 ## API Reference
@@ -595,15 +597,17 @@ const SortableTable = () => {
 | `filterProps`                 | `object`                             | No       | Configuration for the built-in filter plugin.                                                               |
 | `animationProps`              | `object`                             | No       | Configuration for animations, including `isLoading` and `animateOnLoad`.                                    |
 
-### `IResponsiveTableColumnDefinition`
+### `IResponsiveTableColumnDefinition<TData>`
 
 | Property        | Type                        | Required | Description                                                                    |
 | --------------- | --------------------------- | -------- | ------------------------------------------------------------------------------ |
-| `displayLabel`  | `string`                    | Yes      | The label displayed in the table header.                                       |
+| `displayLabel`  | `ReactNode`                 | Yes      | The label displayed in the table header (can be a string or any React component). |
 | `cellRenderer`  | `(row: TData) => ReactNode` | Yes      | A function that returns the content to be rendered in the cell.                |
-| `dataKey`       | `string`                    | No       | A key to match the column to a property in the data object (optional).         |
+| `dataKey`       | `string`                    | No       | A key to match the column to a property in the data object (required for sorting). |
 | `interactivity` | `object`                    | No       | An object to define header interactivity (`onHeaderClick`, `id`, `className`). |
-| `getFilterableValue`| `(row: TData) => string`  | No       | A function that returns the string value to be used for filtering this column. Required for `FilterPlugin`. |
+| `getFilterableValue`| `(row: TData) => string \| number` | No       | A function that returns the string or number value to be used for filtering this column. |
+| `getSortableValue`| `(row: TData) => any`       | No       | A function that returns a primitive value from a row to be used for default sorting. |
+| `sortComparer`  | `(a: TData, b: TData, direction: 'asc' \| 'desc') => number` | No | A function that provides the precise comparison logic for sorting a column. |
 
 ### `IFooterRowDefinition`
 
@@ -624,3 +628,4 @@ const SortableTable = () => {
 ## License
 
 This project is licensed under the MIT License.
+''

@@ -1,19 +1,26 @@
 {
   "name": "jattac.libs.web.responsive-table",
   "version": "0.2.3",
-  "description": "",
+  "description": "A fully responsive, customizable, and lightweight React table component with a modern, mobile-first design and a powerful plugin system.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "rollup -c",
+    "watch": "rollup -c -w",
     "lint": "eslint './{src,app}/**/*.{ts,tsx}'",
     "size": "size-limit",
     "prepare": "npm run build"
   },
   "keywords": [
     "react",
-    "typescript"
+    "typescript",
+    "table",
+    "responsive",
+    "component"
   ],
   "author": "Nyingi Maina",
   "license": "MIT",
@@ -25,6 +32,7 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.5",
     "@size-limit/preset-small-lib": "^10.0.1",
     "@testing-library/react": "^14.0.0",
@@ -38,7 +46,6 @@
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-react": "^7.33.2",
     "identity-obj-proxy": "^3.0.0",
-    "npm": "^10.2.2",
     "postcss": "^8.4.31",
     "prettier": "^3.0.3",
     "react": "^18.2.0",
@@ -53,7 +60,6 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@rollup/plugin-terser": "^0.4.4",
     "react-window": "^1.8.11",
     "tslib": "^2.6.2"
   }
