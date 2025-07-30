@@ -1,4 +1,4 @@
-'''# ResponsiveTable: A Modern and Flexible React Table Component
+# ResponsiveTable: A Modern and Flexible React Table Component
 
 ResponsiveTable is a powerful, lightweight, and fully responsive React component for creating beautiful and functional tables. It’s designed to look great on any device, adapting from a traditional table layout on desktops to a clean, card-based view on mobile screens.
 
@@ -82,7 +82,9 @@ const AnimatedTable = () => {
     }, 2000);
   }, []);
 
-  return <ResponsiveTable columnDefinitions={columns} data={data} animationProps={{ isLoading, animateOnLoad: true }} />;
+  return (
+    <ResponsiveTable columnDefinitions={columns} data={data} animationProps={{ isLoading, animateOnLoad: true }} />
+  );
 };
 ```
 
@@ -258,9 +260,7 @@ const NonStickyHeaderTable = () => {
 
   return (
     <div>
-      <h1 style={{ height: '50vh', display: 'flex', alignItems: 'center' }}>
-        Scroll down to see the table
-      </h1>
+      <h1 style={{ height: '50vh', display: 'flex', alignItems: 'center' }}>Scroll down to see the table</h1>
       <ResponsiveTable
         columnDefinitions={columns}
         data={data}
@@ -290,7 +290,12 @@ import ResponsiveTable, { FilterPlugin } from 'jattac.libs.web.responsive-table'
 const MyTableWithPlugins = () => {
   const columns = [
     { displayLabel: 'Name', dataKey: 'name', cellRenderer: (row) => row.name, getFilterableValue: (row) => row.name },
-    { displayLabel: 'Age', dataKey: 'age', cellRenderer: (row) => row.age, getFilterableValue: (row) => row.age.toString() },
+    {
+      displayLabel: 'Age',
+      dataKey: 'age',
+      cellRenderer: (row) => row.age,
+      getFilterableValue: (row) => row.age.toString(),
+    },
   ];
 
   const data = [
@@ -304,7 +309,7 @@ const MyTableWithPlugins = () => {
       columnDefinitions={columns}
       data={data}
       // Enable built-in filter plugin via props
-      filterProps={{ showFilter: true, filterPlaceholder: "Search by name or age..." }}
+      filterProps={{ showFilter: true, filterPlaceholder: 'Search by name or age...' }}
       // Or provide a custom instance of the plugin
       // plugins={[new FilterPlugin()]}
     />
@@ -360,8 +365,8 @@ const UserTable = ({ users }) => (
 
 A column is made sortable by adding either a `sortComparer` or a `getSortableValue` property to its definition.
 
-*   `sortComparer`: A function that defines the exact comparison logic. This is the most powerful option and should be used for complex data types or custom logic.
-*   `getSortableValue`: A simpler function that just returns the primitive value (string, number, etc.) to be used in a default comparison.
+- `sortComparer`: A function that defines the exact comparison logic. This is the most powerful option and should be used for complex data types or custom logic.
+- `getSortableValue`: A simpler function that just returns the primitive value (string, number, etc.) to be used in a default comparison.
 
 **Example 1: Using Type-Safe Comparer Helpers**
 
@@ -438,20 +443,20 @@ const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
 
 **Plugin Options (via `new SortPlugin(options)`):**
 
-| Prop                  | Type (`keyof TData`) | Description                                                                 |
-| --------------------- | -------------------- | --------------------------------------------------------------------------- |
-| `initialSortColumn`   | `string`             | The `dataKey` of the column to sort by initially.                           |
-| `initialSortDirection`| `'asc' \| 'desc'`    | The direction for the initial sort.                                         |
+| Prop                   | Type (`keyof TData`) | Description                                       |
+| ---------------------- | -------------------- | ------------------------------------------------- |
+| `initialSortColumn`    | `string`             | The `dataKey` of the column to sort by initially. |
+| `initialSortDirection` | `'asc' \| 'desc'`    | The direction for the initial sort.               |
 
 **`SortPlugin.comparers` API:**
 
 The `comparers` object on your `SortPlugin` instance provides the following helper methods. Each method is a factory that takes a `dataKey` (which is type-checked against your data model) and returns a `sortComparer` function.
 
-| Method                  | Description                                                                 |
-| ----------------------- | --------------------------------------------------------------------------- |
-| `numeric(dataKey)`      | Performs a standard numerical sort.                                         |
-| `caseInsensitiveString(dataKey)` | Performs a case-insensitive alphabetical sort.                     |
-| `date(dataKey)`         | Correctly sorts dates, assuming the data is a valid date string or timestamp. |
+| Method                           | Description                                                                   |
+| -------------------------------- | ----------------------------------------------------------------------------- |
+| `numeric(dataKey)`               | Performs a standard numerical sort.                                           |
+| `caseInsensitiveString(dataKey)` | Performs a case-insensitive alphabetical sort.                                |
+| `date(dataKey)`                  | Correctly sorts dates, assuming the data is a valid date string or timestamp. |
 
 #### `FilterPlugin`
 
@@ -459,10 +464,10 @@ Provides a search input to filter table data. It can be enabled by setting `filt
 
 **Props for `FilterPlugin` (via `filterProps` on `ResponsiveTable`):**
 
-| Prop              | Type     | Description                                                                 |
-| ----------------- | -------- | --------------------------------------------------------------------------- |
-| `showFilter`      | `boolean`| If `true`, displays a filter input field above the table.                   |
-| `filterPlaceholder`| `string` | Placeholder text for the filter input. Defaults to "Search...".           |
+| Prop                | Type      | Description                                                     |
+| ------------------- | --------- | --------------------------------------------------------------- |
+| `showFilter`        | `boolean` | If `true`, displays a filter input field above the table.       |
+| `filterPlaceholder` | `string`  | Placeholder text for the filter input. Defaults to "Search...". |
 
 **Example with `FilterPlugin`:**
 
@@ -488,7 +493,7 @@ const FilterableTable = () => {
     <ResponsiveTable
       columnDefinitions={columns}
       data={initialData}
-      filterProps={{ showFilter: true, filterPlaceholder: "Filter users..." }}
+      filterProps={{ showFilter: true, filterPlaceholder: 'Filter users...' }}
     />
   );
 };
@@ -500,13 +505,13 @@ Enables infinite scrolling for the table, loading more data as the user scrolls 
 
 **Props for `InfiniteScrollPlugin` (via `infiniteScrollProps` on `ResponsiveTable`):**
 
-| Prop                  | Type                                 | Description                                                                 |
-| --------------------- | ------------------------------------ | --------------------------------------------------------------------------- |
-| `enableInfiniteScroll`| `boolean`                            | If `true`, enables infinite scrolling.                                      |
-| `onLoadMore`          | `(currentData: TData[]) => Promise<TData[] | null>` | Callback function to load more data. Should return a Promise resolving to new data or `null`. |
-| `hasMore`             | `boolean`                            | Indicates if there is more data to load.                                    |
-| `loadingMoreComponent`| `ReactNode`                          | Custom component to display while loading more data. Defaults to "Loading more...". |
-| `noMoreDataComponent` | `ReactNode`                          | Custom component to display when no more data is available. Defaults to "No more data.". |
+| Prop                   | Type                                       | Description                                                                              |
+| ---------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `enableInfiniteScroll` | `boolean`                                  | If `true`, enables infinite scrolling.                                                   |
+| `onLoadMore`           | `(currentData: TData[]) => Promise<TData[] | null>`                                                                                   | Callback function to load more data. Should return a Promise resolving to new data or `null`. |
+| `hasMore`              | `boolean`                                  | Indicates if there is more data to load.                                                 |
+| `loadingMoreComponent` | `ReactNode`                                | Custom component to display while loading more data. Defaults to "Loading more...".      |
+| `noMoreDataComponent`  | `ReactNode`                                | Custom component to display when no more data is available. Defaults to "No more data.". |
 
 **Example with `InfiniteScrollPlugin`:**
 
@@ -533,7 +538,7 @@ const InfiniteScrollTable = () => {
   };
 
   useEffect(() => {
-    fetchData(0).then(initialData => {
+    fetchData(0).then((initialData) => {
       setData(initialData);
       setPage(1);
     });
@@ -558,7 +563,9 @@ const InfiniteScrollTable = () => {
   ];
 
   return (
-    <div style={{ height: '300px' }}> {/* Container for scrollable table */}
+    <div style={{ height: '300px' }}>
+      {' '}
+      {/* Container for scrollable table */}
       <ResponsiveTable
         columnDefinitions={columns}
         data={data}
@@ -582,32 +589,32 @@ const InfiniteScrollTable = () => {
 
 ### `ResponsiveTable` Props
 
-| Prop                          | Type                                 | Required | Description                                                                                                 |
-| ----------------------------- | ------------------------------------ | -------- | ----------------------------------------------------------------------------------------------------------- |
-| `columnDefinitions`           | `IResponsiveTableColumnDefinition[]` | Yes      | An array of objects defining the table columns.                                                             |
-| `data`                        | `TData[]`                            | Yes      | An array of data objects to populate the table rows.                                                        |
-| `footerRows`                  | `IFooterRowDefinition[]`             | No       | An array of objects defining the table footer.                                                              |
-| `onRowClick`                  | `(item: TData) => void`              | No       | A callback function that is triggered when a row is clicked.                                                |
-| `noDataComponent`             | `ReactNode`                          | No       | A custom component to display when there is no data.                                                        |
-| `maxHeight`                   | `string`                             | No       | Sets a maximum height for the table body, making it scrollable.                                             |
-| `mobileBreakpoint`            | `number`                             | No       | The pixel width at which the table switches to the mobile view. Defaults to `600`.                          |
-| `enablePageLevelStickyHeader` | `boolean`                            | No       | If `false`, disables the header from sticking to the top of the page on scroll. Defaults to `true`.        |
-| `plugins`                     | `IResponsiveTablePlugin<TData>[]`    | No       | An array of plugin instances to extend table functionality.                                                 |
-| `infiniteScrollProps`         | `object`                             | No       | Configuration for the built-in infinite scroll plugin.                                                      |
-| `filterProps`                 | `object`                             | No       | Configuration for the built-in filter plugin.                                                               |
-| `animationProps`              | `object`                             | No       | Configuration for animations, including `isLoading` and `animateOnLoad`.                                    |
+| Prop                          | Type                                 | Required | Description                                                                                         |
+| ----------------------------- | ------------------------------------ | -------- | --------------------------------------------------------------------------------------------------- |
+| `columnDefinitions`           | `IResponsiveTableColumnDefinition[]` | Yes      | An array of objects defining the table columns.                                                     |
+| `data`                        | `TData[]`                            | Yes      | An array of data objects to populate the table rows.                                                |
+| `footerRows`                  | `IFooterRowDefinition[]`             | No       | An array of objects defining the table footer.                                                      |
+| `onRowClick`                  | `(item: TData) => void`              | No       | A callback function that is triggered when a row is clicked.                                        |
+| `noDataComponent`             | `ReactNode`                          | No       | A custom component to display when there is no data.                                                |
+| `maxHeight`                   | `string`                             | No       | Sets a maximum height for the table body, making it scrollable.                                     |
+| `mobileBreakpoint`            | `number`                             | No       | The pixel width at which the table switches to the mobile view. Defaults to `600`.                  |
+| `enablePageLevelStickyHeader` | `boolean`                            | No       | If `false`, disables the header from sticking to the top of the page on scroll. Defaults to `true`. |
+| `plugins`                     | `IResponsiveTablePlugin<TData>[]`    | No       | An array of plugin instances to extend table functionality.                                         |
+| `infiniteScrollProps`         | `object`                             | No       | Configuration for the built-in infinite scroll plugin.                                              |
+| `filterProps`                 | `object`                             | No       | Configuration for the built-in filter plugin.                                                       |
+| `animationProps`              | `object`                             | No       | Configuration for animations, including `isLoading` and `animateOnLoad`.                            |
 
 ### `IResponsiveTableColumnDefinition<TData>`
 
-| Property        | Type                        | Required | Description                                                                    |
-| --------------- | --------------------------- | -------- | ------------------------------------------------------------------------------ |
-| `displayLabel`  | `ReactNode`                 | Yes      | The label displayed in the table header (can be a string or any React component). |
-| `cellRenderer`  | `(row: TData) => ReactNode` | Yes      | A function that returns the content to be rendered in the cell.                |
-| `dataKey`       | `string`                    | No       | A key to match the column to a property in the data object (required for sorting). |
-| `interactivity` | `object`                    | No       | An object to define header interactivity (`onHeaderClick`, `id`, `className`). |
-| `getFilterableValue`| `(row: TData) => string \| number` | No       | A function that returns the string or number value to be used for filtering this column. |
-| `getSortableValue`| `(row: TData) => any`       | No       | A function that returns a primitive value from a row to be used for default sorting. |
-| `sortComparer`  | `(a: TData, b: TData, direction: 'asc' \| 'desc') => number` | No | A function that provides the precise comparison logic for sorting a column. |
+| Property             | Type                                                         | Required | Description                                                                              |
+| -------------------- | ------------------------------------------------------------ | -------- | ---------------------------------------------------------------------------------------- |
+| `displayLabel`       | `ReactNode`                                                  | Yes      | The label displayed in the table header (can be a string or any React component).        |
+| `cellRenderer`       | `(row: TData) => ReactNode`                                  | Yes      | A function that returns the content to be rendered in the cell.                          |
+| `dataKey`            | `string`                                                     | No       | A key to match the column to a property in the data object (required for sorting).       |
+| `interactivity`      | `object`                                                     | No       | An object to define header interactivity (`onHeaderClick`, `id`, `className`).           |
+| `getFilterableValue` | `(row: TData) => string \| number`                           | No       | A function that returns the string or number value to be used for filtering this column. |
+| `getSortableValue`   | `(row: TData) => any`                                        | No       | A function that returns a primitive value from a row to be used for default sorting.     |
+| `sortComparer`       | `(a: TData, b: TData, direction: 'asc' \| 'desc') => number` | No       | A function that provides the precise comparison logic for sorting a column.              |
 
 ### `IFooterRowDefinition`
 
@@ -617,15 +624,14 @@ const InfiniteScrollTable = () => {
 
 ### `IFooterColumnDefinition`
 
-| Property       | Type              | Required | Description                                                                    |
-| -------------- | ----------------- | -------- | ------------------------------------------------------------------------------ |
-| `colSpan`      | `number`          | Yes      | The number of columns the footer cell should span.                               |
-| `cellRenderer` | `() => ReactNode` | Yes      | A function that returns the content for the footer cell.                         |
+| Property       | Type              | Required | Description                                                                                                                                                                                                                                      |
+| -------------- | ----------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `colSpan`      | `number`          | Yes      | The number of columns the footer cell should span.                                                                                                                                                                                               |
+| `cellRenderer` | `() => ReactNode` | Yes      | A function that returns the content for the footer cell.                                                                                                                                                                                         |
 | `displayLabel` | `ReactNode`       | No       | An optional, explicit label for the footer cell. In mobile view, if `colSpan` is 1 and this is not provided, the corresponding column header will be used as a fallback. This is required for `colSpan` > 1 if you want a label to be displayed. |
-| `onCellClick`  | `() => void`      | No       | An optional click handler for the footer cell.                                 |
-| `className`    | `string`          | No       | Optional class name for custom styling of the footer cell.                     |
+| `onCellClick`  | `() => void`      | No       | An optional click handler for the footer cell.                                                                                                                                                                                                   |
+| `className`    | `string`          | No       | Optional class name for custom styling of the footer cell.                                                                                                                                                                                       |
 
 ## License
 
 This project is licensed under the MIT License.
-''
