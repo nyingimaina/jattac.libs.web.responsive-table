@@ -481,7 +481,9 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
                     className={combinedClassName}
                     {...restHeaderProps}
                   >
-                    {this.getColumnDefinition(columnDefinition, 0).displayLabel}
+                    <div className={styles.headerContent}>
+                      {this.getColumnDefinition(columnDefinition, 0).displayLabel}
+                    </div>
                     <span className={styles.sortIcon}></span>
                   </th>
                 );

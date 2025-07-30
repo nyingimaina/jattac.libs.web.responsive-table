@@ -72,6 +72,17 @@
   text-align: left;
   padding: 1rem;
   border-bottom: 2px solid var(--table-border-color);
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Vertically center content */
+  justify-content: space-between; /* Push icon to the right */
+}
+
+.headerContent {
+  flex-grow: 1; /* Allow content to take available space */
+  overflow: hidden; /* Hide overflowing content */
+  text-overflow: ellipsis; /* Show ellipsis for truncated text */
+  white-space: nowrap; /* Prevent text from wrapping */
+  padding-right: 1rem; /* Space between text and icon */
 }
 
 .responsiveTable td {
@@ -106,10 +117,19 @@
 }
 
 /* Sortable Header Styles */
-.responsiveTable th.sortable {
+.responsiveTable th.sortable,
+.responsiveTable th.sorted-asc,
+.responsiveTable th.sorted-desc {
   cursor: pointer;
   position: relative;
-  padding-right: 2rem; /* Space for the icon */
+  padding-right: 2.5rem; /* Space for the icon (1rem icon + 1rem margin + 0.5rem right offset) */
+  transition: transform 0.2s ease-in-out; /* Add transition for smooth scaling */
+}
+
+.responsiveTable th.sortable:hover,
+.responsiveTable th.sorted-asc:hover,
+.responsiveTable th.sorted-desc:hover {
+  transform: scale(1.01); /* Subtle zoom effect on hover */
 }
 
 .responsiveTable th .sortIcon {
