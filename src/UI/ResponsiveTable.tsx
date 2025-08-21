@@ -246,7 +246,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   }
 
   private getHeaderProps(columnDefinition: ColumnDefinition<TData>): React.HTMLAttributes<HTMLElement> & { className?: string } {
-    let headerProps: React.HTMLAttributes<HTMLElement> & { className?: string } = {};
+    const headerProps: React.HTMLAttributes<HTMLElement> & { className?: string } = {};
     if (this.props.plugins) {
       this.props.plugins.forEach((plugin) => {
         if (plugin.getHeaderProps) {
@@ -473,6 +473,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
                 const combinedClassName = `${clickableHeaderClassName} ${headerProps.className ? styles[headerProps.className] : ''}`.trim();
 
                 // Remove className from headerProps to avoid duplication
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { className, ...restHeaderProps } = headerProps;
 
                 return (
@@ -492,19 +493,20 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
               })}
             </tr>
           </thead>
-          <tbody>
-            {this.props.infiniteScrollProps?.enableInfiniteScroll ? (
-              <List
-                height={fixedHeadersStyle.maxHeight ? (typeof fixedHeadersStyle.maxHeight === 'string' ? parseFloat(fixedHeadersStyle.maxHeight) : fixedHeadersStyle.maxHeight) : 500} // Default height if not provided
-                itemCount={this.data.length}
-                itemSize={50} // Average row height, can be made configurable
-                width={'100%'}
-                outerRef={this.tableContainerRef} // Pass ref to outer element for scroll events
-              >
-                {Row}
-              </List>
-            ) : (
-              this.data.map((row, rowIndex) => (
+          {this.props.infiniteScrollProps?.enableInfiniteScroll ? (
+            <List
+              height={fixedHeadersStyle.maxHeight ? (typeof fixedHeadersStyle.maxHeight === 'string' ? parseFloat(fixedHeadersStyle.maxHeight) : fixedHeadersStyle.maxHeight) : 500} // Default height if not provided
+              itemCount={this.data.length}
+              itemSize={50} // Average row height, can be made configurable
+              width={'100%'}
+              outerRef={this.tableContainerRef} // Pass ref to outer element for scroll events
+              outerElementType={React.forwardRef((props, ref) => <tbody ref={ref as React.Ref<HTMLTableSectionElement>} {...props} />)}
+            >
+              {Row}
+            </List>
+          ) : (
+            <tbody>
+              {this.data.map((row, rowIndex) => (
                 <tr
                   key={rowIndex}
                   className={this.props.animationProps?.animateOnLoad ? styles.animatedRow : ''}
@@ -518,9 +520,9 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
                     </td>
                   ))}
                 </tr>
-              ))
-            )}
-          </tbody>
+              ))}
+            </tbody>
+          )}
           {this.tableFooter}
         </table>
         {this.renderPluginFooters()}

@@ -15,7 +15,7 @@ export type IResponsiveTableColumnDefinition<TData> = {
       // Case 1: Column has sorting/filtering properties, so dataKey is required
       dataKey: keyof TData; // dataKey is required and type-safe
       getFilterableValue?: (data: TData) => string | number;
-      getSortableValue?: (row: TData) => any;
+      getSortableValue?: (row: TData) => string | number;
       sortComparer?: (a: TData, b: TData, direction: SortDirection) => number;
     }
   | {
