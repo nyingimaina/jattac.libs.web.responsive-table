@@ -5,11 +5,28 @@ import IFooterRowDefinition from '../Data/IFooterRowDefinition';
 import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
 import { FilterPlugin } from '../Plugins/FilterPlugin';
 import { InfiniteScrollPlugin } from '../Plugins/InfiniteScrollPlugin';
-import { FixedSizeList as List } from 'react-window';
+import InfiniteTable from './InfiniteTable';
+
 
 export type ColumnDefinition<TData> =
   | IResponsiveTableColumnDefinition<TData>
   | ((data: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>);
+type InfiniteScrollDisabled = {
+  enableInfiniteScroll?: false;
+  onLoadMore?: never;
+  hasMore?: never;
+  loadingMoreComponent?: never;
+  noMoreDataComponent?: never;
+};
+
+type InfiniteScrollEnabled<TData> = {
+  enableInfiniteScroll: true;
+  onLoadMore: (currentData: TData[]) => Promise<TData[] | null>;
+  hasMore?: boolean;
+  loadingMoreComponent?: ReactNode;
+  noMoreDataComponent?: ReactNode;
+};
+
 interface IProps<TData> {
   columnDefinitions: ColumnDefinition<TData>[];
   data: TData[];
@@ -20,13 +37,7 @@ interface IProps<TData> {
   mobileBreakpoint?: number;
   plugins?: IResponsiveTablePlugin<TData>[];
   enablePageLevelStickyHeader?: boolean;
-  infiniteScrollProps?: {
-    enableInfiniteScroll?: boolean;
-    onLoadMore?: (currentData: TData[]) => Promise<TData[] | null>;
-    hasMore?: boolean;
-    loadingMoreComponent?: ReactNode;
-    noMoreDataComponent?: ReactNode;
-  };
+  infiniteScrollProps?: InfiniteScrollDisabled | InfiniteScrollEnabled<TData>;
   filterProps?: {
     showFilter?: boolean;
     filterPlaceholder?: string;
@@ -126,14 +137,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
       this.processData();
     }
 
-    // Handle infinite scroll loading
-    if (this.props.infiniteScrollProps?.enableInfiniteScroll && this.props.infiniteScrollProps?.hasMore && !this.state.isLoadingMore && this.props.infiniteScrollProps?.onLoadMore) {
-      // This condition will be met when the parent component updates `data` and `hasMore`
-      // after a successful load, or when `hasMore` becomes true.
-      // The actual load trigger is within the InfiniteScrollPlugin via `onItemsRendered`
-      // or `handleScroll`.
-
-    }
+    
   }
 
   private handleScroll = (): void => {
@@ -435,27 +439,6 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
       ? ({ maxHeight: this.props.maxHeight, overflowY: 'auto' } as CSSProperties)
       : {};
 
-    const Row = ({ index, style }: { index: number; style: CSSProperties }) => {
-      const row = this.data[index];
-      if (!row) return null; // Should not happen with correct item count
-
-      return (
-        <tr
-          key={index}
-          className={this.props.animationProps?.animateOnLoad ? styles.animatedRow : ''}
-          style={{ ...style, animationDelay: `${index * 0.05}s` }}
-        >
-          {this.props.columnDefinitions.map((columnDefinition, colIndex) => (
-            <td onClick={() => this.rowClickFunction(row)} key={colIndex}>
-              <span style={{ ...this.rowClickStyle }}>
-                {this.getColumnDefinition(columnDefinition, index).cellRenderer(row)}
-              </span>
-            </td>
-          ))}
-        </tr>
-      );
-    };
-
     return (
       <div style={fixedHeadersStyle} ref={this.tableContainerRef}>
         <table className={styles['responsiveTable']}>
@@ -493,36 +476,23 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
               })}
             </tr>
           </thead>
-          {this.props.infiniteScrollProps?.enableInfiniteScroll ? (
-            <List
-              height={fixedHeadersStyle.maxHeight ? (typeof fixedHeadersStyle.maxHeight === 'string' ? parseFloat(fixedHeadersStyle.maxHeight) : fixedHeadersStyle.maxHeight) : 500} // Default height if not provided
-              itemCount={this.data.length}
-              itemSize={50} // Average row height, can be made configurable
-              width={'100%'}
-              outerRef={this.tableContainerRef} // Pass ref to outer element for scroll events
-              outerElementType={React.forwardRef((props, ref) => <tbody ref={ref as React.Ref<HTMLTableSectionElement>} {...props} />)}
-            >
-              {Row}
-            </List>
-          ) : (
-            <tbody>
-              {this.data.map((row, rowIndex) => (
-                <tr
-                  key={rowIndex}
-                  className={this.props.animationProps?.animateOnLoad ? styles.animatedRow : ''}
-                  style={{ animationDelay: `${rowIndex * 0.05}s` }}
-                >
-                  {this.props.columnDefinitions.map((columnDefinition, colIndex) => (
-                    <td onClick={() => this.rowClickFunction(row)} key={colIndex}>
-                      <span style={{ ...this.rowClickStyle }}>
-                        {this.getColumnDefinition(columnDefinition, rowIndex).cellRenderer(row)}
-                      </span>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          )}
+          <tbody>
+            {this.data.map((row, rowIndex) => (
+              <tr
+                key={rowIndex}
+                className={this.props.animationProps?.animateOnLoad ? styles.animatedRow : ''}
+                style={{ animationDelay: `${rowIndex * 0.05}s` }}
+              >
+                {this.props.columnDefinitions.map((columnDefinition, colIndex) => (
+                  <td onClick={() => this.rowClickFunction(row)} key={colIndex}>
+                    <span style={{ ...this.rowClickStyle }}>
+                      {this.getColumnDefinition(columnDefinition, rowIndex).cellRenderer(row)}
+                    </span>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
           {this.tableFooter}
         </table>
         {this.renderPluginFooters()}
@@ -561,6 +531,10 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   }
 
   render() {
+    if (this.props.infiniteScrollProps?.enableInfiniteScroll) {
+      return <InfiniteTable {...this.props} />;
+    }
+
     if (this.props.animationProps?.isLoading) {
       return this.skeletonView;
     }

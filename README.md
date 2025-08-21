@@ -9,7 +9,7 @@ ResponsiveTable is a powerful, lightweight, and fully responsive React component
 - **Dynamic Data Handling**: Define columns and footers based on your data or application state.
 - **Delightful Animations**: Includes an optional skeleton loader and staggered row entrance animations.
 - **Interactive Elements**: Easily add click handlers for rows, headers, and footer cells.
-- **Performant**: Built with performance in mind, including debounced resize handling.
+- **Efficient & Responsive**: Built with efficiency in mind, including debounced resize handling for smooth transitions.
 - **Easy to Use**: A simple and intuitive API for quick integration.
 - **Extensible Plugin System**: Easily add new functionalities like filtering, sorting, or infinite scrolling.
 
@@ -230,15 +230,9 @@ const TableWithFooter = () => {
 };
 ```
 
-### Example 6: Disabling the Page-Level Sticky Header (ELI5)
+### Example 6: Disabling Page-Level Sticky Header
 
-**Explain Like I'm 5:** Imagine you have a super long grocery list on a piece of paper (the webpage). The titles of the columns are "Item", "Quantity", and "Price" (the table header).
-
-Normally, as you slide the paper up to see items at the bottom, the titles disappear off the top.
-
-This table has a special power: by default, the header "sticks" to the top of your view so you never forget which column is which.
-
-But what if you don't want it to stick? The `enablePageLevelStickyHeader={false}` prop is like a magic switch. Flipping it to `false` tells the header to scroll away normally with the rest of the page.
+By default, the table header remains fixed to the top of the viewport as the user scrolls down the page. This ensures the column titles are always visible. To disable this behavior and have the header scroll away with the rest of the page, set the `enablePageLevelStickyHeader` prop to `false`.
 
 ```jsx
 import React from 'react';
@@ -501,81 +495,88 @@ const FilterableTable = () => {
 
 #### `InfiniteScrollPlugin`
 
-Enables infinite scrolling for the table, loading more data as the user scrolls to the bottom. This plugin requires the `maxHeight` prop to be set on the `ResponsiveTable` to define a scrollable area.
+Enables a simple infinite scroll for loading more data as the user scrolls to the bottom of the table. This is useful for progressively loading data from an API without needing traditional pagination buttons.
 
-**Props for `InfiniteScrollPlugin` (via `infiniteScrollProps` on `ResponsiveTable`):**
+> **Important:** To enable infinite scroll, you **must** give the table a bounded height. This is done by passing the `maxHeight` prop to the `<ResponsiveTable>`. This prop creates a scrollable container for the table body, which is required for the scroll detection to work.
 
-| Prop                   | Type                                       | Description                                                                              |
-| ---------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `enableInfiniteScroll` | `boolean`                                  | If `true`, enables infinite scrolling.                                                   |
-| `onLoadMore`           | `(currentData: TData[]) => Promise<TData[] | null>`                                                                                   | Callback function to load more data. Should return a Promise resolving to new data or `null`. |
-| `hasMore`              | `boolean`                                  | Indicates if there is more data to load.                                                 |
-| `loadingMoreComponent` | `ReactNode`                                | Custom component to display while loading more data. Defaults to "Loading more...".      |
-| `noMoreDataComponent`  | `ReactNode`                                | Custom component to display when no more data is available. Defaults to "No more data.". |
+> **Performance Note:** This implementation renders all loaded rows into the DOM to guarantee correct column alignment and simplicity. It is **not a virtualized list**. For extremely large datasets (many thousands of rows), performance may degrade as more rows are loaded. It is best suited for scenarios where loading a few hundred up to a couple thousand rows is expected.
 
-**Example with `InfiniteScrollPlugin`:**
+**Configuration (via `infiniteScrollProps` on `ResponsiveTable`):**
+
+| Prop                   | Type                                         | Description                                                                                                                              |
+| ---------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `enableInfiniteScroll` | `boolean`                                    | If `true`, enables infinite scrolling.                                                                                                   |
+| `hasMore`              | `boolean`                                    | Set to `true` if there is more data to load, `false` otherwise. This tells the table whether to show the loading indicator.              |
+| `onLoadMore`           | `(currentData: TData[]) => Promise<TData[]>` | A callback function that fires when the user scrolls near the end. It should fetch the next page of data and return it in a Promise. |
+| `loadingMoreComponent` | `ReactNode`                                  | A custom component to display at the bottom while new data is being loaded. Defaults to "Loading more...".                               |
+| `noMoreDataComponent`  | `ReactNode`                                  | A custom component to display at the bottom when `hasMore` is `false`. Defaults to "No more data.".                                      |
+
+**Comprehensive Example:**
+
+Here is a complete example showing how to use the infinite scroll feature. The parent component only needs to provide a function that fetches the next page of data.
 
 ```jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import ResponsiveTable from 'jattac.libs.web.responsive-table';
 
-const InfiniteScrollTable = () => {
-  const [data, setData] = useState([]);
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(0);
+// Define the shape of our data items
+interface DataItem {
+  id: number;
+  value: string;
+}
 
-  const fetchData = async (currentPage) => {
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const newData = [];
-        for (let i = 0; i < 10; i++) {
-          newData.push({ id: currentPage * 10 + i, value: `Item ${currentPage * 10 + i}` });
-        }
-        resolve(newData);
-      }, 500);
-    });
-  };
+// This is a mock API function to simulate fetching data.
+// In a real app, this would be an actual network request.
+const fetchData = async (page: number): Promise<DataItem[]> => {
+  console.log(`Fetching page: ${page}`);
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      // Return an empty array for pages > 5 to simulate the end of the data
+      if (page > 5) {
+        resolve([]);
+        return;
+      }
+      // Generate 20 new items for the current page
+      const newData = Array.from({ length: 20 }, (_, i) => ({
+        id: page * 20 + i,
+        value: `Item #${page * 20 + i}`,
+      }));
+      resolve(newData);
+    }, 500); // Simulate network latency
+  });
+};
 
-  useEffect(() => {
-    fetchData(0).then((initialData) => {
-      setData(initialData);
-      setPage(1);
-    });
-  }, []);
+const InfiniteScrollExample = () => {
+  // Keep track of the next page to fetch.
+  const [nextPage, setNextPage] = useState(0);
 
-  const onLoadMore = async (currentData) => {
-    if (!hasMore) return null;
-
-    const newItems = await fetchData(page);
-    if (newItems.length === 0) {
-      setHasMore(false);
-      return null;
-    }
-    setData((prevData) => [...prevData, ...newItems]);
-    setPage((prevPage) => prevPage + 1);
-    return newItems; // Return new items for the plugin to know data was loaded
-  };
+  // The onLoadMore function is now much simpler.
+  // It just needs to fetch the data and return it.
+  // The table will handle appending the data and managing the `hasMore` state internally.
+  const loadMoreItems = useCallback(async () => {
+    const newItems = await fetchData(nextPage);
+    setNextPage((prevPage) => prevPage + 1);
+    return newItems; // <-- Simply return the new items
+  }, [nextPage]);
 
   const columns = [
-    { displayLabel: 'ID', cellRenderer: (row) => row.id },
-    { displayLabel: 'Value', cellRenderer: (row) => row.value },
+    { displayLabel: 'ID', dataKey: 'id', cellRenderer: (row) => row.id },
+    { displayLabel: 'Value', dataKey: 'value', cellRenderer: (row) => row.value },
   ];
 
   return (
-    <div style={{ height: '300px' }}>
-      {' '}
-      {/* Container for scrollable table */}
+    // The table MUST be inside a container with a defined height.
+    <div style={{ height: '400px' }}>
       <ResponsiveTable
         columnDefinitions={columns}
-        data={data}
+        data={[]} // Start with an empty array of initial data
         maxHeight="100%"
         infiniteScrollProps={{
           enableInfiniteScroll: true,
-          onLoadMore: onLoadMore,
-          hasMore: hasMore,
-          loadingMoreComponent: <div>Loading more items...</div>,
-          noMoreDataComponent: <div>All items loaded.</div>,
+          onLoadMore: loadMoreItems,
+          // Note: `hasMore` is not needed! The component infers it.
+          loadingMoreComponent: <h4>Loading more items...</h4>,
+          noMoreDataComponent: <p>You've reached the end!</p>,
         }}
       />
     </div>

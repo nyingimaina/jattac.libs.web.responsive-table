@@ -1,6 +1,6 @@
 {
   "name": "jattac.libs.web.responsive-table",
-  "version": "0.2.13",
+  "version": "0.2.18",
   "description": "A fully responsive, customizable, and lightweight React table component with a modern, mobile-first design and a powerful plugin system.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -60,7 +60,6 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "react-window": "^1.8.11",
     "tslib": "^2.6.2"
   }
 }
