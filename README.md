@@ -272,6 +272,17 @@ const NonStickyHeaderTable = () => {
 
 ResponsiveTable is designed with an extensible plugin system, allowing developers to easily add new functionalities or modify existing behaviors without altering the core component. Plugins can interact with the table's data, render custom UI elements (like headers or footers), and respond to table events.
 
+### Plugin Execution Order
+
+> **Note:** Plugins process data sequentially in the order they are provided in the `plugins` array. This can have important performance and behavioral implications.
+
+For example, consider the `SortPlugin` and `FilterPlugin`.
+
+- `plugins={[new SortPlugin(), new FilterPlugin()]}`: This will **sort** the entire dataset first, and then **filter** the sorted data.
+- `plugins={[new FilterPlugin(), new SortPlugin()]}`: This will **filter** the dataset first, and then **sort** the much smaller, filtered result.
+
+For the best performance, it is highly recommended to **filter first, then sort**.
+
 ### How to Use Plugins
 
 Plugins are passed to the `ResponsiveTable` component via the `plugins` prop, which accepts an array of `IResponsiveTablePlugin` instances. Some common functionalities, like filtering and infinite scrolling, are provided as built-in plugins that can be enabled via specific props (`filterProps` and `infiniteScrollProps`). When these props are used, the corresponding built-in plugins are automatically initialized if not already provided in the `plugins` array.
@@ -334,9 +345,8 @@ interface User {
 }
 
 // 1. Create a single, generic instance of the plugin.
-//    This is the ONLY setup step required.
 const sortPlugin = new SortPlugin<User>({
-  initialSortColumn: 'logins',
+  initialSortColumn: 'user_logins', // Use the columnId
   initialSortDirection: 'desc',
 });
 
@@ -357,7 +367,7 @@ const UserTable = ({ users }) => (
 
 **How to Make Columns Sortable (Opt-In):**
 
-A column is made sortable by adding either a `sortComparer` or a `getSortableValue` property to its definition.
+A column is made sortable by adding a **`columnId`** and either a `sortComparer` or a `getSortableValue` property to its definition. The `columnId` must be a unique string that identifies the column.
 
 - `sortComparer`: A function that defines the exact comparison logic. This is the most powerful option and should be used for complex data types or custom logic.
 - `getSortableValue`: A simpler function that just returns the primitive value (string, number, etc.) to be used in a default comparison.
@@ -369,6 +379,7 @@ The `SortPlugin` instance provides a `comparers` object with pre-built, type-saf
 ```jsx
 const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
   {
+    columnId: 'user_name',
     displayLabel: 'Name',
     dataKey: 'name',
     cellRenderer: (user) => user.name,
@@ -377,6 +388,7 @@ const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
     sortComparer: sortPlugin.comparers.caseInsensitiveString('name'),
   },
   {
+    columnId: 'user_signup_date',
     displayLabel: 'Signup Date',
     dataKey: 'signupDate',
     cellRenderer: (user) => new Date(user.signupDate).toLocaleDateString(),
@@ -384,12 +396,14 @@ const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
     sortComparer: sortPlugin.comparers.date('signupDate'),
   },
   {
+    columnId: 'user_logins',
     displayLabel: 'Logins',
     dataKey: 'logins',
     cellRenderer: (user) => user.logins,
     sortComparer: sortPlugin.comparers.numeric('logins'),
   },
   {
+    columnId: 'user_actions',
     displayLabel: 'Actions',
     // This column is NOT sortable because it has no sort-related properties.
     cellRenderer: (user) => <button>View</button>,
@@ -397,15 +411,15 @@ const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
 ];
 ```
 
-**Example 2: Writing a Custom `sortComparer`**
+**Example 2: Writing a Custom `sortComparer` for a Computed Column**
 
-For unique requirements, you can write your own comparison function from scratch.
+For unique requirements, you can write your own comparison function. Notice how `columnId` is used without a `dataKey`.
 
 ```jsx
 const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
   {
+    columnId: 'user_name_custom',
     displayLabel: 'Name',
-    dataKey: 'name',
     cellRenderer: (user) => user.name,
     // Writing custom logic for a case-sensitive sort
     sortComparer: (a, b, direction) => {
@@ -426,6 +440,7 @@ If you don't need special logic, `getSortableValue` is a concise way to enable d
 ```jsx
 const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
   {
+    columnId: 'user_logins_simple',
     displayLabel: 'Logins',
     dataKey: 'logins',
     cellRenderer: (user) => user.logins,
@@ -437,10 +452,10 @@ const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
 
 **Plugin Options (via `new SortPlugin(options)`):**
 
-| Prop                   | Type (`keyof TData`) | Description                                       |
-| ---------------------- | -------------------- | ------------------------------------------------- |
-| `initialSortColumn`    | `string`             | The `dataKey` of the column to sort by initially. |
-| `initialSortDirection` | `'asc' \| 'desc'`    | The direction for the initial sort.               |
+| Prop                   | Type              | Description                                          |
+| ---------------------- | ----------------- | ---------------------------------------------------- |
+| `initialSortColumn`    | `string`          | The `columnId` of the column to sort by initially.   |
+| `initialSortDirection` | `'asc' \| 'desc'` | The direction for the initial sort.                  |
 
 **`SortPlugin.comparers` API:**
 
@@ -453,6 +468,9 @@ The `comparers` object on your `SortPlugin` instance provides the following help
 | `date(dataKey)`                  | Correctly sorts dates, assuming the data is a valid date string or timestamp. |
 
 #### `FilterPlugin`
+
+> **Warning: Incompatible with Infinite Scroll**
+> The `FilterPlugin` is a client-side utility that only operates on data currently loaded in the browser. It is **not compatible** with the `InfiniteScrollPlugin`, as it cannot search data that has not yet been fetched from the server. For tables using infinite scroll, filtering logic must be implemented server-side by your application and passed into the `onLoadMore` function.
 
 Provides a search input to filter table data. It can be enabled by setting `filterProps.showFilter` to `true` on the `ResponsiveTable` component. For columns to be filterable, you must provide a `getFilterableValue` function in their `IResponsiveTableColumnDefinition`.
 
@@ -494,6 +512,9 @@ const FilterableTable = () => {
 ```
 
 #### `InfiniteScrollPlugin`
+
+> **Warning: Incompatible with Client-Side Filtering**
+> The `InfiniteScrollPlugin` fetches data in chunks from a server. It is **not compatible** with the client-side `FilterPlugin`. For filtering to work correctly with infinite scroll, you must implement the filtering logic on your server and have the `onLoadMore` function fetch data that is already filtered.
 
 Enables a simple infinite scroll for loading more data as the user scrolls to the bottom of the table. This is useful for progressively loading data from an API without needing traditional pagination buttons.
 
@@ -611,7 +632,8 @@ const InfiniteScrollExample = () => {
 | -------------------- | ------------------------------------------------------------ | -------- | ---------------------------------------------------------------------------------------- |
 | `displayLabel`       | `ReactNode`                                                  | Yes      | The label displayed in the table header (can be a string or any React component).        |
 | `cellRenderer`       | `(row: TData) => ReactNode`                                  | Yes      | A function that returns the content to be rendered in the cell.                          |
-| `dataKey`            | `string`                                                     | No       | A key to match the column to a property in the data object (required for sorting).       |
+| `columnId`           | `string`                                                     | No       | A unique string to identify the column. **Required** if the column is sortable.          |
+| `dataKey`            | `keyof TData`                                                | No       | A key to match the column to a property in the data object.                              |
 | `interactivity`      | `object`                                                     | No       | An object to define header interactivity (`onHeaderClick`, `id`, `className`).           |
 | `getFilterableValue` | `(row: TData) => string \| number`                           | No       | A function that returns the string or number value to be used for filtering this column. |
 | `getSortableValue`   | `(row: TData) => any`                                        | No       | A function that returns a primitive value from a row to be used for default sorting.     |

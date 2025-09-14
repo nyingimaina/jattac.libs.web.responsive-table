@@ -439,10 +439,14 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
       ? ({ maxHeight: this.props.maxHeight, overflowY: 'auto' } as CSSProperties)
       : {};
 
+    const headerClassName = useFixedHeaders
+      ? styles.internalStickyHeader
+      : (this.state.isHeaderSticky ? styles.stickyHeader : '');
+
     return (
       <div style={fixedHeadersStyle} ref={this.tableContainerRef}>
         <table className={styles['responsiveTable']}>
-          <thead ref={this.headerRef} className={this.state.isHeaderSticky ? styles.stickyHeader : ''}>
+          <thead ref={this.headerRef} className={headerClassName}>
             <tr>
               {this.props.columnDefinitions.map((columnDefinition, colIndex) => {
                 const onHeaderClickCallback = this.onHeaderClickCallback(columnDefinition);

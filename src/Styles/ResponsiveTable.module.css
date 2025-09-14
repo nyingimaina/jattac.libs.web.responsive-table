@@ -65,8 +65,8 @@
 
 .responsiveTable thead th {
   background-color: var(--table-header-bg);
-  position: sticky;
-  top: 0;
+  /* position: sticky; <-- REMOVED to prevent conflict with transform */
+  /* top: 0; <-- REMOVED */
   z-index: 1;
   font-weight: 600;
   text-align: left;
@@ -323,11 +323,17 @@
   }
 }
 
-.stickyHeader {
+.stickyHeader th {
   position: sticky;
   top: 0;
   z-index: 1;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.internalStickyHeader th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 /* Spinner for Loading More */
 .spinner {

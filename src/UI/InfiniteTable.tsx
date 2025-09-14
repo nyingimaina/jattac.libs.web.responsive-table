@@ -149,22 +149,27 @@ class InfiniteTable<TData> extends Component<IProps<TData>, IState<TData>> {
     if (!infiniteScrollProps) return;
 
     this.setState({ isLoadingMore: true }, async () => {
+      try {
         const newItems = await infiniteScrollProps?.onLoadMore?.(this.state.internalData);
 
         if (this.props.infiniteScrollProps?.hasMore === undefined) {
-            if (!newItems || newItems.length === 0) {
-                this.setState({ internalHasMore: false });
-            }
+          if (!newItems || newItems.length === 0) {
+            this.setState({ internalHasMore: false });
+          }
         }
 
         if (newItems && newItems.length > 0) {
-            const newInternalData = [...this.state.internalData, ...newItems];
-            this.setState({ internalData: newInternalData }, () => {
-                this.processData(); // Re-process data after new items are added
-            });
+          const newInternalData = [...this.state.internalData, ...newItems];
+          this.setState({ internalData: newInternalData }, () => {
+            this.processData(); // Re-process data after new items are added
+          });
         }
-
+      } catch (error) {
+        console.error("Failed to load more items for infinite scroll:", error);
+        // Optionally, you could add a state to show an error message to the user
+      } finally {
         this.setState({ isLoadingMore: false });
+      }
     });
   }
 

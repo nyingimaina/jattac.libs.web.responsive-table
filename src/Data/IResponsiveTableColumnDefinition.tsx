@@ -5,6 +5,10 @@ export type SortDirection = 'asc' | 'desc';
 export type IResponsiveTableColumnDefinition<TData> = {
   displayLabel: ReactNode;
   cellRenderer: (data: TData) => ReactNode;
+  /**
+   * A unique identifier for the column. Required for sorting.
+   */
+  columnId?: string;
   interactivity?: {
     id: string;
     onHeaderClick?: (id: string) => void;
@@ -12,8 +16,8 @@ export type IResponsiveTableColumnDefinition<TData> = {
   };
 } & (
   | {
-      // Case 1: Column has sorting/filtering properties, so dataKey is required
-      dataKey: keyof TData; // dataKey is required and type-safe
+      // Case 1: Column has sorting/filtering properties
+      dataKey?: keyof TData; // dataKey is optional
       getFilterableValue?: (data: TData) => string | number;
       getSortableValue?: (row: TData) => string | number;
       sortComparer?: (a: TData, b: TData, direction: SortDirection) => number;

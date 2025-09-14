@@ -23,20 +23,20 @@ const createSortComparers = <TData>() => ({
   },
 });
 
-export interface ISortPluginOptions<TData> {
-  initialSortColumn?: keyof TData;
+export interface ISortPluginOptions {
+  initialSortColumn?: string; // Changed to string to accept columnId
   initialSortDirection?: SortDirection;
 }
 
 export class SortPlugin<TData> implements IResponsiveTablePlugin<TData> {
   public id = 'sort';
   private api!: IPluginAPI<TData>;
-  private sortColumn: keyof TData | null;
+  private sortColumn: string | null; // Changed to string to store columnId
   private sortDirection: SortDirection | null;
 
   public readonly comparers = createSortComparers<TData>();
 
-  constructor(options?: ISortPluginOptions<TData>) {
+  constructor(options?: ISortPluginOptions) {
     this.sortColumn = options?.initialSortColumn ?? null;
     this.sortDirection = options?.initialSortDirection ?? null;
   }
@@ -51,10 +51,10 @@ export class SortPlugin<TData> implements IResponsiveTablePlugin<TData> {
     }
 
     const columnDef = this.api.columnDefinitions.find(
-      (col) => ('dataKey' in col && col.dataKey === this.sortColumn)
+      (col) => (typeof col === 'object' && col.columnId === this.sortColumn)
     ) as IResponsiveTableColumnDefinition<TData> | undefined;
 
-    if (!columnDef || !('dataKey' in columnDef)) {
+    if (!columnDef) {
       return data;
     }
 
@@ -63,17 +63,24 @@ export class SortPlugin<TData> implements IResponsiveTablePlugin<TData> {
         return columnDef.sortComparer(a, b, this.sortDirection!);
       }
 
-      let aValue, bValue;
       if ('getSortableValue' in columnDef && columnDef.getSortableValue) {
-        aValue = columnDef.getSortableValue(a);
-        bValue = columnDef.getSortableValue(b);
-      } else {
-        aValue = a[this.sortColumn as keyof TData];
-        bValue = b[this.sortColumn as keyof TData];
+        const aValue = columnDef.getSortableValue(a);
+        const bValue = columnDef.getSortableValue(b);
+        if (aValue < bValue) return this.sortDirection === 'asc' ? -1 : 1;
+        if (aValue > bValue) return this.sortDirection === 'asc' ? 1 : -1;
+        return 0;
       }
 
-      if (aValue < bValue) return this.sortDirection === 'asc' ? -1 : 1;
-      if (aValue > bValue) return this.sortDirection === 'asc' ? 1 : -1;
+      // Fallback to dataKey if it exists and no other sorter is provided
+      if ('dataKey' in columnDef && columnDef.dataKey) {
+        const key = columnDef.dataKey as keyof TData;
+        const aValue = a[key];
+        const bValue = b[key];
+        if (aValue < bValue) return this.sortDirection === 'asc' ? -1 : 1;
+        if (aValue > bValue) return this.sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      }
+
       return 0;
     });
 
@@ -81,20 +88,16 @@ export class SortPlugin<TData> implements IResponsiveTablePlugin<TData> {
   };
 
   public getHeaderProps = (columnDef: IResponsiveTableColumnDefinition<TData>) => {
-    // Ensure dataKey exists for sortable columns
-    if (!('dataKey' in columnDef)) {
-      return {};
-    }
-
-    const { dataKey } = columnDef;
+    const { columnId } = columnDef;
     const isSortable = ('sortComparer' in columnDef && !!columnDef.sortComparer) || ('getSortableValue' in columnDef && !!columnDef.getSortableValue);
 
-    if (!isSortable) {
+    // A column must have a columnId and a sort function to be sortable
+    if (!isSortable || !columnId) {
       return {};
     }
 
     const onHeaderClick = () => {
-      if (this.sortColumn === dataKey) {
+      if (this.sortColumn === columnId) {
         if (this.sortDirection === 'desc') {
           this.sortColumn = null;
           this.sortDirection = null;
@@ -102,21 +105,21 @@ export class SortPlugin<TData> implements IResponsiveTablePlugin<TData> {
           this.sortDirection = 'desc';
         }
       } else {
-        this.sortColumn = dataKey as keyof TData;
+        this.sortColumn = columnId;
         this.sortDirection = 'asc';
       }
       this.api.forceUpdate();
     };
 
     let sortClassName = 'sortable';
-    if (this.sortColumn === dataKey) {
+    if (this.sortColumn === columnId) {
       sortClassName = `sorted-${this.sortDirection}`;
     }
 
     return {
       onClick: onHeaderClick,
       className: sortClassName,
-      'aria-sort': (this.sortColumn === dataKey ? (this.sortDirection === 'asc' ? 'ascending' : 'descending') : 'none') as 'none' | 'ascending' | 'descending',
+      'aria-sort': (this.sortColumn === columnId ? (this.sortDirection === 'asc' ? 'ascending' : 'descending') : 'none') as 'none' | 'ascending' | 'descending',
     };
   };
 }
