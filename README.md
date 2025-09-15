@@ -413,6 +413,8 @@ const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
 
 **Example 2: Writing a Custom `sortComparer` for a Computed Column**
 
+> **Important:** When writing a custom `sortComparer`, you **must** include all three parameters (`a`, `b`, and `direction`) in your function signature. Forgetting the `direction` parameter will cause descending sorts to fail. The IDE is configured to provide a warning if you forget, and the developer console will also show a warning at runtime.
+
 For unique requirements, you can write your own comparison function. Notice how `columnId` is used without a `dataKey`.
 
 ```jsx

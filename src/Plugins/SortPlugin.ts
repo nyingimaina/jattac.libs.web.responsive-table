@@ -74,6 +74,11 @@ export class SortPlugin<TData> implements IResponsiveTablePlugin<TData> {
 
     const sortedData = [...data].sort((a, b) => {
       if ('sortComparer' in columnDef && columnDef.sortComparer) {
+        if (columnDef.sortComparer.length < 3) {
+          console.warn(
+            `The custom sortComparer for column '${this.sortColumn}' should accept all three parameters (a, b, direction) to ensure correct sorting behavior. You provided a function with ${columnDef.sortComparer.length} parameters.`
+          );
+        }
         return columnDef.sortComparer(a, b, this.sortDirection!);
       }
 
