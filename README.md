@@ -511,12 +511,12 @@ const FilterableTable = () => {
 };
 ```
 
-#### `InfiniteScrollPlugin`
+#### Infinite Scroll
 
 > **Warning: Incompatible with Client-Side Filtering**
-> The `InfiniteScrollPlugin` fetches data in chunks from a server. It is **not compatible** with the client-side `FilterPlugin`. For filtering to work correctly with infinite scroll, you must implement the filtering logic on your server and have the `onLoadMore` function fetch data that is already filtered.
+> The infinite scroll feature fetches data in chunks from a server. It is **not compatible** with the client-side `FilterPlugin`. For filtering to work correctly with infinite scroll, you must implement the filtering logic on your server and have the `onLoadMore` function fetch data that is already filtered.
 
-Enables a simple infinite scroll for loading more data as the user scrolls to the bottom of the table. This is useful for progressively loading data from an API without needing traditional pagination buttons.
+Enables a simple infinite scroll for loading more data as the user scrolls to the bottom of the table. This is useful for progressively loading data from an API without needing traditional pagination buttons. When enabled, the `ResponsiveTable` renders a specialized internal component optimized for this purpose.
 
 > **Important:** To enable infinite scroll, you **must** give the table a bounded height. This is done by passing the `maxHeight` prop to the `<ResponsiveTable>`. This prop creates a scrollable container for the table body, which is required for the scroll detection to work.
 
@@ -524,13 +524,13 @@ Enables a simple infinite scroll for loading more data as the user scrolls to th
 
 **Configuration (via `infiniteScrollProps` on `ResponsiveTable`):**
 
-| Prop                   | Type                                         | Description                                                                                                                              |
-| ---------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `enableInfiniteScroll` | `boolean`                                    | If `true`, enables infinite scrolling.                                                                                                   |
-| `hasMore`              | `boolean`                                    | Set to `true` if there is more data to load, `false` otherwise. This tells the table whether to show the loading indicator.              |
-| `onLoadMore`           | `(currentData: TData[]) => Promise<TData[]>` | A callback function that fires when the user scrolls near the end. It should fetch the next page of data and return it in a Promise. |
-| `loadingMoreComponent` | `ReactNode`                                  | A custom component to display at the bottom while new data is being loaded. Defaults to "Loading more...".                               |
-| `noMoreDataComponent`  | `ReactNode`                                  | A custom component to display at the bottom when `hasMore` is `false`. Defaults to "No more data.".                                      |
+| Prop                   | Type                                                 | Description                                                                                                                                                                                                                            |
+| ---------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enableInfiniteScroll` | `boolean`                                            | If `true`, enables infinite scrolling.                                                                                                                                                                                                 |
+| `hasMore`              | `boolean`                                            | **Optional.** Controls the loading indicator. If omitted, the component infers this state automatically by checking if `onLoadMore` returns an empty array or `null`. If provided, your app is responsible for managing this state. |
+| `onLoadMore`           | `(currentData: TData[]) => Promise<TData[] | null>` | A callback function that fires when the user scrolls near the end. It should fetch the next page of data and return it in a Promise. The component will stop trying to load more when this function returns `null` or an empty array. |
+| `loadingMoreComponent` | `ReactNode`                                          | A custom component to display at the bottom while new data is being loaded. Defaults to a spinner animation.                                                                                                                         |
+| `noMoreDataComponent`  | `ReactNode`                                          | A custom component to display at the bottom when `hasMore` is `false`. Defaults to a "No more data" message.                                                                                                                            |
 
 **Comprehensive Example:**
 
@@ -595,7 +595,7 @@ const InfiniteScrollExample = () => {
         infiniteScrollProps={{
           enableInfiniteScroll: true,
           onLoadMore: loadMoreItems,
-          // Note: `hasMore` is not needed! The component infers it.
+          
           loadingMoreComponent: <h4>Loading more items...</h4>,
           noMoreDataComponent: <p>You've reached the end!</p>,
         }}
@@ -613,7 +613,7 @@ const InfiniteScrollExample = () => {
 
 | Prop                          | Type                                 | Required | Description                                                                                         |
 | ----------------------------- | ------------------------------------ | -------- | --------------------------------------------------------------------------------------------------- |
-| `columnDefinitions`           | `IResponsiveTableColumnDefinition[]` | Yes      | An array of objects defining the table columns.                                                     |
+| `columnDefinitions`           | `IResponsiveTableColumnDefinition[]` | Yes      | An array of objects defining the table columns. Can also accept a function for dynamic column generation. |
 | `data`                        | `TData[]`                            | Yes      | An array of data objects to populate the table rows.                                                |
 | `footerRows`                  | `IFooterRowDefinition[]`             | No       | An array of objects defining the table footer.                                                      |
 | `onRowClick`                  | `(item: TData) => void`              | No       | A callback function that is triggered when a row is clicked.                                        |
@@ -622,7 +622,7 @@ const InfiniteScrollExample = () => {
 | `mobileBreakpoint`            | `number`                             | No       | The pixel width at which the table switches to the mobile view. Defaults to `600`.                  |
 | `enablePageLevelStickyHeader` | `boolean`                            | No       | If `false`, disables the header from sticking to the top of the page on scroll. Defaults to `true`. |
 | `plugins`                     | `IResponsiveTablePlugin<TData>[]`    | No       | An array of plugin instances to extend table functionality.                                         |
-| `infiniteScrollProps`         | `object`                             | No       | Configuration for the built-in infinite scroll plugin.                                              |
+| `infiniteScrollProps`         | `object`                             | No       | Configuration for the infinite scroll feature. When enabled, a specialized component handles data loading. |
 | `filterProps`                 | `object`                             | No       | Configuration for the built-in filter plugin.                                                       |
 | `animationProps`              | `object`                             | No       | Configuration for animations, including `isLoading` and `animateOnLoad`.                            |
 
