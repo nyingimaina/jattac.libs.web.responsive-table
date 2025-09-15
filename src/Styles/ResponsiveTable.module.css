@@ -79,6 +79,7 @@
   align-items: center; /* Vertically center content */
   justify-content: space-between; /* Push icon to the right */
   width: 100%; /* Ensure it takes full width of th */
+  position: relative; /* Contain the absolutely positioned sort icon */
 }
 
 .headerContent {
@@ -125,7 +126,7 @@
 .responsiveTable th.sorted-asc,
 .responsiveTable th.sorted-desc {
   cursor: pointer;
-  position: relative;
+  /* position: relative; <-- REMOVED to fix sticky header bug */
   padding-right: 2.5rem; /* Space for the icon (1rem icon + 1rem margin + 0.5rem right offset) */
   transition: transform 0.2s ease-in-out; /* Add transition for smooth scaling */
 }
