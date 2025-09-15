@@ -5,20 +5,34 @@ import { IResponsiveTableColumnDefinition, SortDirection } from '../Data/IRespon
 // Type-safe sort comparer helpers
 const createSortComparers = <TData>() => ({
   numeric: (key: keyof TData) => (a: TData, b: TData, direction: SortDirection) => {
-    const valA = a[key] as unknown as number;
-    const valB = b[key] as unknown as number;
-    return direction === 'asc' ? valA - valB : valB - valA;
+    const numA = parseFloat(String(a[key]));
+    const numB = parseFloat(String(b[key]));
+    const aIsNaN = isNaN(numA);
+    const bIsNaN = isNaN(numB);
+
+    if (aIsNaN && bIsNaN) return 0;
+    if (aIsNaN) return 1; // Put non-numbers at the end
+    if (bIsNaN) return -1;
+
+    return direction === 'asc' ? numA - numB : numB - numA;
   },
   caseInsensitiveString: (key: keyof TData) => (a: TData, b: TData, direction: SortDirection) => {
-    const valA = (a[key] as unknown as string).toLowerCase();
-    const valB = (b[key] as unknown as string).toLowerCase();
+    const valA = String(a[key] ?? '').toLowerCase();
+    const valB = String(b[key] ?? '').toLowerCase();
     if (valA < valB) return direction === 'asc' ? -1 : 1;
     if (valA > valB) return direction === 'asc' ? 1 : -1;
     return 0;
   },
   date: (key: keyof TData) => (a: TData, b: TData, direction: SortDirection) => {
-    const dateA = new Date(a[key] as unknown as string).getTime();
-    const dateB = new Date(b[key] as unknown as string).getTime();
+    const dateA = new Date(String(a[key])).getTime();
+    const dateB = new Date(String(b[key])).getTime();
+    const aIsNaN = isNaN(dateA);
+    const bIsNaN = isNaN(dateB);
+
+    if (aIsNaN && bIsNaN) return 0;
+    if (aIsNaN) return 1; // Put invalid dates at the end
+    if (bIsNaN) return -1;
+
     return direction === 'asc' ? dateA - dateB : dateB - dateA;
   },
 });

@@ -4,7 +4,7 @@ import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumn
 import IFooterRowDefinition from '../Data/IFooterRowDefinition';
 import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
 import { FilterPlugin } from '../Plugins/FilterPlugin';
-import { InfiniteScrollPlugin } from '../Plugins/InfiniteScrollPlugin';
+
 import InfiniteTable from './InfiniteTable';
 
 
@@ -133,11 +133,14 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   }
 
   componentDidUpdate(prevProps: IProps<TData>) {
-    if (prevProps.data !== this.props.data) {
-      this.processData();
+    // Re-initialize if data or plugin configuration changes.
+    if (
+      prevProps.data !== this.props.data ||
+      prevProps.plugins !== this.props.plugins ||
+      prevProps.filterProps !== this.props.filterProps
+    ) {
+      this.initializePlugins();
     }
-
-    
   }
 
   private handleScroll = (): void => {
@@ -163,16 +166,13 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
       activePlugins.push(new FilterPlugin());
     }
 
-    // Automatically add InfiniteScrollPlugin if infiniteScrollProps are provided and not already present
-    if (this.props.infiniteScrollProps?.enableInfiniteScroll && !activePlugins.some(p => p.id === 'infinite-scroll')) {
-      activePlugins.push(new InfiniteScrollPlugin());
-    }
+    
 
     activePlugins.forEach((plugin) => {
       if (plugin.onPluginInit) {
         plugin.onPluginInit({
           getData: () => this.props.data,
-          forceUpdate: () => this.processData(),
+          forceUpdate: () => this.initializePlugins(),
           getScrollableElement: () => this.tableContainerRef.current,
           infiniteScrollProps: this.props.infiniteScrollProps,
           filterProps: this.props.filterProps,
@@ -191,17 +191,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
     this.setState({ processedData });
   }
 
-  private processData() {
-    let processedData = [...this.props.data];
-    if (this.props.plugins) {
-      this.props.plugins.forEach((plugin) => {
-        if (plugin.processData) {
-          processedData = plugin.processData(processedData);
-        }
-      });
-    }
-    this.setState({ processedData });
-  }
+  
 
   handleResize = (): void => {
     this.setState({

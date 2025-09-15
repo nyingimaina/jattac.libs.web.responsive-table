@@ -62,7 +62,7 @@ class InfiniteTable<TData> extends Component<IProps<TData>, IState<TData>> {
   private debouncedResize: () => void;
   private tableContainerRef = createRef<HTMLDivElement>();
   private headerRef = createRef<HTMLTableSectionElement>();
-  private throttledScrollHandler: (event: UIEvent<HTMLDivElement>) => void;
+  private debouncedScrollHandler: (event: UIEvent<HTMLDivElement>) => void;
 
   constructor(props: IProps<TData>) {
     super(props);
@@ -76,12 +76,20 @@ class InfiniteTable<TData> extends Component<IProps<TData>, IState<TData>> {
       activePlugins: [],
     };
     this.debouncedResize = this.debounce(this.handleResize, 200);
-    this.throttledScrollHandler = this.throttle(this.handleScroll, 200);
+    this.debouncedScrollHandler = this.debounce(this.handleScroll, 200);
   }
 
   componentDidUpdate(prevProps: IProps<TData>) {
+    const propsHaveChanged =
+      prevProps.plugins !== this.props.plugins ||
+      prevProps.filterProps !== this.props.filterProps;
+
     if (prevProps.data !== this.props.data) {
-      this.setState({ internalData: this.props.data }, () => this.processData());
+      // If initial data prop changes, reset internal state and re-initialize plugins
+      this.setState({ internalData: this.props.data }, () => this.initializePlugins());
+    } else if (propsHaveChanged) {
+      // If only plugins or filter props change, just re-initialize them
+      this.initializePlugins();
     }
   }
 
@@ -98,24 +106,15 @@ class InfiniteTable<TData> extends Component<IProps<TData>, IState<TData>> {
     window.removeEventListener('resize', this.debouncedResize);
   }
 
-  private debounce(func: () => void, delay: number): () => void {
+  private debounce<T extends (...args: unknown[]) => void>(func: T, delay: number): (...args: Parameters<T>) => void {
     let timeout: NodeJS.Timeout;
-    return () => {
+    return (...args: Parameters<T>) => {
       clearTimeout(timeout);
-      timeout = setTimeout(() => func(), delay);
+      timeout = setTimeout(() => {
+        func(...args);
+      }, delay);
     };
   }
-
-  private throttle = (func: (event: UIEvent<HTMLDivElement>) => void, limit: number) => {
-    let inThrottle: boolean;
-    return (event: UIEvent<HTMLDivElement>) => {
-      if (!inThrottle) {
-        func(event);
-        inThrottle = true;
-        setTimeout(() => (inThrottle = false), limit);
-      }
-    };
-  };
 
   handleResize = (): void => {
     this.setState({
@@ -303,7 +302,7 @@ class InfiniteTable<TData> extends Component<IProps<TData>, IState<TData>> {
     return (
       <div
         ref={this.tableContainerRef}
-        onScroll={this.throttledScrollHandler}
+        onScroll={this.debouncedScrollHandler}
         style={{ maxHeight: this.props.maxHeight, overflowY: 'auto' }}
       >
         <table className={styles['responsiveTable']}>

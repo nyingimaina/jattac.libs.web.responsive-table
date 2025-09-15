@@ -10,6 +10,7 @@ module.exports = {
     dir: 'dist',
     format: 'cjs',
     sourcemap: true,
+    exports: 'named',
   },
   plugins: [
     peerDepsExternal(),

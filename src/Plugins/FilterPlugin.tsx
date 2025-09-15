@@ -6,6 +6,7 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
   public id = 'filter';
   private filterText = '';
   private api!: IPluginAPI<TData>;
+  private debounceTimeout: NodeJS.Timeout | null = null;
 
   constructor() {
   }
@@ -62,9 +63,14 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
   };
 
   private handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Debounce the filter change
-    setTimeout(() => {
-      this.filterText = e.target.value;
+    const currentFilterText = e.target.value;
+
+    if (this.debounceTimeout) {
+      clearTimeout(this.debounceTimeout);
+    }
+
+    this.debounceTimeout = setTimeout(() => {
+      this.filterText = currentFilterText;
       this.api.forceUpdate();
     }, 300);
   };
