@@ -53,6 +53,7 @@ interface IState<TData> {
   processedData: TData[];
   isLoadingMore: boolean;
   isHeaderSticky: boolean;
+  activePlugins: IResponsiveTablePlugin<TData>[];
 }
 
 // Class component
@@ -68,6 +69,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
       processedData: props.data,
       isLoadingMore: false,
       isHeaderSticky: false,
+      activePlugins: [],
     };
 
     this.debouncedResize = this.debounce(this.handleResize, 200);
@@ -122,7 +124,8 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
     if (this.props.enablePageLevelStickyHeader !== false) {
       window.addEventListener('scroll', this.handleScroll);
     }
-    this.initializePlugins();
+    const { processedData, activePlugins } = this.initializePlugins();
+    this.setState({ processedData, activePlugins });
   }
 
   componentWillUnmount(): void {
@@ -139,7 +142,8 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
       prevProps.plugins !== this.props.plugins ||
       prevProps.filterProps !== this.props.filterProps
     ) {
-      this.initializePlugins();
+      const { processedData, activePlugins } = this.initializePlugins();
+      this.setState({ processedData, activePlugins });
     }
   }
 
@@ -153,7 +157,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
     }
   };
 
-  private initializePlugins() {
+  private initializePlugins(): { processedData: TData[], activePlugins: IResponsiveTablePlugin<TData>[] } {
     const activePlugins: IResponsiveTablePlugin<TData>[] = [];
 
     // Add explicitly provided plugins first
@@ -166,13 +170,14 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
       activePlugins.push(new FilterPlugin());
     }
 
-    
-
     activePlugins.forEach((plugin) => {
       if (plugin.onPluginInit) {
         plugin.onPluginInit({
           getData: () => this.props.data,
-          forceUpdate: () => this.initializePlugins(),
+          forceUpdate: () => {
+            const { processedData, activePlugins } = this.initializePlugins();
+            this.setState({ processedData, activePlugins });
+          },
           getScrollableElement: () => this.tableContainerRef.current,
           infiniteScrollProps: this.props.infiniteScrollProps,
           filterProps: this.props.filterProps,
@@ -188,7 +193,8 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
         processedData = plugin.processData(processedData);
       }
     });
-    this.setState({ processedData });
+
+    return { processedData, activePlugins };
   }
 
   
@@ -241,8 +247,8 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
 
   private getHeaderProps(columnDefinition: ColumnDefinition<TData>): React.HTMLAttributes<HTMLElement> & { className?: string } {
     const headerProps: React.HTMLAttributes<HTMLElement> & { className?: string } = {};
-    if (this.props.plugins) {
-      this.props.plugins.forEach((plugin) => {
+    if (this.state.activePlugins) {
+      this.state.activePlugins.forEach((plugin) => {
         if (plugin.getHeaderProps) {
           Object.assign(headerProps, plugin.getHeaderProps(this.getRawColumnDefinition(columnDefinition)));
         }
@@ -495,11 +501,11 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   }
 
   private renderPluginHeaders() {
-    if (!this.props.plugins) {
+    if (!this.state.activePlugins) {
       return null;
     }
 
-    return this.props.plugins.map((plugin) => {
+    return this.state.activePlugins.map((plugin) => {
       if (plugin.renderHeader) {
         // For sort plugin, only render header in mobile view
         if (plugin.id === 'sort' && !this.state.isMobile) {
