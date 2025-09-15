@@ -61,9 +61,15 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   private debouncedResize: () => void;
   private tableContainerRef = createRef<HTMLDivElement>();
   private headerRef = createRef<HTMLTableSectionElement>();
+  private filterPlugin: FilterPlugin<TData> | null = null;
 
   constructor(props: IProps<TData>) {
     super(props);
+
+    if (props.filterProps?.showFilter) {
+      this.filterPlugin = new FilterPlugin();
+    }
+
     this.state = {
       isMobile: false,
       processedData: props.data,
@@ -136,6 +142,14 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   }
 
   componentDidUpdate(prevProps: IProps<TData>) {
+    if (prevProps.filterProps?.showFilter !== this.props.filterProps?.showFilter) {
+      if (this.props.filterProps?.showFilter) {
+        this.filterPlugin = new FilterPlugin();
+      } else {
+        this.filterPlugin = null;
+      }
+    }
+
     // Re-initialize if data or plugin configuration changes.
     if (
       prevProps.data !== this.props.data ||
@@ -166,8 +180,8 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
     }
 
     // Automatically add FilterPlugin if filterProps are provided and not already present
-    if (this.props.filterProps?.showFilter && !activePlugins.some(p => p.id === 'filter')) {
-      activePlugins.push(new FilterPlugin());
+    if (this.props.filterProps?.showFilter && this.filterPlugin && !activePlugins.some(p => p.id === 'filter')) {
+      activePlugins.push(this.filterPlugin);
     }
 
     activePlugins.forEach((plugin) => {
@@ -541,7 +555,9 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
 
     return (
       <div>
-        {this.renderPluginHeaders()}
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          {this.renderPluginHeaders()}
+        </div>
         {!this.hasData && this.noDataComponent}
         {this.hasData && this.state.isMobile && this.mobileView}
         {this.hasData && !this.state.isMobile && this.largeScreenView}

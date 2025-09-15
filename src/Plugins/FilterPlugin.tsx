@@ -20,7 +20,7 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
       return null;
     }
     return (
-      <div style={{ float: 'right', marginBottom: '1rem' }}>
+      <div style={{ marginBottom: '1rem' }}>
         <input
           type="text"
           placeholder={this.api.filterProps.filterPlaceholder || "Search..."}
