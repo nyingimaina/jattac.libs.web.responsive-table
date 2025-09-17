@@ -23,7 +23,7 @@ export class InfiniteScrollPlugin<TData> implements IResponsiveTablePlugin<TData
 
   private handleScroll = async () => {
     const scrollableElement = this.api.getScrollableElement?.();
-    if (!scrollableElement || !this.api.infiniteScrollProps?.enableInfiniteScroll) {
+    if (!scrollableElement || !this.api.infiniteScrollProps) {
       return;
     }
 

@@ -11,21 +11,12 @@ export type ColumnDefinition<TData> =
   | IResponsiveTableColumnDefinition<TData>
   | ((data: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>);
 
-type InfiniteScrollDisabled = {
-  enableInfiniteScroll?: false;
-  onLoadMore?: never;
-  hasMore?: never;
-  loadingMoreComponent?: never;
-  noMoreDataComponent?: never;
-};
-
-type InfiniteScrollEnabled<TData> = {
-  enableInfiniteScroll: true;
+interface IInfiniteScrollProps<TData> {
   onLoadMore: (currentData: TData[]) => Promise<TData[] | null>;
   hasMore?: boolean;
   loadingMoreComponent?: ReactNode;
   noMoreDataComponent?: ReactNode;
-};
+}
 
 interface IProps<TData> {
   columnDefinitions: ColumnDefinition<TData>[];
@@ -37,7 +28,7 @@ interface IProps<TData> {
   mobileBreakpoint?: number;
   plugins?: IResponsiveTablePlugin<TData>[];
   enablePageLevelStickyHeader?: boolean;
-  infiniteScrollProps?: InfiniteScrollDisabled | InfiniteScrollEnabled<TData>;
+  infiniteScrollProps?: IInfiniteScrollProps<TData>;
   filterProps?: {
     showFilter?: boolean;
     filterPlaceholder?: string;
@@ -126,9 +117,9 @@ class InfiniteTable<TData> extends Component<IProps<TData>, IState<TData>> {
     if (!currentTarget) return;
     const { scrollHeight, scrollTop, clientHeight } = currentTarget;
     const { isLoadingMore } = this.state;
-    const hasMore = this.props.infiniteScrollProps?.hasMore !== undefined
-      ? this.props.infiniteScrollProps.hasMore
-      : this.state.internalHasMore;
+    const hasMore = this.props.infiniteScrollProps?.hasMore !== undefined 
+        ? this.props.infiniteScrollProps.hasMore 
+        : this.state.internalHasMore;
 
     // When maxHeight is set, we use CSS position:sticky and don't need JS-based detection.
     // The isHeaderSticky state is only for page-level stickiness.

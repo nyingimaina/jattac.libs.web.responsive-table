@@ -11,21 +11,12 @@ import InfiniteTable from './InfiniteTable';
 export type ColumnDefinition<TData> =
   | IResponsiveTableColumnDefinition<TData>
   | ((data: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>);
-type InfiniteScrollDisabled = {
-  enableInfiniteScroll?: false;
-  onLoadMore?: never;
-  hasMore?: never;
-  loadingMoreComponent?: never;
-  noMoreDataComponent?: never;
-};
-
-type InfiniteScrollEnabled<TData> = {
-  enableInfiniteScroll: true;
+interface IInfiniteScrollProps<TData> {
   onLoadMore: (currentData: TData[]) => Promise<TData[] | null>;
   hasMore?: boolean;
   loadingMoreComponent?: ReactNode;
   noMoreDataComponent?: ReactNode;
-};
+}
 
 interface IProps<TData> {
   columnDefinitions: ColumnDefinition<TData>[];
@@ -37,7 +28,7 @@ interface IProps<TData> {
   mobileBreakpoint?: number;
   plugins?: IResponsiveTablePlugin<TData>[];
   enablePageLevelStickyHeader?: boolean;
-  infiniteScrollProps?: InfiniteScrollDisabled | InfiniteScrollEnabled<TData>;
+  infiniteScrollProps?: IInfiniteScrollProps<TData>;
   filterProps?: {
     showFilter?: boolean;
     filterPlaceholder?: string;
@@ -564,7 +555,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   }
 
   render() {
-    if (this.props.infiniteScrollProps?.enableInfiniteScroll) {
+    if (this.props.infiniteScrollProps) {
       return <InfiniteTable {...this.props} />;
     }
 

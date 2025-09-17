@@ -528,7 +528,7 @@ Enables a simple infinite scroll for loading more data as the user scrolls to th
 
 | Prop                   | Type                                                 | Description                                                                                                                                                                                                                            |
 | ---------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enableInfiniteScroll` | `boolean`                                            | If `true`, enables infinite scrolling.                                                                                                                                                                                                 |
+
 | `hasMore`              | `boolean`                                            | **Optional.** Controls the loading indicator. If omitted, the component infers this state automatically by checking if `onLoadMore` returns an empty array or `null`. If provided, your app is responsible for managing this state. |
 | `onLoadMore`           | `(currentData: TData[]) => Promise<TData[] | null>` | A callback function that fires when the user scrolls near the end. It should fetch the next page of data and return it in a Promise. The component will stop trying to load more when this function returns `null` or an empty array. |
 | `loadingMoreComponent` | `ReactNode`                                          | A custom component to display at the bottom while new data is being loaded. Defaults to a spinner animation.                                                                                                                         |
@@ -595,7 +595,6 @@ const InfiniteScrollExample = () => {
         data={[]} // Start with an empty array of initial data
         maxHeight="100%"
         infiniteScrollProps={{
-          enableInfiniteScroll: true,
           onLoadMore: loadMoreItems,
           
           loadingMoreComponent: <h4>Loading more items...</h4>,
@@ -656,6 +655,46 @@ const InfiniteScrollExample = () => {
 | `displayLabel` | `ReactNode`       | No       | An optional, explicit label for the footer cell. In mobile view, if `colSpan` is 1 and this is not provided, the corresponding column header will be used as a fallback. This is required for `colSpan` > 1 if you want a label to be displayed. |
 | `onCellClick`  | `() => void`      | No       | An optional click handler for the footer cell.                                                                                                                                                                                                   |
 | `className`    | `string`          | No       | Optional class name for custom styling of the footer cell.                                                                                                                                                                                       |
+
+---
+
+## Breaking Changes
+
+### Version 0.5.0
+
+**Change:** The API for `infiniteScrollProps` has been simplified.
+
+**Details:**
+The `enableInfiniteScroll: true` property has been removed. The infinite scroll feature is now automatically enabled whenever the `infiniteScrollProps` object is provided. Additionally, the `onLoadMore` function is now a required property on `infiniteScrollProps`.
+
+**Reason:**
+This change removes unnecessary boilerplate and makes the API more intuitive. If you provide props for infinite scrolling, it's clear you intend to use it.
+
+**Migration:**
+To update your code, remove the `enableInfiniteScroll` property from your `infiniteScrollProps` object.
+
+**Before:**
+```jsx
+<ResponsiveTable
+  // ...
+  infiniteScrollProps={{
+    enableInfiniteScroll: true, // <-- No longer needed
+    onLoadMore: loadMoreItems,
+  }}
+/>
+```
+
+**After:**
+```jsx
+<ResponsiveTable
+  // ...
+  infiniteScrollProps={{
+    onLoadMore: loadMoreItems, // <-- Now required
+  }}
+/>
+```
+
+---
 
 ## License
 

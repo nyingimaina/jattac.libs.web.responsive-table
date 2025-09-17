@@ -40,8 +40,7 @@ export interface IPluginAPI<TData> {
 
   // Optional: Infinite scroll props from the ResponsiveTable component
   infiniteScrollProps?: {
-    enableInfiniteScroll?: boolean;
-    onLoadMore?: (currentData: TData[]) => Promise<TData[] | null>;
+    onLoadMore: (currentData: TData[]) => Promise<TData[] | null>;
     hasMore?: boolean;
     loadingMoreComponent?: ReactNode;
     noMoreDataComponent?: ReactNode;

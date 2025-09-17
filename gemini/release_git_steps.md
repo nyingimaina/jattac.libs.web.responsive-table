@@ -78,3 +78,7 @@ This sequence ensures a clean release process, updating `master`, creating a ver
     del commit_message.txt
     ```
     *Ensure to delete any temporary files created during the release process.*
+	
+11. **Store Accumulated Context**
+	* To ensure that for future sessions we remember all information we've Accumulated and are tracking this session, write in incrementing numbers
+	to ./gemini/context/{number}.md
