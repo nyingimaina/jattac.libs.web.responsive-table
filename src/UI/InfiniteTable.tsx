@@ -1,4 +1,4 @@
-import React, { CSSProperties, Component, ReactNode, createRef, UIEvent } from 'react';
+import React, { CSSProperties, Component, ReactNode, createRef } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
 import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumnDefinition';
 import IFooterRowDefinition from '../Data/IFooterRowDefinition';
@@ -62,7 +62,7 @@ class InfiniteTable<TData> extends Component<IProps<TData>, IState<TData>> {
   private debouncedResize: () => void;
   private tableContainerRef = createRef<HTMLDivElement>();
   private headerRef = createRef<HTMLTableSectionElement>();
-  private debouncedScrollHandler: (event: UIEvent<HTMLDivElement>) => void;
+  private debouncedScrollHandler: (currentTarget: HTMLDivElement) => void;
 
   constructor(props: IProps<TData>) {
     super(props);
@@ -76,7 +76,7 @@ class InfiniteTable<TData> extends Component<IProps<TData>, IState<TData>> {
       activePlugins: [],
     };
     this.debouncedResize = this.debounce(this.handleResize, 200);
-    this.debouncedScrollHandler = this.debounce(this.handleScroll, 200);
+    this.debouncedScrollHandler = this.debounce(this.handleScroll as (currentTarget: HTMLDivElement) => void, 200);
   }
 
   componentDidUpdate(prevProps: IProps<TData>) {
@@ -106,12 +106,12 @@ class InfiniteTable<TData> extends Component<IProps<TData>, IState<TData>> {
     window.removeEventListener('resize', this.debouncedResize);
   }
 
-  private debounce<T extends (...args: unknown[]) => void>(func: T, delay: number): (...args: Parameters<T>) => void {
+  private debounce<T extends (...args: any[]) => any>(func: T, delay: number): (...args: Parameters<T>) => void {
     let timeout: NodeJS.Timeout;
-    return (...args: Parameters<T>) => {
+    return function (this: any, ...args: Parameters<T>) {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
-        func(...args);
+        func.apply(this, args);
       }, delay);
     };
   }
@@ -122,26 +122,28 @@ class InfiniteTable<TData> extends Component<IProps<TData>, IState<TData>> {
     });
   };
 
-  private handleScroll = (event: UIEvent<HTMLDivElement>): void => {
-    const { currentTarget } = event;
+  private handleScroll(currentTarget: HTMLDivElement): void {
+    if (!currentTarget) return;
     const { scrollHeight, scrollTop, clientHeight } = currentTarget;
     const { isLoadingMore } = this.state;
-    const hasMore = this.props.infiniteScrollProps?.hasMore !== undefined 
-        ? this.props.infiniteScrollProps.hasMore 
-        : this.state.internalHasMore;
+    const hasMore = this.props.infiniteScrollProps?.hasMore !== undefined
+      ? this.props.infiniteScrollProps.hasMore
+      : this.state.internalHasMore;
 
-    if (this.props.enablePageLevelStickyHeader !== false && this.headerRef.current) {
-        const { top } = this.headerRef.current.getBoundingClientRect();
-        const isSticky = top <= 0;
-        if (isSticky !== this.state.isHeaderSticky) {
-            this.setState({ isHeaderSticky: isSticky });
-        }
+    // When maxHeight is set, we use CSS position:sticky and don't need JS-based detection.
+    // The isHeaderSticky state is only for page-level stickiness.
+    if (this.props.enablePageLevelStickyHeader !== false && !this.props.maxHeight && this.headerRef.current) {
+      const { top } = this.headerRef.current.getBoundingClientRect();
+      const isSticky = top <= 0;
+      if (isSticky !== this.state.isHeaderSticky) {
+        this.setState({ isHeaderSticky: isSticky });
+      }
     }
 
     if (hasMore && !isLoadingMore && scrollHeight - scrollTop - clientHeight < 100) {
       this.loadMoreData();
     }
-  };
+  }
 
   private loadMoreData = () => {
     const { infiniteScrollProps } = this.props;
@@ -299,14 +301,20 @@ class InfiniteTable<TData> extends Component<IProps<TData>, IState<TData>> {
     const { isLoadingMore } = this.state;
     const hasMore = this.props.infiniteScrollProps?.hasMore !== undefined ? this.props.infiniteScrollProps.hasMore : this.state.internalHasMore;
 
+    const headerClassName = this.props.maxHeight
+      ? styles.internalStickyHeader
+      : this.state.isHeaderSticky
+      ? styles.stickyHeader
+      : '';
+
     return (
       <div
         ref={this.tableContainerRef}
-        onScroll={this.debouncedScrollHandler}
+        onScroll={(e) => this.debouncedScrollHandler(e.currentTarget)}
         style={{ maxHeight: this.props.maxHeight, overflowY: 'auto' }}
       >
         <table className={styles['responsiveTable']}>
-          <thead ref={this.headerRef} className={this.state.isHeaderSticky ? styles.stickyHeader : ''}>
+          <thead ref={this.headerRef} className={headerClassName}>
             <tr>
               {this.props.columnDefinitions.map((colDef, colIndex) => {
                 const rawColDef = this.getRawColumnDefinition(colDef);

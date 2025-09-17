@@ -41,6 +41,7 @@ interface IProps<TData> {
   filterProps?: {
     showFilter?: boolean;
     filterPlaceholder?: string;
+    className?: string;
   };
   animationProps?: {
     isLoading?: boolean;
@@ -271,6 +272,20 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
     return headerProps;
   }
 
+  private renderCell(
+    content: React.ReactNode,
+    row: TData,
+    colDef: IResponsiveTableColumnDefinition<TData>
+  ): React.ReactNode {
+    let processedContent = content;
+    this.state.activePlugins.forEach((plugin) => {
+      if (plugin.renderCell) {
+        processedContent = plugin.renderCell(processedContent, row, colDef);
+      }
+    });
+    return processedContent;
+  }
+
   private get rowClickFunction(): (item: TData) => void {
     if (this.props.onRowClick) {
       return this.props.onRowClick;
@@ -429,7 +444,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
                       >
                         {colDef.displayLabel}
                       </span>
-                      <span className={styles['card-value']}>{colDef.cellRenderer(row)}</span>
+                      <span className={styles['card-value']}>{this.renderCell(colDef.cellRenderer(row), row, colDef)}</span>
                     </p>
                   </div>
                 );
@@ -497,13 +512,17 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
                 className={this.props.animationProps?.animateOnLoad ? styles.animatedRow : ''}
                 style={{ animationDelay: `${rowIndex * 0.05}s` }}
               >
-                {this.props.columnDefinitions.map((columnDefinition, colIndex) => (
-                  <td onClick={() => this.rowClickFunction(row)} key={colIndex}>
-                    <span style={{ ...this.rowClickStyle }}>
-                      {this.getColumnDefinition(columnDefinition, rowIndex).cellRenderer(row)}
-                    </span>
-                  </td>
-                ))}
+                {this.props.columnDefinitions.map((columnDefinition, colIndex) => {
+                  const colDef = this.getColumnDefinition(columnDefinition, rowIndex);
+                  const cellContent = colDef.cellRenderer(row);
+                  return (
+                    <td onClick={() => this.rowClickFunction(row)} key={colIndex}>
+                      <span style={{ ...this.rowClickStyle }}>
+                        {this.renderCell(cellContent, row, colDef)}
+                      </span>
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>

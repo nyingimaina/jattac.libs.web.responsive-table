@@ -20,6 +20,9 @@ export interface IResponsiveTablePlugin<TData> {
 
   // Optional: Provides props to be spread on the table header (<th>) elements
   getHeaderProps?: (columnDefinition: IResponsiveTableColumnDefinition<TData>) => React.HTMLAttributes<HTMLElement> & { className?: string };
+
+  // Optional: Renders the content of a cell, allowing plugins to modify the output
+  renderCell?: (content: ReactNode, row: TData, column: IResponsiveTableColumnDefinition<TData>) => ReactNode;
 }
 
 export interface IPluginAPI<TData> {
@@ -48,5 +51,6 @@ export interface IPluginAPI<TData> {
   filterProps?: {
     showFilter?: boolean;
     filterPlaceholder?: string;
+    className?: string;
   };
 }

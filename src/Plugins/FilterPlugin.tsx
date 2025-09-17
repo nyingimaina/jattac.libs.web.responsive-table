@@ -25,6 +25,7 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
           type="text"
           placeholder={this.api.filterProps.filterPlaceholder || "Search..."}
           onChange={this.handleFilterChange}
+          className={this.api.filterProps.className}
           style={{
             padding: '0.5rem',
             border: '1px solid #ccc',
@@ -60,6 +61,26 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
         return false; // If getFilterableValue is not present or not a function
       });
     });
+  };
+
+  public renderCell = (content: React.ReactNode, _row: TData, _column: IResponsiveTableColumnDefinition<TData>): React.ReactNode => {
+    if (!this.filterText || typeof content !== 'string') {
+      return content;
+    }
+
+    const parts = content.split(new RegExp(`(${this.filterText})`, 'gi'));
+
+    return (
+      <span>
+        {parts.map((part, i) =>
+          part.toLowerCase() === this.filterText.toLowerCase() ? (
+            <strong key={i}>{part}</strong>
+          ) : (
+            part
+          )
+        )}
+      </span>
+    );
   };
 
   private handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
