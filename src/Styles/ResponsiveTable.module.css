@@ -137,6 +137,11 @@
   background-color: var(--table-row-hover-bg);
 }
 
+/* Clickable Row Style */
+.clickableRow {
+  cursor: pointer;
+}
+
 /* Clickable Header Style */
 .clickableHeader {
   cursor: pointer;
