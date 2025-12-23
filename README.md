@@ -2,6 +2,32 @@
 
 ResponsiveTable is a powerful, lightweight, and fully responsive React component for creating beautiful and functional tables. It’s designed to look great on any device, adapting from a traditional table layout on desktops to a clean, card-based view on mobile screens.
 
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Getting Started](#getting-started)
+- [Comprehensive Examples](#comprehensive-examples)
+  - [Example 1: Loading State and Animations](#example-1-loading-state-and-animations)
+  - [Example 2: Adding a Clickable Row Action](#example-2-adding-a-clickable-row-action)
+  - [Example 3: Row Selection (Controlled Component)](#example-3-row-selection-controlled-component)
+  - [Example 4: Custom Cell Rendering](#example-4-custom-cell-rendering)
+  - [Example 5: Dynamic and Conditional Columns](#example-5-dynamic-and-conditional-columns)
+  - [Example 6: Advanced Footer with Labels and Interactivity](#example-6-advanced-footer-with-labels-and-interactivity)
+  - [Example 7: Disabling Page-Level Sticky Header](#example-7-disabling-page-level-sticky-header)
+- [Plugin System](#plugin-system)
+  - [Plugin Execution Order](#plugin-execution-order)
+  - [How to Use Plugins](#how-to-use-plugins)
+  - [Built-in Plugins](#built-in-plugins)
+- [API Reference](#api-reference)
+  - [ResponsiveTable Props](#responsivetable-props)
+  - [IResponsiveTableColumnDefinition<TData>](#iresponsivetablecolumndefinitiontdata)
+  - [IFooterRowDefinition](#ifooterrowdefinition)
+  - [IFooterColumnDefinition](#ifootercolumndefinition)
+- [Breaking Changes](#breaking-changes)
+  - [Version 0.5.0](#version-050)
+- [License](#license)
+
 ## Features
 
 - **Mobile-First Design**: Automatically switches to a card layout on smaller screens for optimal readability.
@@ -173,45 +199,6 @@ const SelectableTable = () => {
       </div>
     </div>
   );
-};
-```
-
-### Example 4: Custom Cell Rendering
-
-You can render any React component inside a cell, allowing for rich content like buttons, links, or status badges.
-
-```jsx
-import React from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-
-const CustomCells = () => {
-  const columns = [
-    { displayLabel: <strong>User</strong>, cellRenderer: (row) => <strong>{row.user}</strong> },
-    {
-      displayLabel: 'Status',
-      cellRenderer: (row) => (
-        <span
-          style={{
-            color: row.status === 'Active' ? 'green' : 'red',
-            fontWeight: 'bold',
-          }}
-        >
-          {row.status}
-        </span>
-      ),
-    },
-    {
-      displayLabel: 'Action',
-      cellRenderer: (row) => <button onClick={() => alert(`Editing ${row.user}`)}>Edit</button>,
-    },
-  ];
-
-  const data = [
-    { user: 'Eve', status: 'Active' },
-    { user: 'Frank', status: 'Inactive' },
-  ];
-
-  return <ResponsiveTable columnDefinitions={columns} data={data} />;
 };
 ```
 
