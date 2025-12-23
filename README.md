@@ -2,6 +2,34 @@
 
 ResponsiveTable is a powerful, lightweight, and fully responsive React component for creating beautiful and functional tables. It’s designed to look great on any device, adapting from a traditional table layout on desktops to a clean, card-based view on mobile screens.
 
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Getting Started](#getting-started)
+- [Comprehensive Examples](#comprehensive-examples)
+  - [Example 1: Loading State and Animations](#example-1-loading-state-and-animations)
+  - [Example 2: Adding a Clickable Row Action](#example-2-adding-a-clickable-row-action)
+  - [Example 3: Custom Cell Rendering](#example-3-custom-cell-rendering)
+  - [Example 4: Dynamic and Conditional Columns](#example-4-dynamic-and-conditional-columns)
+  - [Example 5: Advanced Footer with Labels and Interactivity](#example-5-advanced-footer-with-labels-and-interactivity)
+  - [Example 6: Disabling Page-Level Sticky Header](#example-6-disabling-page-level-sticky-header)
+- [Plugin System](#plugin-system)
+  - [Plugin Execution Order](#plugin-execution-order)
+  - [How to Use Plugins](#how-to-use-plugins)
+  - [Built-in Plugins](#built-in-plugins)
+    - [SortPlugin](#sortplugin)
+    - [FilterPlugin](#filterplugin)
+    - [Infinite Scroll](#infinite-scroll)
+- [API Reference](#api-reference)
+  - [ResponsiveTable Props](#responsivetable-props)
+  - [IResponsiveTableColumnDefinition<TData>](#iresponsivetablecolumndefinitiontdata)
+  - [IFooterRowDefinition](#ifooterrowdefinition)
+  - [IFooterColumnDefinition](#ifootercolumndefinition)
+- [Breaking Changes](#breaking-changes)
+  - [Version 0.5.0](#version-050)
+- [License](#license)
+
 ## Features
 
 - **Mobile-First Design**: Automatically switches to a card layout on smaller screens for optimal readability.
