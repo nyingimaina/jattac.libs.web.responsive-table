@@ -101,10 +101,36 @@
   transition: background-color 0.2s ease-in-out;
 }
 
+/* Add a transition for the card view as well */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border-color);
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  border-left: 5px solid transparent; /* Add transparent border for smooth transition */
+}
+
+/* Style for selected rows */
+.selectedRow {
+  /* Use a variable for the selection color to allow theming */
+  --table-row-selected-bg: #ddeaff;
+  background-color: var(--table-row-selected-bg) !important; /* Use important to override hover and stripe styles */
+}
+
+/* In mobile view, we use the border for selection indication */
+.card.selectedRow {
+  border-left: 5px solid var(--interactive-color);
+  background-color: var(--table-row-selected-bg);
+}
+
 /* Subtle striping for better readability */
 .responsiveTable tr:nth-child(even) {
   background-color: var(--table-row-stripe-bg);
 }
+
 
 /* Modern hover effect */
 .responsiveTable tr:hover {

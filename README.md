@@ -9,6 +9,7 @@ ResponsiveTable is a powerful, lightweight, and fully responsive React component
 - **Dynamic Data Handling**: Define columns and footers based on your data or application state.
 - **Delightful Animations**: Includes an optional skeleton loader and staggered row entrance animations.
 - **Interactive Elements**: Easily add click handlers for rows, headers, and footer cells.
+- **Row Selection**: Built-in support for single or multiple row selection, with full programmatic control.
 - **Efficient & Responsive**: Built with efficiency in mind, including debounced resize handling for smooth transitions.
 - **Easy to Use**: A simple and intuitive API for quick integration.
 - **Extensible Plugin System**: Easily add new functionalities like filtering, sorting, or infinite scrolling.
@@ -115,7 +116,67 @@ const ClickableRows = () => {
 };
 ```
 
-### Example 3: Custom Cell Rendering
+### Example 3: Row Selection (Controlled Component)
+
+Enable row selection by providing the `selectionProps` object. The table can be a fully "controlled" component, where you manage the state of selected items, or an "uncontrolled" component where the table manages its own state.
+
+This example demonstrates the **controlled** pattern, which gives you full programmatic control over which rows are selected.
+
+```jsx
+import React, { useState } from 'react';
+import ResponsiveTable from 'jattac.libs.web.responsive-table';
+
+const SelectableTable = () => {
+  const columns = [
+    { displayLabel: 'Task', dataKey: 'task', cellRenderer: (row) => row.task },
+    { displayLabel: 'Status', dataKey: 'status', cellRenderer: (row) => row.status },
+  ];
+
+  const initialData = [
+    { id: 'task-1', task: 'Design new logo', status: 'In Progress' },
+    { id: 'task-2', task: 'Develop homepage', status: 'Completed' },
+    { id: 'task-3', task: 'Write documentation', status: 'Pending' },
+    { id: 'task-4', task: 'Deploy to production', status: 'Pending' },
+  ];
+
+  // 1. Manage the selection state in your component
+  const [selected, setSelected] = useState([initialData[1]]); // Initially select the second row
+
+  const handleSelectionChange = (selectedItems) => {
+    // 2. Update your state when the selection changes
+    setSelected(selectedItems);
+    console.log('Selected items:', selectedItems);
+  };
+
+  return (
+    <div>
+      <button onClick={() => setSelected([])} style={{ marginBottom: '1rem' }}>
+        Clear Selection
+      </button>
+      <ResponsiveTable
+        columnDefinitions={columns}
+        data={initialData}
+        selectionProps={{
+          onSelectionChange: handleSelectionChange,
+          selectedItems: selected, // 3. Pass the state down to the table
+          rowIdKey: 'id', // 4. Provide a unique key for each row
+          mode: 'multiple', // or 'single'
+        }}
+      />
+      <div style={{ marginTop: '1rem' }}>
+        <strong>Selected Tasks:</strong>
+        <ul>
+          {selected.map((item) => (
+            <li key={item.id}>{item.task}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+};
+```
+
+### Example 4: Custom Cell Rendering
 
 You can render any React component inside a cell, allowing for rich content like buttons, links, or status badges.
 
@@ -154,7 +215,46 @@ const CustomCells = () => {
 };
 ```
 
-### Example 4: Dynamic and Conditional Columns
+### Example 4: Custom Cell Rendering
+
+You can render any React component inside a cell, allowing for rich content like buttons, links, or status badges.
+
+```jsx
+import React from 'react';
+import ResponsiveTable from 'jattac.libs.web.responsive-table';
+
+const CustomCells = () => {
+  const columns = [
+    { displayLabel: <strong>User</strong>, cellRenderer: (row) => <strong>{row.user}</strong> },
+    {
+      displayLabel: 'Status',
+      cellRenderer: (row) => (
+        <span
+          style={{
+            color: row.status === 'Active' ? 'green' : 'red',
+            fontWeight: 'bold',
+          }}
+        >
+          {row.status}
+        </span>
+      ),
+    },
+    {
+      displayLabel: 'Action',
+      cellRenderer: (row) => <button onClick={() => alert(`Editing ${row.user}`)}>Edit</button>,
+    },
+  ];
+
+  const data = [
+    { user: 'Eve', status: 'Active' },
+    { user: 'Frank', status: 'Inactive' },
+  ];
+
+  return <ResponsiveTable columnDefinitions={columns} data={data} />;
+};
+```
+
+### Example 5: Dynamic and Conditional Columns
 
 Columns can be generated dynamically based on your data or application state. This is useful for creating flexible tables that adapt to different datasets.
 
@@ -186,7 +286,7 @@ const DynamicColumns = ({ isAdmin }) => {
 };
 ```
 
-### Example 5: Advanced Footer with Labels and Interactivity
+### Example 6: Advanced Footer with Labels and Interactivity
 
 You can add a footer to display summary information, such as totals or averages. The footer is also responsive and will appear correctly in both desktop and mobile views. With the enhanced footer functionality, you can provide explicit labels for mobile view and add click handlers to footer cells.
 
@@ -230,7 +330,7 @@ const TableWithFooter = () => {
 };
 ```
 
-### Example 6: Disabling Page-Level Sticky Header
+### Example 7: Disabling Page-Level Sticky Header
 
 By default, the table header remains fixed to the top of the viewport as the user scrolls down the page. This ensures the column titles are always visible. To disable this behavior and have the header scroll away with the rest of the page, set the `enablePageLevelStickyHeader` prop to `false`.
 
@@ -469,6 +569,55 @@ The `comparers` object on your `SortPlugin` instance provides the following help
 | `caseInsensitiveString(dataKey)` | Performs a case-insensitive alphabetical sort.                                |
 | `date(dataKey)`                  | Correctly sorts dates, assuming the data is a valid date string or timestamp. |
 
+#### `SelectionPlugin`
+
+The `SelectionPlugin` provides powerful and flexible row selection capabilities. It is enabled automatically by providing the `selectionProps` object to the `ResponsiveTable`. The plugin supports both single and multiple selection modes and can be used as a "controlled" or "uncontrolled" component.
+
+**Enabling the `SelectionPlugin`:**
+
+Row selection is enabled by simply passing the `selectionProps` object with an `onSelectionChange` callback.
+
+```jsx
+import React, { useState } from 'react';
+import ResponsiveTable from 'jattac.libs.web.responsive-table';
+
+const MySelectableTable = ({ data }) => {
+  const [selection, setSelection] = useState([]);
+
+  const columns = [
+    // ... your column definitions
+  ];
+
+  return (
+    <ResponsiveTable
+      columnDefinitions={columns}
+      data={data}
+      selectionProps={{
+        onSelectionChange: setSelection,
+        selectedItems: selection,
+        rowIdKey: 'id', // A key from your data object to uniquely identify rows
+        mode: 'multiple',
+      }}
+    />
+  );
+};
+```
+
+**Controlled vs. Uncontrolled Mode:**
+
+-   **Controlled (Recommended):** By providing the `selectedItems` prop, you tell the table to operate as a controlled component. The table will always display the rows passed in this prop as selected. Your `onSelectionChange` callback is responsible for updating the state that you pass to `selectedItems`. This gives you full programmatic control over the selection.
+-   **Uncontrolled:** If you omit the `selectedItems` prop, the table will manage its own selection state internally. This is simpler for cases where you only need to know what's selected but don't need to modify it from outside the table.
+
+**Props for `SelectionPlugin` (via `selectionProps` on `ResponsiveTable`):**
+
+| Prop                   | Type                                      | Required | Description                                                                                                                                                           |
+| ---------------------- | ----------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `onSelectionChange`    | `(selectedItems: TData[]) => void`        | Yes      | Callback function that receives an array of the currently selected data objects whenever the selection changes. Its presence enables the selection feature.             |
+| `rowIdKey`             | `keyof TData`                             | Yes      | A key from your data object that provides a unique identifier for each row. This is crucial for reliably tracking selections.                                       |
+| `mode`                 | `'single' \| 'multiple'`                  | No       | The selection mode. Defaults to `'multiple'`.                                                                                                                         |
+| `selectedItems`        | `TData[]`                                 | No       | If provided, the component operates in "controlled" mode. The table's selection will be a direct reflection of this prop.                                             |
+| `selectedRowClassName` | `string`                                  | No       | An optional CSS class name to apply to selected rows, allowing you to override the default selection styling.                                                         |
+
 #### `FilterPlugin`
 
 > **Warning: Incompatible with Infinite Scroll**
@@ -623,6 +772,7 @@ const InfiniteScrollExample = () => {
 | `mobileBreakpoint`            | `number`                             | No       | The pixel width at which the table switches to the mobile view. Defaults to `600`.                  |
 | `enablePageLevelStickyHeader` | `boolean`                            | No       | If `false`, disables the header from sticking to the top of the page on scroll. Defaults to `true`. |
 | `plugins`                     | `IResponsiveTablePlugin<TData>[]`    | No       | An array of plugin instances to extend table functionality.                                         |
+| `selectionProps`              | `object`                             | No       | Configuration for the built-in row selection feature. See `SelectionPlugin` docs for details.       |
 | `infiniteScrollProps`         | `object`                             | No       | Configuration for the infinite scroll feature. When enabled, a specialized component handles data loading. |
 | `filterProps`                 | `object`                             | No       | Configuration for the built-in filter plugin.                                                       |
 | `animationProps`              | `object`                             | No       | Configuration for animations, including `isLoading` and `animateOnLoad`.                            |
