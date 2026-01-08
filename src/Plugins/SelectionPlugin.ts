@@ -41,7 +41,6 @@ export class SelectionPlugin<TData> implements IResponsiveTablePlugin<TData> {
   };
 
   private handleRowClick = (row: TData) => {
-    console.log('[SelectionPlugin.handleRowClick] Click handled for row:', this.getRowId(row));
     const { onSelectionChange, mode = 'multiple', rowIdKey } = this.api.selectionProps!;
     const currentSelectedIds = this.getSelectedIds();
     const newSelectedIds = new Set(currentSelectedIds);
@@ -78,7 +77,6 @@ export class SelectionPlugin<TData> implements IResponsiveTablePlugin<TData> {
   };
 
   public getRowProps = (row: TData): React.HTMLAttributes<HTMLTableRowElement> => {
-    console.log('[SelectionPlugin.getRowProps] Called for row:', this.getRowId(row));
     const { selectedRowClassName } = this.api.selectionProps || {};
     const selectedIds = this.getSelectedIds();
     const rowId = this.getRowId(row);

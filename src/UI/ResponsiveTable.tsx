@@ -292,14 +292,12 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
     const rowProps: React.HTMLAttributes<HTMLTableRowElement> = {};
     const clickHandlers: React.MouseEventHandler<HTMLTableRowElement>[] = [];
 
-    console.log(`[getRowProps] Active plugins: ${this.state.activePlugins.map(p => p.id).join(', ')}`);
-
     this.state.activePlugins.forEach(plugin => {
         if (plugin.getRowProps) {
             const props = plugin.getRowProps(row);
 
             if (plugin.id === 'selection') {
-              console.log('[getRowProps] SelectionPlugin returned:', props);
+              
             }
 
             if (props.className) {
@@ -316,7 +314,6 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
 
     if (clickHandlers.length > 0) {
         rowProps.onClick = (e) => {
-            console.log('[getRowProps] Combined onClick fired.');
             clickHandlers.forEach(handler => handler(e));
         };
     }
@@ -565,8 +562,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
             {this.data.map((row, rowIndex) => {
               const rowProps = this.getRowProps(row);
               const pluginOnClick = rowProps.onClick;
-              console.log(`[Render Row ${rowIndex}] Does row have pluginOnClick?`, !!pluginOnClick);
-
+              
               return (
                 <tr
                   key={this.getRowId(row, rowIndex)}
@@ -574,9 +570,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
                   style={{ animationDelay: `${rowIndex * 0.05}s` }}
                   aria-selected={rowProps['aria-selected']}
                   onClick={(e) => {
-                    console.log(`[Click Row ${rowIndex}] Firing onClick.`);
                     if (pluginOnClick) {
-                        console.log(`[Click Row ${rowIndex}] Firing pluginOnClick.`);
                         pluginOnClick(e as any);
                     }
                     this.rowClickFunction(row);
@@ -633,7 +627,6 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   }
 
   render() {
-    alert('The new ResponsiveTable component is rendering!');
     if (this.props.infiniteScrollProps) {
       return <InfiniteTable {...this.props} />;
     }
