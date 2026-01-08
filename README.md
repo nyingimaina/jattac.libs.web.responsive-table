@@ -10,7 +10,7 @@ ResponsiveTable is a powerful, lightweight, and fully responsive React component
 - [Comprehensive Examples](#comprehensive-examples)
   - [Example 1: Loading State and Animations](#example-1-loading-state-and-animations)
   - [Example 2: Adding a Clickable Row Action](#example-2-adding-a-clickable-row-action)
-  - [Example 3: Row Selection (Controlled Component)](#example-3-row-selection-controlled-component)
+  - [Example 3: Row Selection](#example-3-row-selection)
   - [Example 4: Custom Cell Rendering](#example-4-custom-cell-rendering)
   - [Example 5: Dynamic and Conditional Columns](#example-5-dynamic-and-conditional-columns)
   - [Example 6: Advanced Footer with Labels and Interactivity](#example-6-advanced-footer-with-labels-and-interactivity)
@@ -142,17 +142,19 @@ const ClickableRows = () => {
 };
 ```
 
-### Example 3: Row Selection (Controlled Component)
+### Example 3: Row Selection
 
 Enable row selection by providing the `selectionProps` object. The table can be a fully "controlled" component, where you manage the state of selected items, or an "uncontrolled" component where the table manages its own state.
 
-This example demonstrates the **controlled** pattern, which gives you full programmatic control over which rows are selected.
+#### Controlled Mode (Recommended)
+
+This pattern gives you full programmatic control over which rows are selected. You manage the selection state in your component and pass it down to the table.
 
 ```jsx
 import React, { useState } from 'react';
 import ResponsiveTable from 'jattac.libs.web.responsive-table';
 
-const SelectableTable = () => {
+const ControlledSelectionTable = () => {
   const columns = [
     { displayLabel: 'Task', dataKey: 'task', cellRenderer: (row) => row.task },
     { displayLabel: 'Status', dataKey: 'status', cellRenderer: (row) => row.status },
@@ -186,7 +188,7 @@ const SelectableTable = () => {
           onSelectionChange: handleSelectionChange,
           selectedItems: selected, // 3. Pass the state down to the table
           rowIdKey: 'id', // 4. Provide a unique key for each row
-          mode: 'multiple', // or 'single'
+          mode: 'multiple',
         }}
       />
       <div style={{ marginTop: '1rem' }}>
@@ -201,6 +203,96 @@ const SelectableTable = () => {
   );
 };
 ```
+
+#### Uncontrolled Mode
+
+This pattern is simpler if you only need to be notified when the selection changes, but don't need to programmatically control the selection from outside the table. The table manages its own selection state internally.
+
+```jsx
+import React from 'react';
+import ResponsiveTable from 'jattac.libs.web.responsive-table';
+
+const UncontrolledSelectionTable = () => {
+  const columns = [
+    { displayLabel: 'User', dataKey: 'name', cellRenderer: (row) => row.name },
+    { displayLabel: 'Email', dataKey: 'email', cellRenderer: (row) => row.email },
+  ];
+
+  const data = [
+    { id: 1, name: 'Diana', email: 'diana@example.com' },
+    { id: 2, name: 'Ethan', email: 'ethan@example.com' },
+    { id: 3, name: 'Fiona', email: 'fiona@example.com' },
+  ];
+
+  const handleSelectionChange = (selectedItems) => {
+    console.log('Selected items:', selectedItems);
+  };
+
+  return (
+    <ResponsiveTable
+      columnDefinitions={columns}
+      data={data}
+      selectionProps={{
+        onSelectionChange: handleSelectionChange,
+        rowIdKey: 'id',
+        // Note: The `selectedItems` prop is omitted
+      }}
+    />
+  );
+};
+```
+
+#### Single Selection Mode
+
+To allow only one row to be selected at a time, set `mode: 'single'`.
+
+```jsx
+import React, { useState } from 'react';
+import ResponsiveTable from 'jattac.libs.web.responsive-table';
+
+const SingleSelectionTable = () => {
+  const columns = [
+    { displayLabel: 'Flight', dataKey: 'flight', cellRenderer: (row) => row.flight },
+    { displayLabel: 'Destination', dataKey: 'dest', cellRenderer: (row) => row.dest },
+  ];
+
+  const data = [
+    { id: 'fl-101', flight: 'UA 456', dest: 'Tokyo' },
+    { id: 'fl-102', flight: 'DL 789', dest: 'London' },
+    { id: 'fl-103', flight: 'AA 123', dest: 'Sydney' },
+  ];
+
+  const [selectedFlight, setSelectedFlight] = useState([]);
+
+  return (
+    <div>
+      <ResponsiveTable
+        columnDefinitions={columns}
+        data={data}
+        selectionProps={{
+          onSelectionChange: setSelectedFlight,
+          selectedItems: selectedFlight,
+          rowIdKey: 'id',
+          mode: 'single', // Set the mode to single
+        }}
+      />
+      <div style={{ marginTop: '1rem' }}>
+        <strong>Selected Flight:</strong>
+        <p>{selectedFlight.length > 0 ? `${selectedFlight[0].flight} to ${selectedFlight[0].dest}` : 'None'}</p>
+      </div>
+    </div>
+  );
+};
+```
+
+> **Note on "Select All" Checkbox:**
+>
+> A "Select All" checkbox in the header is a common requirement for multi-selection tables. While the `SelectionPlugin` provides the core selection logic, implementing a "Select All" UI requires a bit more setup due to the decoupled nature of the plugin system.
+>
+> The recommended approach is to use the table in **controlled mode** and create a custom column definition for your checkbox. The `displayLabel` would contain the "Select All" checkbox, and its `onChange` handler would call your state update function (e.g., `setSelected`) to select or deselect all items.
+>
+> This design gives you maximum flexibility. For instance, you can decide whether "Select All" applies to all data or only the currently filtered data (if using the `FilterPlugin`). A future version of this library may include a more integrated "Select All" solution.
+
 
 ### Example 4: Custom Cell Rendering
 
