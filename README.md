@@ -409,6 +409,169 @@ const MyTableWithPlugins = () => {
 };
 ```
 
+### How to Use Plugins
+
+Plugins are passed to the `ResponsiveTable` component via the `plugins` prop, which accepts an array of `IResponsiveTablePlugin` instances. Some common functionalities, like filtering and infinite scrolling, are provided as built-in plugins that can be enabled via specific props (`filterProps` and `infiniteScrollProps`). When these props are used, the corresponding built-in plugins are automatically initialized if not already provided in the `plugins` array.
+
+```jsx
+import React from 'react';
+// Note: All plugins are exported from the main package entry point.
+import ResponsiveTable, { FilterPlugin } from 'jattac.libs.web.responsive-table';
+
+const MyTableWithPlugins = () => {
+  const columns = [
+    { displayLabel: 'Name', dataKey: 'name', cellRenderer: (row) => row.name, getFilterableValue: (row) => row.name },
+    {
+      displayLabel: 'Age',
+      dataKey: 'age',
+      cellRenderer: (row) => row.age,
+      getFilterableValue: (row) => row.age.toString(),
+    },
+  ];
+
+  const data = [
+    { name: 'Alice', age: 32 },
+    { name: 'Bob', age: 28 },
+    { name: 'Charlie', age: 45 },
+  ];
+
+  return (
+    <ResponsiveTable
+      columnDefinitions={columns}
+      data={data}
+      // Enable built-in filter plugin via props
+      filterProps={{ showFilter: true, filterPlaceholder: 'Search by name or age...' }}
+      // Or provide a custom instance of the plugin
+      // plugins={[new FilterPlugin()]}
+    />
+  );
+};
+```
+
+### Building a Custom Row Selection Plugin
+
+While `ResponsiveTable` provides built-in plugins for common functionalities like sorting and filtering, its extensible plugin system allows you to create custom plugins for highly specific needs, such as a bespoke row selection mechanism. This guide outlines the steps to build and integrate your own row selection plugin.
+
+**Step 1: Define Your Plugin Class**
+
+Create a new TypeScript class that implements the `IResponsiveTablePlugin<TData>` interface. This interface defines the lifecycle methods and hooks your plugin can use to interact with the table.
+
+```typescript
+// my-custom-selection-plugin.ts
+import { IResponsiveTablePlugin, IPluginAPI } from './IResponsiveTablePlugin'; // Adjust path as needed
+import styles from './ResponsiveTable.module.css'; // For styling selected rows
+
+export class MyCustomSelectionPlugin<TData> implements IResponsiveTablePlugin<TData> {
+  public id = 'my-custom-selection'; // A unique ID for your plugin
+  private api!: IPluginAPI<TData>;
+  private selectedRowIds = new Set<string | number>(); // Internal state for selected items
+
+  // Constructor can accept options for your plugin
+  constructor(options?: { initialSelection?: TData[]; rowIdKey: keyof TData }) {
+    // Initialize internal state based on options
+    if (options?.initialSelection && options.rowIdKey) {
+      options.initialSelection.forEach((item) => this.selectedRowIds.add(item[options.rowIdKey] as string | number));
+    }
+  }
+
+  // Called by the table to provide the plugin with its API
+  public onPluginInit = (api: IPluginAPI<TData>) => {
+    this.api = api;
+  };
+
+  // Helper to get a unique ID for a row
+  private getRowId = (row: TData): string | number => {
+    // Assuming rowIdKey is passed in constructor options or via plugin API
+    const rowIdKey = (this as any).options.rowIdKey; // Access options from constructor
+    return row[rowIdKey] as string | number;
+  };
+
+  // Handles row clicks to toggle selection
+  private handleRowClick = (row: TData) => {
+    const rowId = this.getRowId(row);
+    if (this.selectedRowIds.has(rowId)) {
+      this.selectedRowIds.delete(rowId);
+    } else {
+      this.selectedRowIds.add(rowId);
+    }
+
+    // Notify the table to re-render to reflect selection changes
+    this.api.forceUpdate();
+
+    // If you need to expose the selection to the parent component,
+    // you would typically call a callback provided via plugin options.
+    // e.g., (this as any).options.onSelectionChange(this.getSelectedItems());
+  };
+
+  // Provides props to be spread on each table row (<tr>)
+  public getRowProps = (row: TData): React.HTMLAttributes<HTMLTableRowElement> => {
+    const isSelected = this.selectedRowIds.has(this.getRowId(row));
+    return {
+      className: isSelected ? styles.selectedRow : '', // Apply selection styling
+      onClick: () => this.handleRowClick(row), // Attach click handler
+      'aria-selected': isSelected, // For accessibility
+    };
+  };
+
+  // Optional: You can also implement renderHeader, renderFooter, processData, etc.
+  // For example, to add a "Select All" checkbox in the header:
+  // public renderHeader = () => {
+  //   return (
+  //     <input
+  //       type="checkbox"
+  //       checked={this.selectedRowIds.size === this.api.getData().length}
+  //       onChange={() => this.toggleSelectAll()}
+  //     />
+  //   );
+  // };
+}
+```
+
+**Step 2: Integrate Your Custom Plugin**
+
+Once your plugin class is defined, you can instantiate it and pass it to the `ResponsiveTable` component via the `plugins` prop.
+
+```jsx
+import React from 'react';
+import ResponsiveTable from 'jattac.libs.web.responsive-table';
+import { MyCustomSelectionPlugin } from './my-custom-selection-plugin'; // Adjust path
+
+interface MyDataItem {
+  id: string;
+  name: string;
+  // ... other properties
+}
+
+const MyTableWithCustomSelection = () => {
+  const data: MyDataItem[] = [
+    { id: '1', name: 'Alice' },
+    { id: '2', name: 'Bob' },
+    // ...
+  ];
+
+  const columns = [
+    { displayLabel: 'ID', cellRenderer: (row: MyDataItem) => row.id },
+    { displayLabel: 'Name', cellRenderer: (row: MyDataItem) => row.name },
+  ];
+
+  // Instantiate your custom plugin, passing any necessary options
+  const customSelectionPlugin = new MyCustomSelectionPlugin<MyDataItem>({
+    rowIdKey: 'id', // Crucial for identifying rows
+    // onSelectionChange: (selectedItems) => console.log(selectedItems),
+  });
+
+  return (
+    <ResponsiveTable
+      columnDefinitions={columns}
+      data={data}
+      plugins={[customSelectionPlugin]} // Pass your custom plugin here
+    />
+  );
+};
+
+export default MyTableWithCustomSelection;
+```
+
 ### Built-in Plugins
 
 #### `SortPlugin`
@@ -541,10 +704,10 @@ const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
 
 **Plugin Options (via `new SortPlugin(options)`):**
 
-| Prop                   | Type              | Description                                          |
-| ---------------------- | ----------------- | ---------------------------------------------------- |
-| `initialSortColumn`    | `string`          | The `columnId` of the column to sort by initially.   |
-| `initialSortDirection` | `'asc' \| 'desc'` | The direction for the initial sort.                  |
+| Prop                   | Type              | Description                                        |
+| ---------------------- | ----------------- | -------------------------------------------------- |
+| `initialSortColumn`    | `string`          | The `columnId` of the column to sort by initially. |
+| `initialSortDirection` | `'asc' \| 'desc'` | The direction for the initial sort.                |
 
 **`SortPlugin.comparers` API:**
 
@@ -592,18 +755,18 @@ const MySelectableTable = ({ data }) => {
 
 **Controlled vs. Uncontrolled Mode:**
 
--   **Controlled (Recommended):** By providing the `selectedItems` prop, you tell the table to operate as a controlled component. The table will always display the rows passed in this prop as selected. Your `onSelectionChange` callback is responsible for updating the state that you pass to `selectedItems`. This gives you full programmatic control over the selection.
--   **Uncontrolled:** If you omit the `selectedItems` prop, the table will manage its own selection state internally. This is simpler for cases where you only need to know what's selected but don't need to modify it from outside the table.
+- **Controlled (Recommended):** By providing the `selectedItems` prop, you tell the table to operate as a controlled component. The table will always display the rows passed in this prop as selected. Your `onSelectionChange` callback is responsible for updating the state that you pass to `selectedItems`. This gives you full programmatic control over the selection.
+- **Uncontrolled:** If you omit the `selectedItems` prop, the table will manage its own selection state internally. This is simpler for cases where you only need to know what's selected but don't need to modify it from outside the table.
 
 **Props for `SelectionPlugin` (via `selectionProps` on `ResponsiveTable`):**
 
-| Prop                   | Type                                      | Required | Description                                                                                                                                                           |
-| ---------------------- | ----------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `onSelectionChange`    | `(selectedItems: TData[]) => void`        | Yes      | Callback function that receives an array of the currently selected data objects whenever the selection changes. Its presence enables the selection feature.             |
-| `rowIdKey`             | `keyof TData`                             | Yes      | A key from your data object that provides a unique identifier for each row. This is crucial for reliably tracking selections.                                       |
-| `mode`                 | `'single' \| 'multiple'`                  | No       | The selection mode. Defaults to `'multiple'`.                                                                                                                         |
-| `selectedItems`        | `TData[]`                                 | No       | If provided, the component operates in "controlled" mode. The table's selection will be a direct reflection of this prop.                                             |
-| `selectedRowClassName` | `string`                                  | No       | An optional CSS class name to apply to selected rows, allowing you to override the default selection styling.                                                         |
+| Prop                   | Type                               | Required | Description                                                                                                                                                 |
+| ---------------------- | ---------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `onSelectionChange`    | `(selectedItems: TData[]) => void` | Yes      | Callback function that receives an array of the currently selected data objects whenever the selection changes. Its presence enables the selection feature. |
+| `rowIdKey`             | `keyof TData`                      | Yes      | A key from your data object that provides a unique identifier for each row. This is crucial for reliably tracking selections.                               |
+| `mode`                 | `'single' \| 'multiple'`           | No       | The selection mode. Defaults to `'multiple'`.                                                                                                               |
+| `selectedItems`        | `TData[]`                          | No       | If provided, the component operates in "controlled" mode. The table's selection will be a direct reflection of this prop.                                   |
+| `selectedRowClassName` | `string`                           | No       | An optional CSS class name to apply to selected rows, allowing you to override the default selection styling.                                               |
 
 #### `FilterPlugin`
 
@@ -662,13 +825,13 @@ Enables a simple infinite scroll for loading more data as the user scrolls to th
 
 **Configuration (via `infiniteScrollProps` on `ResponsiveTable`):**
 
-| Prop                   | Type                                                 | Description                                                                                                                                                                                                                            |
-| ---------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Prop | Type | Description |
+| ---- | ---- | ----------- |
 
-| `hasMore`              | `boolean`                                            | **Optional.** Controls the loading indicator. If omitted, the component infers this state automatically by checking if `onLoadMore` returns an empty array or `null`. If provided, your app is responsible for managing this state. |
-| `onLoadMore`           | `(currentData: TData[]) => Promise<TData[] | null>` | A callback function that fires when the user scrolls near the end. It should fetch the next page of data and return it in a Promise. The component will stop trying to load more when this function returns `null` or an empty array. |
-| `loadingMoreComponent` | `ReactNode`                                          | A custom component to display at the bottom while new data is being loaded. Defaults to a spinner animation.                                                                                                                         |
-| `noMoreDataComponent`  | `ReactNode`                                          | A custom component to display at the bottom when `hasMore` is `false`. Defaults to a "No more data" message.                                                                                                                            |
+| `hasMore` | `boolean` | **Optional.** Controls the loading indicator. If omitted, the component infers this state automatically by checking if `onLoadMore` returns an empty array or `null`. If provided, your app is responsible for managing this state. |
+| `onLoadMore` | `(currentData: TData[]) => Promise<TData[] | null>` | A callback function that fires when the user scrolls near the end. It should fetch the next page of data and return it in a Promise. The component will stop trying to load more when this function returns `null` or an empty array. |
+| `loadingMoreComponent` | `ReactNode` | A custom component to display at the bottom while new data is being loaded. Defaults to a spinner animation. |
+| `noMoreDataComponent` | `ReactNode` | A custom component to display at the bottom when `hasMore` is `false`. Defaults to a "No more data" message. |
 
 **Comprehensive Example:**
 
@@ -732,7 +895,7 @@ const InfiniteScrollExample = () => {
         maxHeight="100%"
         infiniteScrollProps={{
           onLoadMore: loadMoreItems,
-          
+
           loadingMoreComponent: <h4>Loading more items...</h4>,
           noMoreDataComponent: <p>You've reached the end!</p>,
         }}
@@ -748,21 +911,21 @@ const InfiniteScrollExample = () => {
 
 ### `ResponsiveTable` Props
 
-| Prop                          | Type                                 | Required | Description                                                                                         |
-| ----------------------------- | ------------------------------------ | -------- | --------------------------------------------------------------------------------------------------- |
-| `columnDefinitions`           | `IResponsiveTableColumnDefinition[]` | Yes      | An array of objects defining the table columns. Can also accept a function for dynamic column generation. |
-| `data`                        | `TData[]`                            | Yes      | An array of data objects to populate the table rows.                                                |
-| `footerRows`                  | `IFooterRowDefinition[]`             | No       | An array of objects defining the table footer.                                                      |
-| `onRowClick`                  | `(item: TData) => void`              | No       | A callback function that is triggered when a row is clicked.                                        |
-| `noDataComponent`             | `ReactNode`                          | No       | A custom component to display when there is no data.                                                |
-| `maxHeight`                   | `string`                             | No       | Sets a maximum height for the table body, making it scrollable.                                     |
-| `mobileBreakpoint`            | `number`                             | No       | The pixel width at which the table switches to the mobile view. Defaults to `600`.                  |
-| `enablePageLevelStickyHeader` | `boolean`                            | No       | If `false`, disables the header from sticking to the top of the page on scroll. Defaults to `true`. |
-| `plugins`                     | `IResponsiveTablePlugin<TData>[]`    | No       | An array of plugin instances to extend table functionality.                                         |
-| `selectionProps`              | `object`                             | No       | Configuration for the built-in row selection feature. See `SelectionPlugin` docs for details.       |
+| Prop                          | Type                                 | Required | Description                                                                                                |
+| ----------------------------- | ------------------------------------ | -------- | ---------------------------------------------------------------------------------------------------------- |
+| `columnDefinitions`           | `IResponsiveTableColumnDefinition[]` | Yes      | An array of objects defining the table columns. Can also accept a function for dynamic column generation.  |
+| `data`                        | `TData[]`                            | Yes      | An array of data objects to populate the table rows.                                                       |
+| `footerRows`                  | `IFooterRowDefinition[]`             | No       | An array of objects defining the table footer.                                                             |
+| `onRowClick`                  | `(item: TData) => void`              | No       | A callback function that is triggered when a row is clicked.                                               |
+| `noDataComponent`             | `ReactNode`                          | No       | A custom component to display when there is no data.                                                       |
+| `maxHeight`                   | `string`                             | No       | Sets a maximum height for the table body, making it scrollable.                                            |
+| `mobileBreakpoint`            | `number`                             | No       | The pixel width at which the table switches to the mobile view. Defaults to `600`.                         |
+| `enablePageLevelStickyHeader` | `boolean`                            | No       | If `false`, disables the header from sticking to the top of the page on scroll. Defaults to `true`.        |
+| `plugins`                     | `IResponsiveTablePlugin<TData>[]`    | No       | An array of plugin instances to extend table functionality.                                                |
+| `selectionProps`              | `object`                             | No       | Configuration for the built-in row selection feature. See `SelectionPlugin` docs for details.              |
 | `infiniteScrollProps`         | `object`                             | No       | Configuration for the infinite scroll feature. When enabled, a specialized component handles data loading. |
-| `filterProps`                 | `object`                             | No       | Configuration for the built-in filter plugin.                                                       |
-| `animationProps`              | `object`                             | No       | Configuration for animations, including `isLoading` and `animateOnLoad`.                            |
+| `filterProps`                 | `object`                             | No       | Configuration for the built-in filter plugin.                                                              |
+| `animationProps`              | `object`                             | No       | Configuration for animations, including `isLoading` and `animateOnLoad`.                                   |
 
 ### `IResponsiveTableColumnDefinition<TData>`
 
@@ -811,6 +974,7 @@ This change removes unnecessary boilerplate and makes the API more intuitive. If
 To update your code, remove the `enableInfiniteScroll` property from your `infiniteScrollProps` object.
 
 **Before:**
+
 ```jsx
 <ResponsiveTable
   // ...
@@ -822,6 +986,7 @@ To update your code, remove the `enableInfiniteScroll` property from your `infin
 ```
 
 **After:**
+
 ```jsx
 <ResponsiveTable
   // ...

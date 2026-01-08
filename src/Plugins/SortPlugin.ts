@@ -115,7 +115,13 @@ export class SortPlugin<TData> implements IResponsiveTablePlugin<TData> {
       return {};
     }
 
-    const onHeaderClick = () => {
+    const onHeaderClick = (e: React.MouseEvent<HTMLElement>) => {
+      const target = e.target as HTMLElement;
+      // If the click is on an interactive element, don't sort
+      if (target.closest('input, button, a, [onclick]')) {
+        return;
+      }
+
       if (this.sortColumn === columnId) {
         if (this.sortDirection === 'desc') {
           this.sortColumn = null;
