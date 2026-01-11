@@ -23,6 +23,9 @@ export interface IResponsiveTablePlugin<TData> {
 
   // Optional: Renders the content of a cell, allowing plugins to modify the output
   renderCell?: (content: ReactNode, row: TData, column: IResponsiveTableColumnDefinition<TData>) => ReactNode;
+
+  // Optional: Provides props to be spread on the table row (<tr>) elements
+  getRowProps?: (row: TData) => React.HTMLAttributes<HTMLTableRowElement>;
 }
 
 export interface IPluginAPI<TData> {
@@ -51,5 +54,14 @@ export interface IPluginAPI<TData> {
     showFilter?: boolean;
     filterPlaceholder?: string;
     className?: string;
+  };
+
+  // Optional: Selection props from the ResponsiveTable component
+  selectionProps?: {
+    onSelectionChange: (selectedItems: TData[]) => void;
+    rowIdKey: keyof TData;
+    mode?: 'single' | 'multiple';
+    selectedItems?: TData[];
+    selectedRowClassName?: string;
   };
 }

@@ -6,6 +6,7 @@ import { FilterPlugin } from './Plugins/FilterPlugin';
 import { InfiniteScrollPlugin } from './Plugins/InfiniteScrollPlugin';
 import { IResponsiveTablePlugin } from './Plugins/IResponsiveTablePlugin';
 import { SortPlugin } from './Plugins/SortPlugin';
+import { SelectionPlugin } from './Plugins/SelectionPlugin';
 
 export {
   SortDirection,
@@ -17,5 +18,6 @@ export {
   InfiniteScrollPlugin,
   IResponsiveTablePlugin,
   SortPlugin,
+  SelectionPlugin,
 };
 export default ResponsiveTable;

@@ -87,7 +87,6 @@
   overflow: hidden; /* Hide overflowing content */
   text-overflow: ellipsis; /* Show ellipsis for truncated text */
   white-space: nowrap; /* Prevent text from wrapping */
-  padding-right: 0.5rem; /* Subtle space between text and icon */
 }
 
 .responsiveTable td {
@@ -101,14 +100,45 @@
   transition: background-color 0.2s ease-in-out;
 }
 
+/* Add a transition for the card view as well */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border-color);
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  border-left: 5px solid transparent; /* Add transparent border for smooth transition */
+}
+
+/* Style for selected rows */
+.selectedRow {
+  /* Use a variable for the selection color to allow theming */
+  --table-row-selected-bg: #ddeaff;
+  background-color: var(--table-row-selected-bg) !important; /* Use important to override hover and stripe styles */
+}
+
+/* In mobile view, we use the border for selection indication */
+.card.selectedRow {
+  border-left: 5px solid var(--interactive-color);
+  background-color: var(--table-row-selected-bg);
+}
+
 /* Subtle striping for better readability */
 .responsiveTable tr:nth-child(even) {
   background-color: var(--table-row-stripe-bg);
 }
 
+
 /* Modern hover effect */
 .responsiveTable tr:hover {
   background-color: var(--table-row-hover-bg);
+}
+
+/* Clickable Row Style */
+.clickableRow {
+  cursor: pointer;
 }
 
 /* Clickable Header Style */
@@ -127,7 +157,6 @@
 .responsiveTable th.sorted-desc {
   cursor: pointer;
   /* position: relative; <-- REMOVED to fix sticky header bug */
-  padding-right: 2.5rem; /* Space for the icon (1rem icon + 1rem margin + 0.5rem right offset) */
   transition: transform 0.2s ease-in-out; /* Add transition for smooth scaling */
 }
 
@@ -138,10 +167,6 @@
 }
 
 .responsiveTable th .sortIcon {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
   width: 1rem;
   height: 1rem;
   background-size: contain;
@@ -149,6 +174,7 @@
   background-position: center;
   opacity: 0.4; /* Ghosted by default */
   transition: opacity 0.2s ease-in-out;
+  margin-left: 0.5rem; /* Add a small gap between text and icon */
 }
 
 /* Default unsorted icon (funnel) */

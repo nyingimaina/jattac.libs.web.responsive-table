@@ -4,6 +4,7 @@ import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumn
 import IFooterRowDefinition from '../Data/IFooterRowDefinition';
 import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
 import { FilterPlugin } from '../Plugins/FilterPlugin';
+import { SelectionPlugin } from '../Plugins/SelectionPlugin';
 
 import InfiniteTable from './InfiniteTable';
 
@@ -33,6 +34,13 @@ interface IProps<TData> {
     showFilter?: boolean;
     filterPlaceholder?: string;
     className?: string;
+  };
+  selectionProps?: {
+    onSelectionChange: (selectedItems: TData[]) => void;
+    rowIdKey: keyof TData;
+    mode?: 'single' | 'multiple';
+    selectedItems?: TData[];
+    selectedRowClassName?: string;
   };
   animationProps?: {
     isLoading?: boolean;
@@ -146,7 +154,8 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
     if (
       prevProps.data !== this.props.data ||
       prevProps.plugins !== this.props.plugins ||
-      prevProps.filterProps !== this.props.filterProps
+      prevProps.filterProps !== this.props.filterProps ||
+      prevProps.selectionProps !== this.props.selectionProps
     ) {
       const { processedData, activePlugins } = this.initializePlugins();
       this.setState({ processedData, activePlugins });
@@ -176,6 +185,11 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
       activePlugins.push(this.filterPlugin);
     }
 
+    // Automatically add SelectionPlugin if selectionProps are provided and not already present
+    if (this.props.selectionProps?.onSelectionChange && !activePlugins.some(p => p.id === 'selection')) {
+      activePlugins.push(new SelectionPlugin());
+    }
+
     activePlugins.forEach((plugin) => {
       if (plugin.onPluginInit) {
         plugin.onPluginInit({
@@ -187,6 +201,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
           getScrollableElement: () => this.tableContainerRef.current,
           infiniteScrollProps: this.props.infiniteScrollProps,
           filterProps: this.props.filterProps,
+          selectionProps: this.props.selectionProps,
           columnDefinitions: this.props.columnDefinitions,
         });
       }
@@ -222,13 +237,15 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   }
 
   private getRawColumnDefinition(columnDefinition: ColumnDefinition<TData>): IResponsiveTableColumnDefinition<TData> {
-    let rawColumnDefinition: IResponsiveTableColumnDefinition<TData> = {} as IResponsiveTableColumnDefinition<TData>;
-    if (columnDefinition instanceof Function) {
-      rawColumnDefinition = columnDefinition(this.data[0], 0);
-    } else {
-      rawColumnDefinition = columnDefinition as IResponsiveTableColumnDefinition<TData>;
+    if (typeof columnDefinition === 'function') {
+      // If data is empty, we can't execute the function.
+      // Return a placeholder, as the table body won't be rendered anyway.
+      if (this.data.length === 0) {
+        return { displayLabel: '', cellRenderer: () => '' };
+      }
+      return columnDefinition(this.data[0], 0);
     }
-    return rawColumnDefinition;
+    return columnDefinition;
   }
 
   private onHeaderClickCallback(columnDefinition: ColumnDefinition<TData>): ((id: string) => void) | undefined {
@@ -263,6 +280,47 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
     return headerProps;
   }
 
+  private getRowId(row: TData, index: number): string | number {
+    const { selectionProps } = this.props;
+    if (selectionProps && selectionProps.rowIdKey) {
+      return row[selectionProps.rowIdKey] as string | number;
+    }
+    return index;
+  }
+
+  private getRowProps(row: TData): React.HTMLAttributes<HTMLTableRowElement> {
+    const rowProps: React.HTMLAttributes<HTMLTableRowElement> = {};
+    const clickHandlers: React.MouseEventHandler<HTMLTableRowElement>[] = [];
+
+    this.state.activePlugins.forEach(plugin => {
+        if (plugin.getRowProps) {
+            const props = plugin.getRowProps(row);
+
+            if (plugin.id === 'selection') {
+              
+            }
+
+            if (props.className) {
+                rowProps.className = `${rowProps.className || ''} ${props.className}`.trim();
+            }
+            if (props.onClick) {
+                clickHandlers.push(props.onClick);
+            }
+            // Assign all other props except className and onClick
+            const { className, onClick, ...rest } = props;
+            Object.assign(rowProps, rest);
+        }
+    });
+
+    if (clickHandlers.length > 0) {
+        rowProps.onClick = (e) => {
+            clickHandlers.forEach(handler => handler(e));
+        };
+    }
+
+    return rowProps;
+  }
+
   private renderCell(
     content: React.ReactNode,
     row: TData,
@@ -282,14 +340,6 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
       return this.props.onRowClick;
     } else {
       return () => {};
-    }
-  }
-
-  private get rowClickStyle(): CSSProperties {
-    if (this.props.onRowClick) {
-      return { cursor: 'pointer' } as CSSProperties;
-    } else {
-      return {};
     }
   }
 
@@ -405,44 +455,55 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
   }
 
   private get mobileView(): ReactNode {
+    const isClickable = this.props.onRowClick || this.props.selectionProps;
     return (
       <div>
-        {this.data.map((row, rowIndex) => (
-          <div
-            key={rowIndex}
-                        className={`${styles['card']} ${this.props.animationProps?.animateOnLoad ? styles.animatedRow : ''}`}
-            style={{ animationDelay: `${rowIndex * 0.05}s` }}
-            onClick={(e) => {
-              this.rowClickFunction(row);
-              e.stopPropagation();
-              e.preventDefault();
-            }}
-          >
-            <div className={styles['card-header']}> </div>
-            <div className={styles['card-body']}>
-              {this.props.columnDefinitions.map((columnDefinition, colIndex) => {
-                const colDef = this.getColumnDefinition(columnDefinition, rowIndex);
-                const onHeaderClickCallback = this.onHeaderClickCallback(colDef);
-                const clickableHeaderClassName = this.getClickableHeaderClassName(onHeaderClickCallback, colDef);
-                return (
-                  <div key={colIndex} className={styles['card-row']}>
-                    <p>
-                      <span
-                        className={`${styles['card-label']} ${clickableHeaderClassName}`}
-                        onClick={
-                          onHeaderClickCallback ? () => onHeaderClickCallback(colDef.interactivity!.id) : undefined
-                        }
-                      >
-                        {colDef.displayLabel}
-                      </span>
-                      <span className={styles['card-value']}>{this.renderCell(colDef.cellRenderer(row), row, colDef)}</span>
-                    </p>
-                  </div>
-                );
-              })}
+        {this.data.map((row, rowIndex) => {
+          const rowProps = this.getRowProps(row);
+          const pluginOnClick = rowProps.onClick;
+
+          return (
+            <div
+              key={this.getRowId(row, rowIndex)}
+              className={`${styles.card} ${isClickable ? styles.clickableRow : ''} ${this.props.animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''}`.trim()}
+              style={{ animationDelay: `${rowIndex * 0.05}s` }}
+              aria-selected={rowProps['aria-selected']}
+              onClick={(e) => {
+                if (pluginOnClick) pluginOnClick(e as any);
+                this.rowClickFunction(row);
+              }}
+            >
+              <div className={styles['card-header']}> </div>
+              <div className={styles['card-body']}>
+                {this.props.columnDefinitions.map((columnDefinition, colIndex) => {
+                  const colDef = this.getColumnDefinition(columnDefinition, rowIndex);
+                  const onHeaderClickCallback = this.onHeaderClickCallback(colDef);
+                  const clickableHeaderClassName = this.getClickableHeaderClassName(onHeaderClickCallback, colDef);
+                  return (
+                    <div key={colIndex} className={styles['card-row']}>
+                      <p>
+                        <span
+                          className={`${styles['card-label']} ${clickableHeaderClassName}`}
+                          onClick={
+                            (e) => {
+                              if (onHeaderClickCallback) {
+                                e.stopPropagation();
+                                onHeaderClickCallback(colDef.interactivity!.id)
+                              }
+                            }
+                          }
+                        >
+                          {colDef.displayLabel}
+                        </span>
+                        <span className={styles['card-value']}>{this.renderCell(colDef.cellRenderer(row), row, colDef)}</span>
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         {this.mobileFooter}
       </div>
     );
@@ -450,6 +511,7 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
 
   private get largeScreenView(): ReactNode {
     const useFixedHeaders = this.props.maxHeight ? true : false;
+    const isClickable = this.props.onRowClick || this.props.selectionProps;
 
     const fixedHeadersStyle = useFixedHeaders
       ? ({ maxHeight: this.props.maxHeight, overflowY: 'auto' } as CSSProperties)
@@ -497,25 +559,35 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
             </tr>
           </thead>
           <tbody>
-            {this.data.map((row, rowIndex) => (
-              <tr
-                key={rowIndex}
-                className={this.props.animationProps?.animateOnLoad ? styles.animatedRow : ''}
-                style={{ animationDelay: `${rowIndex * 0.05}s` }}
-              >
-                {this.props.columnDefinitions.map((columnDefinition, colIndex) => {
-                  const colDef = this.getColumnDefinition(columnDefinition, rowIndex);
-                  const cellContent = colDef.cellRenderer(row);
-                  return (
-                    <td onClick={() => this.rowClickFunction(row)} key={colIndex}>
-                      <span style={{ ...this.rowClickStyle }}>
+            {this.data.map((row, rowIndex) => {
+              const rowProps = this.getRowProps(row);
+              const pluginOnClick = rowProps.onClick;
+              
+              return (
+                <tr
+                  key={this.getRowId(row, rowIndex)}
+                  className={`${isClickable ? styles.clickableRow : ''} ${this.props.animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''}`.trim()}
+                  style={{ animationDelay: `${rowIndex * 0.05}s` }}
+                  aria-selected={rowProps['aria-selected']}
+                  onClick={(e) => {
+                    if (pluginOnClick) {
+                        pluginOnClick(e as any);
+                    }
+                    this.rowClickFunction(row);
+                  }}
+                >
+                  {this.props.columnDefinitions.map((columnDefinition, colIndex) => {
+                    const colDef = this.getColumnDefinition(columnDefinition, rowIndex);
+                    const cellContent = colDef.cellRenderer(row);
+                    return (
+                      <td key={colIndex}>
                         {this.renderCell(cellContent, row, colDef)}
-                      </span>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
           {this.tableFooter}
         </table>
