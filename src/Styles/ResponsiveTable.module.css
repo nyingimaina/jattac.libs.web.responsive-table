@@ -87,7 +87,6 @@
   overflow: hidden; /* Hide overflowing content */
   text-overflow: ellipsis; /* Show ellipsis for truncated text */
   white-space: nowrap; /* Prevent text from wrapping */
-  padding-right: 0.5rem; /* Subtle space between text and icon */
 }
 
 .responsiveTable td {
@@ -158,7 +157,6 @@
 .responsiveTable th.sorted-desc {
   cursor: pointer;
   /* position: relative; <-- REMOVED to fix sticky header bug */
-  padding-right: 2.5rem; /* Space for the icon (1rem icon + 1rem margin + 0.5rem right offset) */
   transition: transform 0.2s ease-in-out; /* Add transition for smooth scaling */
 }
 
@@ -169,10 +167,6 @@
 }
 
 .responsiveTable th .sortIcon {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
   width: 1rem;
   height: 1rem;
   background-size: contain;
@@ -180,6 +174,7 @@
   background-position: center;
   opacity: 0.4; /* Ghosted by default */
   transition: opacity 0.2s ease-in-out;
+  margin-left: 0.5rem; /* Add a small gap between text and icon */
 }
 
 /* Default unsorted icon (funnel) */

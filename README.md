@@ -2,8 +2,30 @@
 
 ResponsiveTable is a powerful, lightweight, and fully responsive React component for creating beautiful and functional tables. It’s designed to look great on any device, adapting from a traditional table layout on desktops to a clean, card-based view on mobile screens.
 
+## Why ResponsiveTable?
+
+ResponsiveTable is a modern, flexible, and highly customizable React component designed to tackle the challenges of displaying tabular data effectively across all devices. It's built for developers who need a robust, type-safe, and performant table solution that adapts seamlessly from desktop to mobile.
+
+### Key Advantages
+
+*   **Truly Responsive by Design:** Automatically transforms from a traditional table layout on larger screens to an intuitive, card-based view on mobile devices. This ensures optimal readability and interaction, eliminating the need for separate mobile implementations.
+*   **Powerful & Extensible Plugin System:** A robust, well-defined architecture allows you to easily extend functionality without modifying the core component. Integrate advanced features like sorting, filtering, and infinite scrolling, or build your own custom behaviors.
+*   **Type-Safe & Developer-Friendly API:** Built with TypeScript, ResponsiveTable offers compile-time safety, rich IDE support, and a clear API. This minimizes boilerplate, accelerates development, and reduces runtime errors.
+*   **Highly Customizable:** Gain granular control over the look, feel, and behavior of every table element. From column rendering and header interactivity to dynamic footers and animations, tailor the table to perfectly match your application's design system.
+*   **Optimized Performance:** Engineered for efficiency, featuring debounced resize handling for smooth transitions and careful rendering strategies to maintain responsiveness even with larger datasets.
+
+### Who is this for?
+
+ResponsiveTable is ideal for React developers building:
+
+*   **Dashboards and Admin Panels:** Display complex data in an organized and interactive manner.
+*   **Data-heavy Applications:** Present lists, reports, and analytics that need to be accessible on any screen size.
+*   **Applications Requiring Custom Table Logic:** Leverage the plugin system to implement unique business rules or UI/UX requirements.
+*   **Projects Prioritizing Type Safety and Maintainability:** Benefit from a TypeScript-first approach that enhances code quality and developer experience.
+
 ## Table of Contents
 
+- [Why ResponsiveTable?](#why-responsivetable)
 - [Features](#features)
 - [Installation](#installation)
 - [Getting Started](#getting-started)
@@ -19,6 +41,11 @@ ResponsiveTable is a powerful, lightweight, and fully responsive React component
   - [Plugin Execution Order](#plugin-execution-order)
   - [How to Use Plugins](#how-to-use-plugins)
   - [Built-in Plugins](#built-in-plugins)
+    - [SortPlugin Documentation](#sortplugin-documentation)
+    - [SelectionPlugin Documentation](#selectionplugin-documentation)
+    - [FilterPlugin Documentation](#filterplugin-documentation)
+    - [InfiniteScrollPlugin Documentation](#infinitescrollplugin-documentation)
+  - [Building a Custom Plugin](#building-a-custom-plugin)
 - [API Reference](#api-reference)
   - [ResponsiveTable Props](#responsivetable-props)
   - [IResponsiveTableColumnDefinition<TData>](#iresponsivetablecolumndefinitiontdata)
@@ -27,646 +54,431 @@ ResponsiveTable is a powerful, lightweight, and fully responsive React component
 - [Breaking Changes](#breaking-changes)
   - [Version 0.5.0](#version-050)
 - [License](#license)
+- [Contribution Guidelines](#contribution-guidelines)
+- [Development Setup](#development-setup)
+- [Testing](#testing)
+- [Troubleshooting / FAQ](#troubleshooting--faq)
+- [Accessibility Considerations](#accessibility-considerations)
+- [Performance Best Practices](#performance-best-practices)
+- [Visuals (Future Enhancement)](#visuals-future-enhancement)
 
-## Features
-
-- **Mobile-First Design**: Automatically switches to a card layout on smaller screens for optimal readability.
-- **Highly Customizable**: Tailor the look and feel of columns, headers, and footers.
-- **Dynamic Data Handling**: Define columns and footers based on your data or application state.
-- **Delightful Animations**: Includes an optional skeleton loader and staggered row entrance animations.
-- **Interactive Elements**: Easily add click handlers for rows, headers, and footer cells.
-- **Row Selection**: Built-in support for single or multiple row selection, with full programmatic control.
-- **Efficient & Responsive**: Built with efficiency in mind, including debounced resize handling for smooth transitions.
-- **Easy to Use**: A simple and intuitive API for quick integration.
-- **Extensible Plugin System**: Easily add new functionalities like filtering, sorting, or infinite scrolling.
+---
 
 ## Installation
 
-To get started, install the package from npm:
+Install the package using your favorite package manager:
 
 ```bash
 npm install jattac.libs.web.responsive-table
 ```
 
+or
+
+```bash
+yarn add jattac.libs.web.responsive-table
+```
+
 ## Getting Started
 
-Here’s a basic example to get you up and running in minutes.
+Here's a basic example of how to use `ResponsiveTable`:
 
 ```jsx
 import React from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
+import ResponsiveTable, { IResponsiveTableColumnDefinition } from 'jattac.libs.web.responsive-table';
 
-const GettingStarted = () => {
-  const columns = [
-    { displayLabel: 'Name', dataKey: 'name', cellRenderer: (row) => row.name },
-    { displayLabel: 'Age', dataKey: 'age', cellRenderer: (row) => row.age },
-    { displayLabel: 'City', dataKey: 'city', cellRenderer: (row) => row.city },
-  ];
+// 1. Define your data structure
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+}
 
-  const data = [
-    { name: 'Alice', age: 32, city: 'New York' },
-    { name: 'Bob', age: 28, city: 'Los Angeles' },
-    { name: 'Charlie', age: 45, city: 'Chicago' },
-  ];
+// 2. Provide the data
+const users: User[] = [
+  { id: 1, name: 'Alice', email: 'alice@example.com', role: 'Admin' },
+  { id: 2, name: 'Bob', email: 'bob@example.com', role: 'User' },
+  { id: 3, name: 'Charlie', email: 'charlie@example.com', role: 'User' },
+];
 
-  return <ResponsiveTable columnDefinitions={columns} data={data} />;
-};
+// 3. Define the column structure
+const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
+  {
+    displayLabel: 'Name',
+    cellRenderer: (row) => row.name,
+  },
+  {
+    displayLabel: 'Email',
+    cellRenderer: (row) => row.email,
+  },
+  {
+    displayLabel: 'Role',
+    cellRenderer: (row) => row.role,
+  },
+];
 
-export default GettingStarted;
+// 4. Render the component
+const App = () => (
+  <div style={{ padding: '2rem' }}>
+    <h1>Users</h1>
+    <ResponsiveTable<User>
+      data={users}
+      columnDefinitions={columnDefinitions}
+    />
+  </div>
+);
+
+export default App;
 ```
-
-This will render a table that automatically adapts to the screen size. On a desktop, it will look like a standard table, and on mobile, it will switch to a card-based layout.
 
 ---
 
-## Comprehensive Examples
-
-### Example 1: Loading State and Animations
-
-You can provide a seamless user experience by showing a skeleton loader while your data is being fetched, and then animating the rows in when the data is ready.
-
-```jsx
-import React, { useState, useEffect } from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-
-const AnimatedTable = () => {
-  const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const columns = [
-    { displayLabel: 'User', cellRenderer: (row) => row.name },
-    { displayLabel: 'Email', cellRenderer: (row) => row.email },
-  ];
-
-  useEffect(() => {
-    // Simulate a network request
-    setTimeout(() => {
-      setData([
-        { name: 'Grace', email: 'grace@example.com' },
-        { name: 'Henry', email: 'henry@example.com' },
-      ]);
-      setIsLoading(false);
-    }, 2000);
-  }, []);
-
-  return (
-    <ResponsiveTable columnDefinitions={columns} data={data} animationProps={{ isLoading, animateOnLoad: true }} />
-  );
-};
-```
-
-### Example 2: Adding a Clickable Row Action
-
-You can make rows clickable to perform actions, such as navigating to a details page or opening a modal.
-
-```jsx
-import React from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-
-const ClickableRows = () => {
-  const columns = [
-    { displayLabel: 'Product', cellRenderer: (row) => row.product },
-    { displayLabel: 'Price', cellRenderer: (row) => `${row.price.toFixed(2)}` },
-  ];
-
-  const data = [
-    { id: 1, product: 'Laptop', price: 1200 },
-    { id: 2, product: 'Keyboard', price: 75 },
-  ];
-
-  const handleRowClick = (item) => {
-    alert(`You clicked on product ID: ${item.id}`);
-  };
-
-  return <ResponsiveTable columnDefinitions={columns} data={data} onRowClick={handleRowClick} />;
-};
-```
-
-### Example 3: Row Selection
-
-Enable row selection by providing the `selectionProps` object. The table can be a fully "controlled" component, where you manage the state of selected items, or an "uncontrolled" component where the table manages its own state.
-
-#### Controlled Mode (Recommended)
-
-This pattern gives you full programmatic control over which rows are selected. You manage the selection state in your component and pass it down to the table.
-
-```jsx
-import React, { useState } from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-
-const ControlledSelectionTable = () => {
-  const columns = [
-    { displayLabel: 'Task', dataKey: 'task', cellRenderer: (row) => row.task },
-    { displayLabel: 'Status', dataKey: 'status', cellRenderer: (row) => row.status },
-  ];
-
-  const initialData = [
-    { id: 'task-1', task: 'Design new logo', status: 'In Progress' },
-    { id: 'task-2', task: 'Develop homepage', status: 'Completed' },
-    { id: 'task-3', task: 'Write documentation', status: 'Pending' },
-    { id: 'task-4', task: 'Deploy to production', status: 'Pending' },
-  ];
-
-  // 1. Manage the selection state in your component
-  const [selected, setSelected] = useState([initialData[1]]); // Initially select the second row
-
-  const handleSelectionChange = (selectedItems) => {
-    // 2. Update your state when the selection changes
-    setSelected(selectedItems);
-    console.log('Selected items:', selectedItems);
-  };
-
-  return (
-    <div>
-      <button onClick={() => setSelected([])} style={{ marginBottom: '1rem' }}>
-        Clear Selection
-      </button>
-      <ResponsiveTable
-        columnDefinitions={columns}
-        data={initialData}
-        selectionProps={{
-          onSelectionChange: handleSelectionChange,
-          selectedItems: selected, // 3. Pass the state down to the table
-          rowIdKey: 'id', // 4. Provide a unique key for each row
-          mode: 'multiple',
-        }}
-      />
-      <div style={{ marginTop: '1rem' }}>
-        <strong>Selected Tasks:</strong>
-        <ul>
-          {selected.map((item) => (
-            <li key={item.id}>{item.task}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-};
-```
-
-#### Uncontrolled Mode
-
-This pattern is simpler if you only need to be notified when the selection changes, but don't need to programmatically control the selection from outside the table. The table manages its own selection state internally.
-
-```jsx
-import React from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-
-const UncontrolledSelectionTable = () => {
-  const columns = [
-    { displayLabel: 'User', dataKey: 'name', cellRenderer: (row) => row.name },
-    { displayLabel: 'Email', dataKey: 'email', cellRenderer: (row) => row.email },
-  ];
-
-  const data = [
-    { id: 1, name: 'Diana', email: 'diana@example.com' },
-    { id: 2, name: 'Ethan', email: 'ethan@example.com' },
-    { id: 3, name: 'Fiona', email: 'fiona@example.com' },
-  ];
-
-  const handleSelectionChange = (selectedItems) => {
-    console.log('Selected items:', selectedItems);
-  };
-
-  return (
-    <ResponsiveTable
-      columnDefinitions={columns}
-      data={data}
-      selectionProps={{
-        onSelectionChange: handleSelectionChange,
-        rowIdKey: 'id',
-        // Note: The `selectedItems` prop is omitted
-      }}
-    />
-  );
-};
-```
-
-#### Single Selection Mode
-
-To allow only one row to be selected at a time, set `mode: 'single'`.
-
-```jsx
-import React, { useState } from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-
-const SingleSelectionTable = () => {
-  const columns = [
-    { displayLabel: 'Flight', dataKey: 'flight', cellRenderer: (row) => row.flight },
-    { displayLabel: 'Destination', dataKey: 'dest', cellRenderer: (row) => row.dest },
-  ];
-
-  const data = [
-    { id: 'fl-101', flight: 'UA 456', dest: 'Tokyo' },
-    { id: 'fl-102', flight: 'DL 789', dest: 'London' },
-    { id: 'fl-103', flight: 'AA 123', dest: 'Sydney' },
-  ];
-
-  const [selectedFlight, setSelectedFlight] = useState([]);
-
-  return (
-    <div>
-      <ResponsiveTable
-        columnDefinitions={columns}
-        data={data}
-        selectionProps={{
-          onSelectionChange: setSelectedFlight,
-          selectedItems: selectedFlight,
-          rowIdKey: 'id',
-          mode: 'single', // Set the mode to single
-        }}
-      />
-      <div style={{ marginTop: '1rem' }}>
-        <strong>Selected Flight:</strong>
-        <p>{selectedFlight.length > 0 ? `${selectedFlight[0].flight} to ${selectedFlight[0].dest}` : 'None'}</p>
-      </div>
-    </div>
-  );
-};
-```
-
-> **Note on "Select All" Checkbox:**
->
-> A "Select All" checkbox in the header is a common requirement for multi-selection tables. While the `SelectionPlugin` provides the core selection logic, implementing a "Select All" UI requires a bit more setup due to the decoupled nature of the plugin system.
->
-> The recommended approach is to use the table in **controlled mode** and create a custom column definition for your checkbox. The `displayLabel` would contain the "Select All" checkbox, and its `onChange` handler would call your state update function (e.g., `setSelected`) to select or deselect all items.
->
-> This design gives you maximum flexibility. For instance, you can decide whether "Select All" applies to all data or only the currently filtered data (if using the `FilterPlugin`). A future version of this library may include a more integrated "Select All" solution.
-
-
-### Example 4: Custom Cell Rendering
-
-You can render any React component inside a cell, allowing for rich content like buttons, links, or status badges.
-
-```jsx
-import React from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-
-const CustomCells = () => {
-  const columns = [
-    { displayLabel: <strong>User</strong>, cellRenderer: (row) => <strong>{row.user}</strong> },
-    {
-      displayLabel: 'Status',
-      cellRenderer: (row) => (
-        <span
-          style={{
-            color: row.status === 'Active' ? 'green' : 'red',
-            fontWeight: 'bold',
-          }}
-        >
-          {row.status}
-        </span>
-      ),
-    },
-    {
-      displayLabel: 'Action',
-      cellRenderer: (row) => <button onClick={() => alert(`Editing ${row.user}`)}>Edit</button>,
-    },
-  ];
-
-  const data = [
-    { user: 'Eve', status: 'Active' },
-    { user: 'Frank', status: 'Inactive' },
-  ];
-
-  return <ResponsiveTable columnDefinitions={columns} data={data} />;
-};
-```
-
-### Example 5: Dynamic and Conditional Columns
-
-Columns can be generated dynamically based on your data or application state. This is useful for creating flexible tables that adapt to different datasets.
-
-```jsx
-import React from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-
-const DynamicColumns = ({ isAdmin }) => {
-  // Base columns for all users
-  const columns = [
-    { displayLabel: 'File Name', cellRenderer: (row) => row.fileName },
-    { displayLabel: 'Size', cellRenderer: (row) => `${row.size} KB` },
-  ];
-
-  // Add an admin-only column conditionally
-  if (isAdmin) {
-    columns.push({
-      displayLabel: 'Admin Actions',
-      cellRenderer: (row) => <button onClick={() => alert(`Deleting ${row.fileName}`)}>Delete</button>,
-    });
-  }
-
-  const data = [
-    { fileName: 'document.pdf', size: 1024 },
-    { fileName: 'image.jpg', size: 512 },
-  ];
-
-  return <ResponsiveTable columnDefinitions={columns} data={data} />;
-};
-```
-
-### Example 6: Advanced Footer with Labels and Interactivity
-
-You can add a footer to display summary information, such as totals or averages. The footer is also responsive and will appear correctly in both desktop and mobile views. With the enhanced footer functionality, you can provide explicit labels for mobile view and add click handlers to footer cells.
-
-```jsx
-import React from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-
-const TableWithFooter = () => {
-  const columns = [
-    { displayLabel: 'Item', cellRenderer: (row) => row.item },
-    { displayLabel: 'Quantity', cellRenderer: (row) => row.quantity },
-    { displayLabel: 'Price', cellRenderer: (row) => `${row.price.toFixed(2)}` },
-  ];
-
-  const data = [
-    { item: 'Apples', quantity: 10, price: 1.5 },
-    { item: 'Oranges', quantity: 5, price: 2.0 },
-    { item: 'Bananas', quantity: 15, price: 0.5 },
-  ];
-
-  const total = data.reduce((sum, row) => sum + row.quantity * row.price, 0);
-
-  const footerRows = [
-    {
-      columns: [
-        {
-          colSpan: 2,
-          cellRenderer: () => <strong>Total:</strong>,
-        },
-        {
-          colSpan: 1,
-          displayLabel: 'Total',
-          cellRenderer: () => <strong>${total.toFixed(2)}</strong>,
-          onCellClick: () => alert('Total clicked!'),
-        },
-      ],
-    },
-  ];
-
-  return <ResponsiveTable columnDefinitions={columns} data={data} footerRows={footerRows} />;
-};
-```
-
-### Example 7: Disabling Page-Level Sticky Header
-
-By default, the table header remains fixed to the top of the viewport as the user scrolls down the page. This ensures the column titles are always visible. To disable this behavior and have the header scroll away with the rest of the page, set the `enablePageLevelStickyHeader` prop to `false`.
-
-```jsx
-import React from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-
-const NonStickyHeaderTable = () => {
-  // We need enough data to make the page scroll
-  const data = Array.from({ length: 50 }, (_, i) => ({
-    id: i + 1,
-    item: `Item #${i + 1}`,
-    description: 'This is a sample item.',
-  }));
-
-  const columns = [
-    { displayLabel: 'ID', cellRenderer: (row) => row.id },
-    { displayLabel: 'Item', cellRenderer: (row) => row.item },
-    { displayLabel: 'Description', cellRenderer: (row) => row.description },
-  ];
-
-  return (
-    <div>
-      <h1 style={{ height: '50vh', display: 'flex', alignItems: 'center' }}>Scroll down to see the table</h1>
-      <ResponsiveTable
-        columnDefinitions={columns}
-        data={data}
-        enablePageLevelStickyHeader={false} // <-- Here's the magic switch!
-      />
-      <div style={{ height: '50vh' }} />
-    </div>
-  );
-};
-```
+## API Reference
+
+### ResponsiveTable Props
+
+| Prop                         | Type                                                              | Description                                                                                                                                |
+| ---------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `columnDefinitions`          | `IResponsiveTableColumnDefinition<TData>[]`                       | **Required.** An array of objects that define the columns of the table.                                                                    |
+| `data`                       | `TData[]`                                                         | **Required.** The array of data to be displayed in the table.                                                                              |
+| `noDataComponent`            | `ReactNode`                                                       | A custom component to display when there is no data.                                                                                       |
+| `maxHeight`                  | `string`                                                          | Sets a maximum height for the table, making the body scrollable. E.g., `'500px'`.                                                          |
+| `onRowClick`                 | `(item: TData) => void`                                           | A callback function that is triggered when a row is clicked.                                                                               |
+| `footerRows`                 | `IFooterRowDefinition[]`                                          | An array of objects that define the footer rows of the table.                                                                              |
+| `mobileBreakpoint`           | `number`                                                          | The viewport width (in pixels) at which the table switches to the mobile card view. Defaults to `600`.                                     |
+| `plugins`                    | `IResponsiveTablePlugin<TData>[]`                                 | An array of plugin instances to extend the table's functionality.                                                                          |
+| `enablePageLevelStickyHeader`| `boolean`                                                         | When `false`, disables the sticky behavior of the header at the page level. Defaults to `true`.                                            |
+| `animationProps`             | `{ isLoading?: boolean; animateOnLoad?: boolean; }`               | Props to control animations. `isLoading` shows a skeleton loader. `animateOnLoad` animates rows on initial render.                       |
+| `filterProps`                | `{ showFilter?: boolean; filterPlaceholder?: string; className?: string; }` | Props to configure the built-in filter functionality. `showFilter` enables the filter input.                                               |
+| `selectionProps`             | `{ onSelectionChange: (selectedItems: TData[]) => void; rowIdKey: keyof TData; mode?: 'single' \| 'multiple'; selectedItems?: TData[]; selectedRowClassName?: string; }` | Props to enable and configure row selection.                                                                                               |
+| `infiniteScrollProps`        | `{ onLoadMore: (currentData: TData[]) => Promise<TData[] \| null>; hasMore?: boolean; loadingMoreComponent?: ReactNode; noMoreDataComponent?: ReactNode; }` | Props to enable infinite scrolling.                                                                                                        |
 
 ---
 
 ## Plugin System
 
-ResponsiveTable is designed with an extensible plugin system, allowing developers to easily add new functionalities or modify existing behaviors without altering the core component. Plugins can interact with the table's data, render custom UI elements (like headers or footers), and respond to table events.
-
-### Plugin Execution Order
-
-> **Note:** Plugins process data sequentially in the order they are provided in the `plugins` array. This can have important performance and behavioral implications.
-
-For example, consider the `SortPlugin` and `FilterPlugin`.
-
-- `plugins={[new SortPlugin(), new FilterPlugin()]}`: This will **sort** the entire dataset first, and then **filter** the sorted data.
-- `plugins={[new FilterPlugin(), new SortPlugin()]}`: This will **filter** the dataset first, and then **sort** the much smaller, filtered result.
-
-For the best performance, it is highly recommended to **filter first, then sort**.
-
-### How to Use Plugins
-
-Plugins are passed to the `ResponsiveTable` component via the `plugins` prop, which accepts an array of `IResponsiveTablePlugin` instances. Some common functionalities, like filtering and infinite scrolling, are provided as built-in plugins that can be enabled via specific props (`filterProps` and `infiniteScrollProps`). When these props are used, the corresponding built-in plugins are automatically initialized if not already provided in the `plugins` array.
-
-```jsx
-import React from 'react';
-// Note: All plugins are exported from the main package entry point.
-import ResponsiveTable, { FilterPlugin } from 'jattac.libs.web.responsive-table';
-
-const MyTableWithPlugins = () => {
-  const columns = [
-    { displayLabel: 'Name', dataKey: 'name', cellRenderer: (row) => row.name, getFilterableValue: (row) => row.name },
-    {
-      displayLabel: 'Age',
-      dataKey: 'age',
-      cellRenderer: (row) => row.age,
-      getFilterableValue: (row) => row.age.toString(),
-    },
-  ];
-
-  const data = [
-    { name: 'Alice', age: 32 },
-    { name: 'Bob', age: 28 },
-    { name: 'Charlie', age: 45 },
-  ];
-
-  return (
-    <ResponsiveTable
-      columnDefinitions={columns}
-      data={data}
-      // Enable built-in filter plugin via props
-      filterProps={{ showFilter: true, filterPlaceholder: 'Search by name or age...' }}
-      // Or provide a custom instance of the plugin
-      // plugins={[new FilterPlugin()]}
-    />
-  );
-};
-```
-
-### How to Use Plugins
-
-Plugins are passed to the `ResponsiveTable` component via the `plugins` prop, which accepts an array of `IResponsiveTablePlugin` instances. Some common functionalities, like filtering and infinite scrolling, are provided as built-in plugins that can be enabled via specific props (`filterProps` and `infiniteScrollProps`). When these props are used, the corresponding built-in plugins are automatically initialized if not already provided in the `plugins` array.
-
-```jsx
-import React from 'react';
-// Note: All plugins are exported from the main package entry point.
-import ResponsiveTable, { FilterPlugin } from 'jattac.libs.web.responsive-table';
-
-const MyTableWithPlugins = () => {
-  const columns = [
-    { displayLabel: 'Name', dataKey: 'name', cellRenderer: (row) => row.name, getFilterableValue: (row) => row.name },
-    {
-      displayLabel: 'Age',
-      dataKey: 'age',
-      cellRenderer: (row) => row.age,
-      getFilterableValue: (row) => row.age.toString(),
-    },
-  ];
-
-  const data = [
-    { name: 'Alice', age: 32 },
-    { name: 'Bob', age: 28 },
-    { name: 'Charlie', age: 45 },
-  ];
-
-  return (
-    <ResponsiveTable
-      columnDefinitions={columns}
-      data={data}
-      // Enable built-in filter plugin via props
-      filterProps={{ showFilter: true, filterPlaceholder: 'Search by name or age...' }}
-      // Or provide a custom instance of the plugin
-      // plugins={[new FilterPlugin()]}
-    />
-  );
-};
-```
-
-### Building a Custom Row Selection Plugin
-
-While `ResponsiveTable` provides built-in plugins for common functionalities like sorting and filtering, its extensible plugin system allows you to create custom plugins for highly specific needs, such as a bespoke row selection mechanism. This guide outlines the steps to build and integrate your own row selection plugin.
-
-**Step 1: Define Your Plugin Class**
-
-Create a new TypeScript class that implements the `IResponsiveTablePlugin<TData>` interface. This interface defines the lifecycle methods and hooks your plugin can use to interact with the table.
-
-```typescript
-// my-custom-selection-plugin.ts
-import { IResponsiveTablePlugin, IPluginAPI } from './IResponsiveTablePlugin'; // Adjust path as needed
-import styles from './ResponsiveTable.module.css'; // For styling selected rows
-
-export class MyCustomSelectionPlugin<TData> implements IResponsiveTablePlugin<TData> {
-  public id = 'my-custom-selection'; // A unique ID for your plugin
-  private api!: IPluginAPI<TData>;
-  private selectedRowIds = new Set<string | number>(); // Internal state for selected items
-
-  // Constructor can accept options for your plugin
-  constructor(options?: { initialSelection?: TData[]; rowIdKey: keyof TData }) {
-    // Initialize internal state based on options
-    if (options?.initialSelection && options.rowIdKey) {
-      options.initialSelection.forEach((item) => this.selectedRowIds.add(item[options.rowIdKey] as string | number));
-    }
-  }
-
-  // Called by the table to provide the plugin with its API
-  public onPluginInit = (api: IPluginAPI<TData>) => {
-    this.api = api;
-  };
-
-  // Helper to get a unique ID for a row
-  private getRowId = (row: TData): string | number => {
-    // Assuming rowIdKey is passed in constructor options or via plugin API
-    const rowIdKey = (this as any).options.rowIdKey; // Access options from constructor
-    return row[rowIdKey] as string | number;
-  };
-
-  // Handles row clicks to toggle selection
-  private handleRowClick = (row: TData) => {
-    const rowId = this.getRowId(row);
-    if (this.selectedRowIds.has(rowId)) {
-      this.selectedRowIds.delete(rowId);
-    } else {
-      this.selectedRowIds.add(rowId);
-    }
-
-    // Notify the table to re-render to reflect selection changes
-    this.api.forceUpdate();
-
-    // If you need to expose the selection to the parent component,
-    // you would typically call a callback provided via plugin options.
-    // e.g., (this as any).options.onSelectionChange(this.getSelectedItems());
-  };
-
-  // Provides props to be spread on each table row (<tr>)
-  public getRowProps = (row: TData): React.HTMLAttributes<HTMLTableRowElement> => {
-    const isSelected = this.selectedRowIds.has(this.getRowId(row));
-    return {
-      className: isSelected ? styles.selectedRow : '', // Apply selection styling
-      onClick: () => this.handleRowClick(row), // Attach click handler
-      'aria-selected': isSelected, // For accessibility
-    };
-  };
-
-  // Optional: You can also implement renderHeader, renderFooter, processData, etc.
-  // For example, to add a "Select All" checkbox in the header:
-  // public renderHeader = () => {
-  //   return (
-  //     <input
-  //       type="checkbox"
-  //       checked={this.selectedRowIds.size === this.api.getData().length}
-  //       onChange={() => this.toggleSelectAll()}
-  //     />
-  //   );
-  // };
-}
-```
-
-**Step 2: Integrate Your Custom Plugin**
-
-Once your plugin class is defined, you can instantiate it and pass it to the `ResponsiveTable` component via the `plugins` prop.
-
-```jsx
-import React from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-import { MyCustomSelectionPlugin } from './my-custom-selection-plugin'; // Adjust path
-
-interface MyDataItem {
-  id: string;
-  name: string;
-  // ... other properties
-}
-
-const MyTableWithCustomSelection = () => {
-  const data: MyDataItem[] = [
-    { id: '1', name: 'Alice' },
-    { id: '2', name: 'Bob' },
-    // ...
-  ];
-
-  const columns = [
-    { displayLabel: 'ID', cellRenderer: (row: MyDataItem) => row.id },
-    { displayLabel: 'Name', cellRenderer: (row: MyDataItem) => row.name },
-  ];
-
-  // Instantiate your custom plugin, passing any necessary options
-  const customSelectionPlugin = new MyCustomSelectionPlugin<MyDataItem>({
-    rowIdKey: 'id', // Crucial for identifying rows
-    // onSelectionChange: (selectedItems) => console.log(selectedItems),
-  });
-
-  return (
-    <ResponsiveTable
-      columnDefinitions={columns}
-      data={data}
-      plugins={[customSelectionPlugin]} // Pass your custom plugin here
-    />
-  );
-};
-
-export default MyTableWithCustomSelection;
-```
-
 ### Built-in Plugins
 
-#### `SortPlugin`
+#### FilterPlugin Documentation
+
+The `FilterPlugin` adds a client-side search input to filter the table data.
+
+**Enabling the `FilterPlugin`:**
+
+The `FilterPlugin` is automatically enabled when you provide the `filterProps` to the `ResponsiveTable`. To make a column filterable, you must add a `getFilterableValue` function to its column definition.
+
+```jsx
+import React from 'react';
+import ResponsiveTable, { IResponsiveTableColumnDefinition } from 'jattac.libs.web.responsive-table';
+
+// Define your data and columns
+interface Product {
+  id: number;
+  name: string;
+  category: string;
+}
+
+const columnDefinitions: IResponsiveTableColumnDefinition<Product>[] = [
+  {
+    displayLabel: 'Product Name',
+    cellRenderer: (row) => row.name,
+    // Make this column filterable
+    getFilterableValue: (row) => row.name,
+  },
+  {
+    displayLabel: 'Category',
+    cellRenderer: (row) => row.category,
+    // And this one too
+    getFilterableValue: (row) => row.category,
+  },
+];
+
+const ProductTable = ({ products }) => (
+  <ResponsiveTable
+    data={products}
+    columnDefinitions={columnDefinitions}
+    filterProps={{
+      showFilter: true,
+      filterPlaceholder: 'Search products...',
+    }}
+  />
+);
+```
+
+The plugin will automatically render a search input and highlight matches in the cells.
+
+#### InfiniteScrollPlugin Documentation
+
+The `InfiniteScrollPlugin` enables the table to load more data as the user scrolls.
+
+**Enabling the `InfiniteScrollPlugin`:**
+
+The `InfiniteScrollPlugin` is enabled by providing the `infiniteScrollProps` to the `ResponsiveTable`.
+
+```jsx
+import React, { useState } from 'react';
+import ResponsiveTable, { IResponsiveTableColumnDefinition, InfiniteScrollPlugin } from 'jattac.libs.web.responsive-table';
+
+// Assume you have a function to fetch data from an API
+const fetchMoreData = async (offset: number): Promise<any[]> => {
+  const response = await fetch(`https://api.example.com/data?offset=${offset}`);
+  return response.json();
+};
+
+const App = () => {
+  const [data, setData] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
+
+  const onLoadMore = async (currentData) => {
+    const newData = await fetchMoreData(currentData.length);
+    if (newData && newData.length > 0) {
+      setData([...currentData, ...newData]);
+    } else {
+      setHasMore(false);
+    }
+    return newData;
+  };
+
+  return (
+    <ResponsiveTable
+      data={data}
+      columnDefinitions={/* ... */}
+      plugins={[new InfiniteScrollPlugin()]}
+      infiniteScrollProps={{
+        onLoadMore: onLoadMore,
+        hasMore: hasMore,
+        loadingMoreComponent: <div>Loading...</div>,
+        noMoreDataComponent: <div>End of list.</div>,
+      }}
+      maxHeight="600px" // Important: Infinite scroll requires a scrollable container
+    />
+  );
+};
+```
+
+### Building a Custom Plugin
+
+You can create your own plugins by implementing the `IResponsiveTablePlugin` interface. This allows you to hook into the table's lifecycle to add custom behavior.
+
+The `IResponsiveTablePlugin<TData>` interface has the following methods:
+
+| Method           | Description                                                              |
+| ---------------- | ------------------------------------------------------------------------ |
+| `id`             | A unique string identifier for the plugin.                               |
+| `renderHeader`   | Renders a React node above the table.                                    |
+| `renderFooter`   | Renders a React node below the table.                                    |
+| `processData`    | A function to transform the data before it's rendered.                   |
+| `onPluginInit`   | A callback that provides the plugin with an API to interact with the table. |
+| `getHeaderProps` | A function to add props to the header `<th>` elements.                   |
+| `renderCell`     | A function to wrap or modify the content of a cell.                      |
+| `getRowProps`    | A function to add props to the table row `<tr>` elements.                |
+
+**Example: A Simple Logging Plugin**
+
+Here is an example of a plugin that logs the number of rows rendered to the console.
+
+```jsx
+import { IResponsiveTablePlugin } from 'jattac.libs.web.responsive-table';
+
+class LoggingPlugin<TData> implements IResponsiveTablePlugin<TData> {
+  public id = 'logging-plugin';
+
+  public processData(data: TData[]): TData[] {
+    console.log(`Rendering ${data.length} rows.`);
+    return data;
+  }
+}
+
+// Usage:
+// <ResponsiveTable
+//   data={...}
+//   columnDefinitions={...}
+//   plugins={[new LoggingPlugin()]}
+// />
+```
+
+---
+## Contribution Guidelines
+
+We welcome contributions to ResponsiveTable! To ensure a smooth and effective collaboration, please follow these guidelines.
+
+### How to Contribute
+
+1.  **Fork the Repository:** Start by forking the `jattac-web-libs/Jattac.Libs.Web.ResponsiveTable` repository to your GitHub account.
+2.  **Clone Your Fork:** Clone your forked repository to your local machine.
+    ```bash
+    git clone https://github.com/your-username/Jattac.Libs.Web.ResponsiveTable.git
+    cd Jattac.Libs.Web.ResponsiveTable
+    ```
+3.  **Create a New Branch:** For each new feature or bug fix, create a new branch.
+    ```bash
+    git checkout -b feature/your-feature-name
+    # or
+    git checkout -b bugfix/issue-description
+    ```
+4.  **Set Up Development Environment:** Follow the instructions in the [Development Setup](#development-setup) section to get your local environment ready.
+5.  **Make Your Changes:** Implement your feature or fix the bug. Ensure your code adheres to the project's coding style and conventions.
+6.  **Write Tests:** If you're adding a new feature, please write corresponding unit or integration tests. If you're fixing a bug, a regression test is highly appreciated.
+7.  **Run Tests:** Before submitting, ensure all existing tests pass and your new tests pass. See [Testing](#testing) for instructions.
+8.  **Lint and Format:** Ensure your code is properly linted and formatted.
+    ```bash
+    npm run lint
+    npm run format
+    ```
+9.  **Commit Your Changes:** Write clear, concise commit messages.
+    ```bash
+    git commit -m "feat: Add new feature X"
+    # or
+    git commit -m "fix: Resolve issue Y"
+    ```
+10. **Push to Your Fork:**
+    ```bash
+    git push origin feature/your-feature-name
+    ```
+11. **Create a Pull Request (PR):**
+    *   Go to the original `jattac-web-libs/Jattac.Libs.Web.ResponsiveTable` repository on GitHub.
+    *   You should see a prompt to create a new pull request from your recently pushed branch.
+    *   Provide a clear title and detailed description of your changes. Reference any related issues.
+
+### Code Style
+
+This project uses Prettier for code formatting and ESLint for linting. Please ensure your code conforms to these standards. You can run `npm run format` and `npm run lint` to automatically fix most issues.
+
+### Reporting Bugs
+
+If you find a bug, please open an issue on GitHub. Provide a clear and concise description of the bug, steps to reproduce it, and expected behavior. Screenshots or code examples are very helpful.
+
+### Feature Requests
+
+We'd love to hear your ideas for new features! Please open an issue on GitHub to propose new features. Describe the feature, its potential benefits, and any design considerations.
+
+---
+
+## Development Setup
+
+To set up the project for local development, follow these steps:
+
+1.  **Clone the Repository:**
+    ```bash
+    git clone https://github.com/jattac-web-libs/Jattac.Libs.Web.ResponsiveTable.git
+    cd Jattac.Libs.Web.ResponsiveTable
+    ```
+2.  **Install Dependencies:**
+    ```bash
+    npm install
+    ```
+3.  **Build the Project:**
+    This project uses Rollup for bundling. To build the project, run:
+    ```bash
+    npm run build
+    ```
+    This will compile the TypeScript code and generate the output in the `dist/` directory.
+
+4.  **Run in Development Mode (if applicable):**
+    If there's a development server or storybook setup, you would typically run:
+    ```bash
+    npm run dev
+    ```
+    (Note: This project is a library, so a direct `dev` command might not be present for a live preview. You would typically link this library into another project to test changes.)
+
+---
+
+## Testing
+
+To ensure the quality and stability of ResponsiveTable, the project includes a suite of tests.
+
+### Running Tests
+
+1.  **Unit and Integration Tests:**
+    To run all unit and integration tests, use the following command:
+    ```bash
+    npm test
+    ```
+    This will execute the test suite and report any failures.
+
+2.  **Test Coverage:**
+    To generate a test coverage report, run:
+    ```bash
+    npm run coverage
+    ```
+    (Note: This command assumes a coverage tool like `jest --coverage` is configured in `package.json`.)
+
+3.  **Linting and Formatting Checks:**
+    Before submitting any changes, please ensure your code adheres to the project's style guidelines.
+    ```bash
+    npm run lint
+    npm run format
+    ```
+    These commands will check for linting errors and automatically format your code, respectively.
+
+---
+
+## Troubleshooting / FAQ
+
+This section will be populated with common issues and their solutions as they arise.
+
+### Common Issues
+
+*   **Issue:** [Describe common issue 1]
+    **Solution:** [Provide solution 1]
+*   **Issue:** [Describe common issue 2]
+    **Solution:** [Provide solution 2]
+
+If you encounter any problems not listed here, please check the [GitHub Issues](https://github.com/jattac-web-libs/Jattac.Libs.Web.ResponsiveTable/issues) or open a new one.
+
+---
+
+## Accessibility Considerations
+
+ResponsiveTable aims to be as accessible as possible. We strive to follow Web Content Accessibility Guidelines (WCAG) where applicable.
+
+### Key Considerations
+
+*   **Semantic HTML:** The component renders semantic HTML elements to ensure proper structure and meaning for assistive technologies.
+*   **Keyboard Navigation:** Interactive elements within the table (e.g., selection checkboxes, sortable headers) should be navigable and operable via keyboard.
+*   **ARIA Attributes:** Appropriate ARIA attributes are used to convey roles, states, and properties of UI elements to assistive technologies.
+*   **Customization:** When customizing cell renderers or other parts of the table, developers are encouraged to consider accessibility best practices, such as providing `alt` text for images, proper `label` associations for form controls, and sufficient color contrast.
+
+We are continuously working to improve the accessibility of this component. If you find any accessibility issues, please report them via the [GitHub Issues](https://github.com/jattac-web-libs/Jattac.Libs.Web.ResponsiveTable/issues).
+
+---
+
+## Performance Best Practices
+
+To ensure optimal performance when using ResponsiveTable, especially with large datasets or complex cell renderers, consider the following best practices:
+
+*   **Minimize Re-renders:**
+    *   Ensure that `data` and `columnDefinitions` props are stable. Avoid creating new array or object instances on every render of your parent component if their content hasn't changed. Use `React.useMemo` or `React.useCallback` where appropriate.
+    *   If your `cellRenderer` functions are complex, consider memoizing them or the components they render using `React.memo`.
+*   **Efficient `cellRenderer`:**
+    *   Keep `cellRenderer` functions as lightweight as possible. Avoid heavy computations or complex component trees within them if performance is critical.
+    *   Only render what's necessary.
+*   **`rowIdKey` for Selection:**
+    *   Always provide a stable and unique `rowIdKey` when using the `SelectionPlugin`. This helps React and the plugin efficiently track row selections without unnecessary re-renders.
+*   **Plugin Order (for Sort/Filter):**
+    *   As noted in the [Plugin Execution Order](#plugin-execution-order) section, for client-side sorting and filtering, it's generally more performant to **filter first, then sort** to operate on a smaller dataset.
+*   **Server-Side Operations for Large Datasets:**
+    *   For extremely large datasets (thousands of rows or more), client-side filtering and sorting can become slow. Consider implementing these operations server-side and fetching pre-filtered/pre-sorted data.
+    *   Utilize the `InfiniteScrollPlugin` for progressively loading data from the server, but be mindful that it renders all loaded rows into the DOM (not a virtualized list).
+*   **Avoid Deeply Nested Components:**
+    *   While flexible,.
+    *   While flexible, deeply nested components within `cellRenderer` can increase rendering time. Optimize your component hierarchy where possible.
+
+---
+
+## Visuals (Future Enhancement)
+
+To further enhance this documentation, consider adding screenshots or animated GIFs to visually demonstrate:
+- The responsive behavior (desktop vs. mobile card view).
+- Loading animations and staggered row entrance.
+- Interactive elements (row clicks, selection).
+- Plugin functionalities (sorting indicators, filter input).
+
+These visual aids can significantly improve user understanding and showcase the component's capabilities more effectively.
+
+---
+
+## SortPlugin Documentation
 
 The `SortPlugin` provides powerful, type-safe, and highly customizable column sorting. It adds intuitive UI cues, allowing users to click column headers to sort the data in ascending, descending, or original order.
 
@@ -810,286 +622,3 @@ The `comparers` object on your `SortPlugin` instance provides the following help
 | `numeric(dataKey)`               | Performs a standard numerical sort.                                           |
 | `caseInsensitiveString(dataKey)` | Performs a case-insensitive alphabetical sort.                                |
 | `date(dataKey)`                  | Correctly sorts dates, assuming the data is a valid date string or timestamp. |
-
-#### `SelectionPlugin`
-
-The `SelectionPlugin` provides powerful and flexible row selection capabilities. It is enabled automatically by providing the `selectionProps` object to the `ResponsiveTable`. The plugin supports both single and multiple selection modes and can be used as a "controlled" or "uncontrolled" component.
-
-**Enabling the `SelectionPlugin`:**
-
-Row selection is enabled by simply passing the `selectionProps` object with an `onSelectionChange` callback.
-
-```jsx
-import React, { useState } from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-
-const MySelectableTable = ({ data }) => {
-  const [selection, setSelection] = useState([]);
-
-  const columns = [
-    // ... your column definitions
-  ];
-
-  return (
-    <ResponsiveTable
-      columnDefinitions={columns}
-      data={data}
-      selectionProps={{
-        onSelectionChange: setSelection,
-        selectedItems: selection,
-        rowIdKey: 'id', // A key from your data object to uniquely identify rows
-        mode: 'multiple',
-      }}
-    />
-  );
-};
-```
-
-**Controlled vs. Uncontrolled Mode:**
-
-- **Controlled (Recommended):** By providing the `selectedItems` prop, you tell the table to operate as a controlled component. The table will always display the rows passed in this prop as selected. Your `onSelectionChange` callback is responsible for updating the state that you pass to `selectedItems`. This gives you full programmatic control over the selection.
-- **Uncontrolled:** If you omit the `selectedItems` prop, the table will manage its own selection state internally. This is simpler for cases where you only need to know what's selected but don't need to modify it from outside the table.
-
-**Props for `SelectionPlugin` (via `selectionProps` on `ResponsiveTable`):**
-
-| Prop                   | Type                               | Required | Description                                                                                                                                                 |
-| ---------------------- | ---------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `onSelectionChange`    | `(selectedItems: TData[]) => void` | Yes      | Callback function that receives an array of the currently selected data objects whenever the selection changes. Its presence enables the selection feature. |
-| `rowIdKey`             | `keyof TData`                      | Yes      | A key from your data object that provides a unique identifier for each row. This is crucial for reliably tracking selections.                               |
-| `mode`                 | `'single' \| 'multiple'`           | No       | The selection mode. Defaults to `'multiple'`.                                                                                                               |
-| `selectedItems`        | `TData[]`                          | No       | If provided, the component operates in "controlled" mode. The table's selection will be a direct reflection of this prop.                                   |
-| `selectedRowClassName` | `string`                           | No       | An optional CSS class name to apply to selected rows, allowing you to override the default selection styling.                                               |
-
-#### `FilterPlugin`
-
-> **Warning: Incompatible with Infinite Scroll**
-> The `FilterPlugin` is a client-side utility that only operates on data currently loaded in the browser. It is **not compatible** with the `InfiniteScrollPlugin`, as it cannot search data that has not yet been fetched from the server. For tables using infinite scroll, filtering logic must be implemented server-side by your application and passed into the `onLoadMore` function.
-
-Provides a search input to filter table data. It can be enabled by setting `filterProps.showFilter` to `true` on the `ResponsiveTable` component. For columns to be filterable, you must provide a `getFilterableValue` function in their `IResponsiveTableColumnDefinition`.
-
-**Props for `FilterPlugin` (via `filterProps` on `ResponsiveTable`):**
-
-| Prop                | Type      | Description                                                     |
-| ------------------- | --------- | --------------------------------------------------------------- |
-| `showFilter`        | `boolean` | If `true`, displays a filter input field above the table.       |
-| `filterPlaceholder` | `string`  | Placeholder text for the filter input. Defaults to "Search...". |
-
-**Example with `FilterPlugin`:**
-
-```jsx
-import React from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-
-const FilterableTable = () => {
-  const initialData = [
-    { id: 1, name: 'Alice', email: 'alice@example.com' },
-    { id: 2, name: 'Bob', email: 'bob@example.com' },
-    { id: 3, name: 'Charlie', email: 'charlie@example.com' },
-    { id: 4, name: 'David', email: 'david@example.com' },
-  ];
-
-  const columns = [
-    { displayLabel: 'ID', cellRenderer: (row) => row.id, getFilterableValue: (row) => row.id.toString() },
-    { displayLabel: 'Name', cellRenderer: (row) => row.name, getFilterableValue: (row) => row.name },
-    { displayLabel: 'Email', cellRenderer: (row) => row.email, getFilterableValue: (row) => row.email },
-  ];
-
-  return (
-    <ResponsiveTable
-      columnDefinitions={columns}
-      data={initialData}
-      filterProps={{ showFilter: true, filterPlaceholder: 'Filter users...' }}
-    />
-  );
-};
-```
-
-#### Infinite Scroll
-
-> **Warning: Incompatible with Client-Side Filtering**
-> The infinite scroll feature fetches data in chunks from a server. It is **not compatible** with the client-side `FilterPlugin`. For filtering to work correctly with infinite scroll, you must implement the filtering logic on your server and have the `onLoadMore` function fetch data that is already filtered.
-
-Enables a simple infinite scroll for loading more data as the user scrolls to the bottom of the table. This is useful for progressively loading data from an API without needing traditional pagination buttons. When enabled, the `ResponsiveTable` renders a specialized internal component optimized for this purpose.
-
-> **Important:** To enable infinite scroll, you **must** give the table a bounded height. This is done by passing the `maxHeight` prop to the `<ResponsiveTable>`. This prop creates a scrollable container for the table body, which is required for the scroll detection to work.
-
-> **Performance Note:** This implementation renders all loaded rows into the DOM to guarantee correct column alignment and simplicity. It is **not a virtualized list**. For extremely large datasets (many thousands of rows), performance may degrade as more rows are loaded. It is best suited for scenarios where loading a few hundred up to a couple thousand rows is expected.
-
-**Configuration (via `infiniteScrollProps` on `ResponsiveTable`):**
-
-| Prop | Type | Description |
-| ---- | ---- | ----------- |
-
-| `hasMore` | `boolean` | **Optional.** Controls the loading indicator. If omitted, the component infers this state automatically by checking if `onLoadMore` returns an empty array or `null`. If provided, your app is responsible for managing this state. |
-| `onLoadMore` | `(currentData: TData[]) => Promise<TData[] | null>` | A callback function that fires when the user scrolls near the end. It should fetch the next page of data and return it in a Promise. The component will stop trying to load more when this function returns `null` or an empty array. |
-| `loadingMoreComponent` | `ReactNode` | A custom component to display at the bottom while new data is being loaded. Defaults to a spinner animation. |
-| `noMoreDataComponent` | `ReactNode` | A custom component to display at the bottom when `hasMore` is `false`. Defaults to a "No more data" message. |
-
-**Comprehensive Example:**
-
-Here is a complete example showing how to use the infinite scroll feature. The parent component only needs to provide a function that fetches the next page of data.
-
-```jsx
-import React, { useState, useCallback } from 'react';
-import ResponsiveTable from 'jattac.libs.web.responsive-table';
-
-// Define the shape of our data items
-interface DataItem {
-  id: number;
-  value: string;
-}
-
-// This is a mock API function to simulate fetching data.
-// In a real app, this would be an actual network request.
-const fetchData = async (page: number): Promise<DataItem[]> => {
-  console.log(`Fetching page: ${page}`);
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Return an empty array for pages > 5 to simulate the end of the data
-      if (page > 5) {
-        resolve([]);
-        return;
-      }
-      // Generate 20 new items for the current page
-      const newData = Array.from({ length: 20 }, (_, i) => ({
-        id: page * 20 + i,
-        value: `Item #${page * 20 + i}`,
-      }));
-      resolve(newData);
-    }, 500); // Simulate network latency
-  });
-};
-
-const InfiniteScrollExample = () => {
-  // Keep track of the next page to fetch.
-  const [nextPage, setNextPage] = useState(0);
-
-  // The onLoadMore function is now much simpler.
-  // It just needs to fetch the data and return it.
-  // The table will handle appending the data and managing the `hasMore` state internally.
-  const loadMoreItems = useCallback(async () => {
-    const newItems = await fetchData(nextPage);
-    setNextPage((prevPage) => prevPage + 1);
-    return newItems; // <-- Simply return the new items
-  }, [nextPage]);
-
-  const columns = [
-    { displayLabel: 'ID', dataKey: 'id', cellRenderer: (row) => row.id },
-    { displayLabel: 'Value', dataKey: 'value', cellRenderer: (row) => row.value },
-  ];
-
-  return (
-    // The table MUST be inside a container with a defined height.
-    <div style={{ height: '400px' }}>
-      <ResponsiveTable
-        columnDefinitions={columns}
-        data={[]} // Start with an empty array of initial data
-        maxHeight="100%"
-        infiniteScrollProps={{
-          onLoadMore: loadMoreItems,
-
-          loadingMoreComponent: <h4>Loading more items...</h4>,
-          noMoreDataComponent: <p>You've reached the end!</p>,
-        }}
-      />
-    </div>
-  );
-};
-```
-
----
-
-## API Reference
-
-### `ResponsiveTable` Props
-
-| Prop                          | Type                                 | Required | Description                                                                                                |
-| ----------------------------- | ------------------------------------ | -------- | ---------------------------------------------------------------------------------------------------------- |
-| `columnDefinitions`           | `IResponsiveTableColumnDefinition[]` | Yes      | An array of objects defining the table columns. Can also accept a function for dynamic column generation.  |
-| `data`                        | `TData[]`                            | Yes      | An array of data objects to populate the table rows.                                                       |
-| `footerRows`                  | `IFooterRowDefinition[]`             | No       | An array of objects defining the table footer.                                                             |
-| `onRowClick`                  | `(item: TData) => void`              | No       | A callback function that is triggered when a row is clicked.                                               |
-| `noDataComponent`             | `ReactNode`                          | No       | A custom component to display when there is no data.                                                       |
-| `maxHeight`                   | `string`                             | No       | Sets a maximum height for the table body, making it scrollable.                                            |
-| `mobileBreakpoint`            | `number`                             | No       | The pixel width at which the table switches to the mobile view. Defaults to `600`.                         |
-| `enablePageLevelStickyHeader` | `boolean`                            | No       | If `false`, disables the header from sticking to the top of the page on scroll. Defaults to `true`.        |
-| `plugins`                     | `IResponsiveTablePlugin<TData>[]`    | No       | An array of plugin instances to extend table functionality.                                                |
-| `selectionProps`              | `object`                             | No       | Configuration for the built-in row selection feature. See `SelectionPlugin` docs for details.              |
-| `infiniteScrollProps`         | `object`                             | No       | Configuration for the infinite scroll feature. When enabled, a specialized component handles data loading. |
-| `filterProps`                 | `object`                             | No       | Configuration for the built-in filter plugin.                                                              |
-| `animationProps`              | `object`                             | No       | Configuration for animations, including `isLoading` and `animateOnLoad`.                                   |
-
-### `IResponsiveTableColumnDefinition<TData>`
-
-| Property             | Type                                                         | Required | Description                                                                              |
-| -------------------- | ------------------------------------------------------------ | -------- | ---------------------------------------------------------------------------------------- |
-| `displayLabel`       | `ReactNode`                                                  | Yes      | The label displayed in the table header (can be a string or any React component).        |
-| `cellRenderer`       | `(row: TData) => ReactNode`                                  | Yes      | A function that returns the content to be rendered in the cell.                          |
-| `columnId`           | `string`                                                     | No       | A unique string to identify the column. **Required** if the column is sortable.          |
-| `dataKey`            | `keyof TData`                                                | No       | A key to match the column to a property in the data object.                              |
-| `interactivity`      | `object`                                                     | No       | An object to define header interactivity (`onHeaderClick`, `id`, `className`).           |
-| `getFilterableValue` | `(row: TData) => string \| number`                           | No       | A function that returns the string or number value to be used for filtering this column. |
-| `getSortableValue`   | `(row: TData) => any`                                        | No       | A function that returns a primitive value from a row to be used for default sorting.     |
-| `sortComparer`       | `(a: TData, b: TData, direction: 'asc' \| 'desc') => number` | No       | A function that provides the precise comparison logic for sorting a column.              |
-
-### `IFooterRowDefinition`
-
-| Property  | Type                        | Required | Description                                        |
-| --------- | --------------------------- | -------- | -------------------------------------------------- |
-| `columns` | `IFooterColumnDefinition[]` | Yes      | An array of column definitions for the footer row. |
-
-### `IFooterColumnDefinition`
-
-| Property       | Type              | Required | Description                                                                                                                                                                                                                                      |
-| -------------- | ----------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `colSpan`      | `number`          | Yes      | The number of columns the footer cell should span.                                                                                                                                                                                               |
-| `cellRenderer` | `() => ReactNode` | Yes      | A function that returns the content for the footer cell.                                                                                                                                                                                         |
-| `displayLabel` | `ReactNode`       | No       | An optional, explicit label for the footer cell. In mobile view, if `colSpan` is 1 and this is not provided, the corresponding column header will be used as a fallback. This is required for `colSpan` > 1 if you want a label to be displayed. |
-| `onCellClick`  | `() => void`      | No       | An optional click handler for the footer cell.                                                                                                                                                                                                   |
-| `className`    | `string`          | No       | Optional class name for custom styling of the footer cell.                                                                                                                                                                                       |
-
----
-
-## Breaking Changes
-
-### Version 0.5.0
-
-**Change:** The API for `infiniteScrollProps` has been simplified.
-
-**Details:**
-The `enableInfiniteScroll: true` property has been removed. The infinite scroll feature is now automatically enabled whenever the `infiniteScrollProps` object is provided. Additionally, the `onLoadMore` function is now a required property on `infiniteScrollProps`.
-
-**Reason:**
-This change removes unnecessary boilerplate and makes the API more intuitive. If you provide props for infinite scrolling, it's clear you intend to use it.
-
-**Migration:**
-To update your code, remove the `enableInfiniteScroll` property from your `infiniteScrollProps` object.
-
-**Before:**
-
-```jsx
-<ResponsiveTable
-  // ...
-  infiniteScrollProps={{
-    enableInfiniteScroll: true, // <-- No longer needed
-    onLoadMore: loadMoreItems,
-  }}
-/>
-```
-
-**After:**
-
-```jsx
-<ResponsiveTable
-  // ...
-  infiniteScrollProps={{
-    onLoadMore: loadMoreItems, // <-- Now required
-  }}
-/>
-```
-
----
-
-## License
-
-This project is licensed under the MIT License.
