@@ -257,19 +257,7 @@ Use the `animationProps` prop to show a loading skeleton and animate rows on loa
 
 ### Using Plugins
 
-To use a plugin, instantiate it and pass it to the `plugins` prop.
-
-```jsx
-import { SortPlugin } from 'jattac.libs.web.responsive-table';
-
-const sortPlugin = new SortPlugin<User>();
-
-<ResponsiveTable
-  data={users}
-  columnDefinitions={columnDefinitions}
-  plugins={[sortPlugin]}
-/>
-```
+Some plugins are enabled automatically when you provide the correct props (`selectionProps`, `filterProps`, `sortProps`). For others, you may need to instantiate them and pass them to the `plugins` prop.
 
 ### Built-in Plugins
 
@@ -277,17 +265,43 @@ const sortPlugin = new SortPlugin<User>();
 
 Enables column sorting.
 
-**Usage:**
+**Simple Usage (Recommended):**
+
+The `SortPlugin` is automatically enabled when you make one or more columns sortable.
 
 1.  Add a `columnId` to the columns you want to be sortable.
 2.  Provide a `sortComparer` or `getSortableValue` function in the column definition.
-3.  Add the `SortPlugin` to the `plugins` prop.
+3.  (Optional) Provide `sortProps` to set the initial sort order.
 
 ```jsx
-const sortPlugin = new SortPlugin<User>({
-  initialSortColumn: 'name',
-  initialSortDirection: 'asc',
-});
+const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
+  {
+    columnId: 'name',
+    displayLabel: 'Name',
+    cellRenderer: (row) => row.name,
+    getSortableValue: (row) => row.name, // Make this column sortable
+  },
+  // ...
+];
+
+<ResponsiveTable
+  data={users}
+  columnDefinitions={columnDefinitions}
+  sortProps={{
+    initialSortColumn: 'name',
+    initialSortDirection: 'asc',
+  }}
+/>
+```
+
+**Advanced Usage:**
+
+You can also instantiate the `SortPlugin` yourself to get access to the `comparers` helper functions.
+
+```jsx
+import { SortPlugin } from 'jattac.libs.web.responsive-table';
+
+const sortPlugin = new SortPlugin<User>();
 
 const columnDefinitions: IResponsiveTableColumnDefinition<User>[] = [
   {
@@ -426,6 +440,7 @@ class MyCustomPlugin<TData> implements IResponsiveTablePlugin<TData> {
 | `filterProps`                | `{ showFilter?: boolean; filterPlaceholder?: string; className?: string; }` | Props to configure the built-in filter functionality. `showFilter` enables the filter input.                                               |
 | `selectionProps`             | `{ onSelectionChange: (selectedItems: TData[]) => void; rowIdKey: keyof TData; mode?: 'single' \| 'multiple'; selectedItems?: TData[]; selectedRowClassName?: string; }` | Props to enable and configure row selection.                                                                                               |
 | `infiniteScrollProps`        | `{ onLoadMore: (currentData: TData[]) => Promise<TData[] \| null>; hasMore?: boolean; loadingMoreComponent?: ReactNode; noMoreDataComponent?: ReactNode; }` | Props to enable infinite scrolling.                                                                                                        |
+| `sortProps`                  | `{ initialSortColumn?: string; initialSortDirection?: 'asc' \| 'desc'; }` | Props to configure the built-in sort functionality.                                                                                        |
 
 ### ColumnDefinition Type
 

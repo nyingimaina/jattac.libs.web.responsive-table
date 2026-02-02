@@ -1,10 +1,11 @@
 import React, { CSSProperties, Component, ReactNode, createRef } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
-import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumnDefinition';
+import { IResponsiveTableColumnDefinition, SortDirection } from '../Data/IResponsiveTableColumnDefinition';
 import IFooterRowDefinition from '../Data/IFooterRowDefinition';
 import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
 import { FilterPlugin } from '../Plugins/FilterPlugin';
 import { SelectionPlugin } from '../Plugins/SelectionPlugin';
+import { SortPlugin } from '../Plugins/SortPlugin';
 
 import InfiniteTable from './InfiniteTable';
 
@@ -17,6 +18,11 @@ interface IInfiniteScrollProps<TData> {
   hasMore?: boolean;
   loadingMoreComponent?: ReactNode;
   noMoreDataComponent?: ReactNode;
+}
+
+interface ISortProps {
+    initialSortColumn?: string;
+    initialSortDirection?: SortDirection;
 }
 
 interface IProps<TData> {
@@ -46,6 +52,7 @@ interface IProps<TData> {
     isLoading?: boolean;
     animateOnLoad?: boolean;
   };
+  sortProps?: ISortProps;
 }
 
 interface IState<TData> {
@@ -155,7 +162,8 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
       prevProps.data !== this.props.data ||
       prevProps.plugins !== this.props.plugins ||
       prevProps.filterProps !== this.props.filterProps ||
-      prevProps.selectionProps !== this.props.selectionProps
+      prevProps.selectionProps !== this.props.selectionProps ||
+      prevProps.sortProps !== this.props.sortProps
     ) {
       const { processedData, activePlugins } = this.initializePlugins();
       this.setState({ processedData, activePlugins });
@@ -188,6 +196,16 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
     // Automatically add SelectionPlugin if selectionProps are provided and not already present
     if (this.props.selectionProps?.onSelectionChange && !activePlugins.some(p => p.id === 'selection')) {
       activePlugins.push(new SelectionPlugin());
+    }
+
+    // Automatically add SortPlugin if any column is sortable and not already present
+    const isAnyColumnSortable = this.props.columnDefinitions.some(col => {
+        const rawCol = this.getRawColumnDefinition(col);
+        return rawCol.sortComparer || rawCol.getSortableValue;
+    });
+
+    if (isAnyColumnSortable && !activePlugins.some(p => p.id === 'sort')) {
+        activePlugins.push(new SortPlugin(this.props.sortProps));
     }
 
     activePlugins.forEach((plugin) => {
@@ -649,3 +667,4 @@ class ResponsiveTable<TData> extends Component<IProps<TData>, IState<TData>> {
 }
 
 export default ResponsiveTable;
+
