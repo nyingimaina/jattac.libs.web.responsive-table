@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-function debounce<T extends (...args: any[]) => any>(func: T, delay: number): (...args: Parameters<T>) => void {
+function debounce<T extends (...args: unknown[]) => unknown>(func: T, delay: number): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
   return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
     clearTimeout(timeout);

@@ -20,14 +20,20 @@ interface DesktopViewProps<TData> {
   getColumnDefinition: (colDef: ColumnDefinition<TData>, rowIndex: number) => IResponsiveTableColumnDefinition<TData>;
   renderCell: (content: React.ReactNode, row: TData, colDef: IResponsiveTableColumnDefinition<TData>) => React.ReactNode;
   rowClickFunction: (item: TData) => void;
-  footerRows?: any[];
+  footerRows?: { columns: IFooterColumnDefinition[] }[];
   renderPluginFooters: () => React.ReactNode;
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
   animationProps?: {
     isLoading?: boolean;
     animateOnLoad?: boolean;
   };
-  selectionProps?: any;
+  selectionProps?: {
+    onSelectionChange: (selectedItems: TData[]) => void;
+    rowIdKey: keyof TData;
+    mode?: 'single' | 'multiple';
+    selectedItems?: TData[];
+    selectedRowClassName?: string;
+  };
   onRowClick?: (item: TData) => void;
 }
 

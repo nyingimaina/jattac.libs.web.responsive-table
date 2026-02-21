@@ -1,9 +1,16 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { ReactNode, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { IResponsiveTablePlugin, IPluginAPI } from '../Plugins/IResponsiveTablePlugin';
 import { FilterPlugin } from '../Plugins/FilterPlugin';
 import { SelectionPlugin } from '../Plugins/SelectionPlugin';
 import { SortPlugin } from '../Plugins/SortPlugin';
 import { IResponsiveTableColumnDefinition, SortDirection } from '../Data/IResponsiveTableColumnDefinition';
+
+interface IInfiniteScrollProps<TData> {
+  onLoadMore: (currentData: TData[]) => Promise<TData[] | null>;
+  hasMore?: boolean;
+  loadingMoreComponent?: ReactNode;
+  noMoreDataComponent?: ReactNode;
+}
 
 interface UseTablePluginsProps<TData> {
   data: TData[];
@@ -25,7 +32,7 @@ interface UseTablePluginsProps<TData> {
   };
   columnDefinitions: (IResponsiveTableColumnDefinition<TData> | ((data: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>))[];
   getScrollableElement: () => HTMLElement | null;
-  infiniteScrollProps?: any; // TODO: Define proper type for IInfiniteScrollProps
+  infiniteScrollProps?: IInfiniteScrollProps<TData>;
 }
 
 interface UseTablePluginsReturn<TData> {

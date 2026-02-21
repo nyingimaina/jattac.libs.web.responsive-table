@@ -7,7 +7,13 @@ interface MobileViewProps<TData> {
   currentData: TData[];
   columnDefinitions: ColumnDefinition<TData>[];
   onRowClick?: (item: TData) => void;
-  selectionProps?: any;
+  selectionProps?: {
+    onSelectionChange: (selectedItems: TData[]) => void;
+    rowIdKey: keyof TData;
+    mode?: 'single' | 'multiple';
+    selectedItems?: TData[];
+    selectedRowClassName?: string;
+  };
   animationProps?: {
     isLoading?: boolean;
     animateOnLoad?: boolean;
