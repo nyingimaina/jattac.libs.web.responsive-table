@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { IResponsiveTablePlugin, IPluginAPI } from '../Plugins/IResponsiveTablePlugin';
 import { FilterPlugin } from '../Plugins/FilterPlugin';
 import { SelectionPlugin } from '../Plugins/SelectionPlugin';
@@ -31,6 +31,7 @@ interface UseTablePluginsProps<TData> {
 interface UseTablePluginsReturn<TData> {
   processedData: TData[];
   activePlugins: IResponsiveTablePlugin<TData>[];
+  visibleColumns: (IResponsiveTableColumnDefinition<TData> | ((data: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>))[];
   forceUpdatePlugins: () => void;
 }
 
@@ -60,6 +61,13 @@ export const useTablePlugins = <TData>(props: UseTablePluginsProps<TData>): UseT
     }
     return columnDefinition;
   }, [data]);
+
+  const visibleColumns = useMemo(() => {
+    return columnDefinitions.filter(col => {
+      const raw = getRawColumnDefinition(col);
+      return raw.visible !== false;
+    });
+  }, [columnDefinitions, getRawColumnDefinition]);
 
   const initializePlugins = useCallback(() => {
     const newActivePlugins: IResponsiveTablePlugin<TData>[] = [];
@@ -159,5 +167,5 @@ export const useTablePlugins = <TData>(props: UseTablePluginsProps<TData>): UseT
     setProcessedData(initializePlugins());
   }, [initializePlugins]);
 
-  return { processedData, activePlugins, forceUpdatePlugins };
+  return { processedData, activePlugins, visibleColumns, forceUpdatePlugins };
 };

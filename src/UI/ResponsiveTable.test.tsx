@@ -11,6 +11,11 @@ interface TestData {
 }
 
 describe('ResponsiveTable', () => {
+  beforeEach(() => {
+    global.innerWidth = 1024;
+    fireEvent(window, new Event('resize'));
+  });
+
   const mockColumnDefinitions: IResponsiveTableColumnDefinition<TestData>[] = [
     {
       columnId: 'id',
@@ -144,5 +149,82 @@ describe('ResponsiveTable', () => {
     const cardLabels = screen.getAllByText('Name');
     // One for each row in card view (3)
     expect(cardLabels.length).toBe(3);
+  });
+
+  it('hides columns when visible property is false', () => {
+    const columnDefinitionsWithHidden: IResponsiveTableColumnDefinition<TestData>[] = [
+      {
+        displayLabel: 'ID',
+        cellRenderer: (data: TestData) => data.id,
+        visible: false,
+      },
+      {
+        displayLabel: 'Name',
+        cellRenderer: (data: TestData) => data.name,
+      },
+    ];
+
+    render(
+      <ResponsiveTable
+        columnDefinitions={columnDefinitionsWithHidden}
+        data={mockData}
+      />
+    );
+
+    expect(screen.queryByText('ID')).not.toBeInTheDocument();
+    // Using getAllByText because in some views 'Name' might appear multiple times (e.g. if we accidentally render mobile labels)
+    // but in desktop view it should be at least once in the header.
+    expect(screen.getAllByText('Name').length).toBeGreaterThan(0);
+  });
+
+  it('scales footer colSpans when columns are hidden', () => {
+    const columnDefinitionsWithHidden: IResponsiveTableColumnDefinition<TestData>[] = [
+      {
+        displayLabel: 'ID',
+        cellRenderer: (data: TestData) => data.id,
+        visible: false,
+      },
+      {
+        displayLabel: 'Name',
+        cellRenderer: (data: TestData) => data.name,
+      },
+      {
+        displayLabel: 'Age',
+        cellRenderer: (data: TestData) => data.age,
+      },
+    ];
+
+    const footerRows = [
+      {
+        columns: [
+          {
+            colSpan: 2,
+            cellRenderer: () => 'Footer 1',
+          },
+          {
+            colSpan: 1,
+            cellRenderer: () => 'Footer 2',
+          },
+        ],
+      },
+    ];
+
+    render(
+      <ResponsiveTable
+        columnDefinitions={columnDefinitionsWithHidden}
+        data={mockData}
+        footerRows={footerRows}
+      />
+    );
+
+    const footerCells = screen.getAllByRole('cell').filter(cell => cell.tagName === 'TD' && cell.closest('tfoot'));
+    
+    // Footer 1 spanned ID and Name. ID is hidden, so Footer 1 should now have colSpan 1.
+    expect(footerCells[0]).toHaveTextContent('Footer 1');
+    expect(footerCells[0]).toHaveAttribute('colSpan', '1');
+    
+    // Footer 2 spanned Age. Age is visible, so Footer 2 should still have colSpan 1.
+    expect(footerCells[1]).toHaveTextContent('Footer 2');
+    expect(footerCells[1]).toHaveAttribute('colSpan', '1');
   });
 });

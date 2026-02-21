@@ -87,7 +87,7 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
 
   const getScrollableElement = useCallback(() => tableContainerRef.current, []);
 
-  const { processedData, activePlugins } = useTablePlugins({
+  const { processedData, activePlugins, visibleColumns } = useTablePlugins({
     data,
     plugins,
     filterProps,
@@ -216,31 +216,6 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
 
   const rowClickFunction = onRowClick || (() => {});
 
-  const tableFooter = useMemo(() => {
-    if (!footerRows || footerRows.length === 0) {
-      return null;
-    }
-
-    return (
-      <tfoot>
-        {footerRows.map((row, rowIndex) => (
-          <tr key={rowIndex}>
-            {row.columns.map((col, colIndex) => (
-              <td
-                key={colIndex}
-                colSpan={col.colSpan}
-                className={`${styles.footerCell} ${col.className || ''} ${col.onCellClick ? styles.clickableFooterCell : ''}`}
-                onClick={col.onCellClick}
-              >
-                {col.cellRenderer()}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tfoot>
-    );
-  }, [footerRows]);
-
   const mobileFooter = useMemo(() => {
     if (!footerRows || footerRows.length === 0) {
       return null;
@@ -286,7 +261,7 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
   const skeletonView = (
     <SkeletonView
       isMobile={isMobile}
-      columnDefinitions={columnDefinitions}
+      columnDefinitions={visibleColumns}
     />
   );
 
@@ -311,7 +286,7 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
       return null;
     }
 
-    return plugins.map((plugin) => {
+    return plugins.map((plugin: IResponsiveTablePlugin<TData>) => {
       if (plugin.renderFooter) {
         return <div key={plugin.id + '-footer'}>{plugin.renderFooter()}</div>;
       }
@@ -322,7 +297,7 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
   const mobileView = (
     <MobileView
       currentData={currentData}
-      columnDefinitions={columnDefinitions}
+      columnDefinitions={visibleColumns}
       onRowClick={onRowClick}
       selectionProps={selectionProps}
       animationProps={animationProps}
@@ -339,7 +314,8 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
 
   const largeScreenView = (
     <DesktopView
-      columnDefinitions={columnDefinitions}
+      columnDefinitions={visibleColumns}
+      originalColumnDefinitions={columnDefinitions}
       currentData={currentData}
       maxHeight={maxHeight}
       isHeaderSticky={isHeaderSticky}
@@ -353,7 +329,7 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
       getColumnDefinition={getColumnDefinition}
       renderCell={renderCell}
       rowClickFunction={rowClickFunction}
-      tableFooter={tableFooter}
+      footerRows={footerRows}
       renderPluginFooters={renderPluginFooters}
       animationProps={animationProps}
       onRowClick={onRowClick}

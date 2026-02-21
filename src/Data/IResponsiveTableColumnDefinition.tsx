@@ -6,6 +6,7 @@ export type SortDirection = 'asc' | 'desc';
 interface IResponsiveTableColumnDefinitionBase<TData> {
   displayLabel: ReactNode;
   cellRenderer: (data: TData) => ReactNode;
+  visible?: boolean;
   dataKey?: keyof TData;
   getFilterableValue?: (data: TData) => string | number;
   interactivity?: {

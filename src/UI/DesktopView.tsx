@@ -1,10 +1,12 @@
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, useCallback, useMemo } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
 import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumnDefinition';
+import IFooterColumnDefinition from '../Data/IFooterColumnDefinition';
 import { ColumnDefinition } from './ResponsiveTable';
 
 interface DesktopViewProps<TData> {
-  columnDefinitions: ColumnDefinition<TData>[];
+  columnDefinitions: ColumnDefinition<TData>[]; // This will be the visible columns
+  originalColumnDefinitions: ColumnDefinition<TData>[]; // The full set for footer math
   currentData: TData[];
   maxHeight?: string;
   isHeaderSticky: boolean;
@@ -18,7 +20,7 @@ interface DesktopViewProps<TData> {
   getColumnDefinition: (colDef: ColumnDefinition<TData>, rowIndex: number) => IResponsiveTableColumnDefinition<TData>;
   renderCell: (content: React.ReactNode, row: TData, colDef: IResponsiveTableColumnDefinition<TData>) => React.ReactNode;
   rowClickFunction: (item: TData) => void;
-  tableFooter: React.ReactNode;
+  footerRows?: any[];
   renderPluginFooters: () => React.ReactNode;
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
   animationProps?: {
@@ -32,6 +34,7 @@ interface DesktopViewProps<TData> {
 function DesktopView<TData>(props: DesktopViewProps<TData>) {
   const {
     columnDefinitions,
+    originalColumnDefinitions,
     currentData,
     maxHeight,
     isHeaderSticky,
@@ -45,13 +48,65 @@ function DesktopView<TData>(props: DesktopViewProps<TData>) {
     getColumnDefinition,
     renderCell,
     rowClickFunction,
-    tableFooter,
+    footerRows,
     renderPluginFooters,
     animationProps,
     onRowClick,
     selectionProps,
     onScroll,
   } = props;
+
+  const getEffectiveColSpan = useCallback((
+    footerCol: IFooterColumnDefinition,
+    startIndex: number
+  ) => {
+    const originalSpan = footerCol.colSpan || 1;
+    const endIndex = startIndex + originalSpan;
+    
+    let visibleCount = 0;
+    for (let i = startIndex; i < endIndex; i++) {
+      const col = originalColumnDefinitions[i];
+      if (col && getRawColumnDefinition(col).visible !== false) {
+        visibleCount++;
+      }
+    }
+    return visibleCount;
+  }, [originalColumnDefinitions, getRawColumnDefinition]);
+
+  const tableFooter = useMemo(() => {
+    if (!footerRows || footerRows.length === 0) {
+      return null;
+    }
+
+    return (
+      <tfoot>
+        {footerRows.map((row, rowIndex) => {
+          let currentOriginalIndex = 0;
+          return (
+            <tr key={rowIndex}>
+              {row.columns.map((col: IFooterColumnDefinition, colIndex: number) => {
+                const effectiveColSpan = getEffectiveColSpan(col, currentOriginalIndex);
+                currentOriginalIndex += (col.colSpan || 1);
+
+                if (effectiveColSpan === 0) return null;
+
+                return (
+                  <td
+                    key={colIndex}
+                    colSpan={effectiveColSpan}
+                    className={`${styles.footerCell} ${col.className || ''} ${col.onCellClick ? styles.clickableFooterCell : ''}`}
+                    onClick={col.onCellClick}
+                  >
+                    {col.cellRenderer()}
+                  </td>
+                );
+              })}
+            </tr>
+          );
+        })}
+      </tfoot>
+    );
+  }, [footerRows, getEffectiveColSpan]);
 
   const useFixedHeaders = maxHeight ? true : false;
   const isClickable = onRowClick || selectionProps;
