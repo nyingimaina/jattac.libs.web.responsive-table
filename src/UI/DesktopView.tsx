@@ -20,6 +20,7 @@ interface DesktopViewProps<TData> {
   rowClickFunction: (item: TData) => void;
   tableFooter: React.ReactNode;
   renderPluginFooters: () => React.ReactNode;
+  onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
   animationProps?: {
     isLoading?: boolean;
     animateOnLoad?: boolean;
@@ -49,6 +50,7 @@ function DesktopView<TData>(props: DesktopViewProps<TData>) {
     animationProps,
     onRowClick,
     selectionProps,
+    onScroll,
   } = props;
 
   const useFixedHeaders = maxHeight ? true : false;
@@ -63,7 +65,7 @@ function DesktopView<TData>(props: DesktopViewProps<TData>) {
     : (isHeaderSticky ? styles.stickyHeader : '');
 
   return (
-    <div style={fixedHeadersStyle} ref={tableContainerRef}>
+    <div style={fixedHeadersStyle} ref={tableContainerRef} onScroll={onScroll}>
       <table className={styles['responsiveTable']}>
         <thead ref={headerRef} className={headerClassName}>
           <tr>
