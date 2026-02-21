@@ -1,14 +1,12 @@
-import React, { CSSProperties, useState, useEffect, useRef, ReactNode, useMemo, useCallback } from 'react';
+import React, { CSSProperties, useRef, ReactNode, useMemo, useCallback } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
 import { IResponsiveTableColumnDefinition, SortDirection } from '../Data/IResponsiveTableColumnDefinition';
 import IFooterRowDefinition from '../Data/IFooterRowDefinition';
 import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
-import { FilterPlugin } from '../Plugins/FilterPlugin';
-import { SelectionPlugin } from '../Plugins/SelectionPlugin';
-import { SortPlugin } from '../Plugins/SortPlugin';
 
 import InfiniteTable from './InfiniteTable';
 import { useResponsiveTable } from '../Hooks/useResponsiveTable';
+import { useTablePlugins } from '../Hooks/useTablePlugins';
 
 
 export type ColumnDefinition<TData> =
@@ -85,19 +83,18 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     scrollableRef: tableContainerRef,
   });
 
-  const [processedData, setProcessedData] = useState<TData[]>(data);
-  const [activePlugins, setActivePlugins] = useState<IResponsiveTablePlugin<TData>[]>([]);
-  const filterPluginRef = useRef<FilterPlugin<TData> | null>(null);
+  const getScrollableElement = useCallback(() => tableContainerRef.current, []);
 
-  useEffect(() => {
-    if (filterProps?.showFilter) {
-      filterPluginRef.current = new FilterPlugin();
-    } else {
-      filterPluginRef.current = null;
-    }
-  }, [filterProps?.showFilter]);
-
-  
+  const { processedData, activePlugins } = useTablePlugins({
+    data,
+    plugins,
+    filterProps,
+    selectionProps,
+    sortProps,
+    columnDefinitions,
+    getScrollableElement,
+    infiniteScrollProps,
+  });
 
   const currentData = useMemo(() => {
     if (Array.isArray(processedData) && processedData.length > 0) {
@@ -131,73 +128,6 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     }
     return columnDefinition;
   };
-
-  const initializePlugins = () => {
-    const newActivePlugins: IResponsiveTablePlugin<TData>[] = [];
-
-    if (plugins) {
-      newActivePlugins.push(...plugins);
-    }
-
-    if (filterProps?.showFilter && filterPluginRef.current && !newActivePlugins.some(p => p.id === 'filter')) {
-      newActivePlugins.push(filterPluginRef.current);
-    }
-
-    if (selectionProps?.onSelectionChange && !newActivePlugins.some(p => p.id === 'selection')) {
-      newActivePlugins.push(new SelectionPlugin());
-    }
-
-    const isAnyColumnSortable = columnDefinitions.some(col => {
-        const rawCol = getRawColumnDefinition(col);
-        return rawCol.sortComparer || rawCol.getSortableValue;
-    });
-
-    if (isAnyColumnSortable && !newActivePlugins.some(p => p.id === 'sort')) {
-        newActivePlugins.push(new SortPlugin(sortProps));
-    }
-
-    newActivePlugins.forEach((plugin) => {
-      if (plugin.onPluginInit) {
-        plugin.onPluginInit({
-          getData: () => data,
-          forceUpdate: () => {
-            const { processedData: updatedProcessedData, activePlugins: updatedActivePlugins } = initializePlugins();
-            setProcessedData(updatedProcessedData);
-            setActivePlugins(updatedActivePlugins);
-          },
-          getScrollableElement: () => tableContainerRef.current,
-          infiniteScrollProps,
-          filterProps,
-          selectionProps,
-          columnDefinitions,
-        });
-      }
-    });
-
-    let currentProcessedData = [...data];
-    newActivePlugins.forEach((plugin) => {
-      if (plugin.processData) {
-        currentProcessedData = plugin.processData(currentProcessedData);
-      }
-    });
-
-    return { processedData: currentProcessedData, activePlugins: newActivePlugins };
-  };
-
-  useEffect(() => {
-    const { processedData: initialProcessedData, activePlugins: initialActivePlugins } = initializePlugins();
-    setProcessedData(initialProcessedData);
-    setActivePlugins(initialActivePlugins);
-  }, [
-    data,
-    plugins,
-    filterProps,
-    selectionProps,
-    sortProps,
-    columnDefinitions,
-    infiniteScrollProps,
-  ]);
-
   const getColumnDefinition = (
     columnDefinition: ColumnDefinition<TData>,
     rowIndex: number,
@@ -225,7 +155,7 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
 
   const getHeaderProps = (colDef: ColumnDefinition<TData>): React.HTMLAttributes<HTMLElement> & { className?: string } => {
     const headerProps: React.HTMLAttributes<HTMLElement> & { className?: string } = {};
-    activePlugins.forEach((plugin) => {
+    activePlugins.forEach((plugin: IResponsiveTablePlugin<TData>) => {
       if (plugin.getHeaderProps) {
         Object.assign(headerProps, plugin.getHeaderProps(getRawColumnDefinition(colDef)));
       }
@@ -244,7 +174,7 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     const rowProps: React.HTMLAttributes<HTMLElement> = {};
     const clickHandlers: React.MouseEventHandler<HTMLElement>[] = [];
 
-    activePlugins.forEach(plugin => {
+    activePlugins.forEach((plugin: IResponsiveTablePlugin<TData>) => {
         if (plugin.getRowProps) {
             const props = plugin.getRowProps(row);
 
@@ -274,7 +204,7 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     colDef: IResponsiveTableColumnDefinition<TData>
   ): React.ReactNode => {
     let processedContent = content;
-    activePlugins.forEach((plugin) => {
+    activePlugins.forEach((plugin: IResponsiveTablePlugin<TData>) => {
       if (plugin.renderCell) {
         processedContent = plugin.renderCell(processedContent, row, colDef);
       }
@@ -400,7 +330,7 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
       return null;
     }
 
-    return activePlugins.map((plugin) => {
+    return activePlugins.map((plugin: IResponsiveTablePlugin<TData>) => {
       if (plugin.renderHeader) {
         if (plugin.id === 'sort' && !isMobile) {
           return null;
@@ -514,7 +444,7 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
                     key={colIndex}
                     className={combinedClassName}
                     {...restHeaderProps}
-                    onClick={onHeaderClick ? () => onHeaderClick(getRawColumnDefinition(columnDefinition).interactivity!.id) : undefined}
+                    onClick={onHeaderClick ? () => onHeaderClick(getRawColumnDefinition(columnDefinition).interactivity!.id) : restHeaderProps.onClick}
                   >
                     <div className={styles.headerInnerWrapper}>
                       <div className={styles.headerContent}>

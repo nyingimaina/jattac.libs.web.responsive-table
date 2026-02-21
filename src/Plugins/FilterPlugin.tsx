@@ -64,8 +64,6 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
   };
 
   public renderCell = (content: React.ReactNode, _row: TData, _column: IResponsiveTableColumnDefinition<TData>): React.ReactNode => {
-    // Workaround to satisfy linter for unused parameters
-    console.log(_row, _column);
     if (!this.filterText || typeof content !== 'string') {
       return content;
     }

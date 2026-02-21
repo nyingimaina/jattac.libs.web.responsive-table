@@ -253,7 +253,7 @@ function InfiniteTable<TData>(props: IProps<TData>) {
                 const { className, ...restHeaderProps } = headerProps;
 
                 return (
-                  <th key={colIndex} className={combinedClassName} {...restHeaderProps} onClick={onHeaderClick ? () => onHeaderClick(rawColDef.interactivity!.id) : undefined}>
+                  <th key={colIndex} className={combinedClassName} {...restHeaderProps} onClick={onHeaderClick ? () => onHeaderClick(rawColDef.interactivity!.id) : restHeaderProps.onClick}>
                     <div className={styles.headerInnerWrapper}>
                         <div className={styles.headerContent}>{rawColDef.displayLabel}</div>
                         <span className={styles.sortIcon}></span>
