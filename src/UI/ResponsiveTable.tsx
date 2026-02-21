@@ -5,6 +5,7 @@ import IFooterRowDefinition from '../Data/IFooterRowDefinition';
 import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
 
 import DesktopView from './DesktopView';
+import MobileView from './MobileView';
 import InfiniteTable from './InfiniteTable';
 import { useResponsiveTable } from '../Hooks/useResponsiveTable';
 import { useTablePlugins } from '../Hooks/useTablePlugins';
@@ -354,60 +355,23 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     });
   }, [plugins]);
 
-  const mobileView = useMemo(() => {
-    const isClickable = onRowClick || selectionProps;
-    return (
-      <div>
-        {currentData.map((row, rowIndex) => {
-          const rowProps = getRowProps(row);
-          const pluginOnClick = rowProps.onClick;
-
-          return (
-            <div
-              key={getRowId(row, rowIndex)}
-              className={`${styles.card} ${isClickable ? styles.clickableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''}`.trim()}
-              style={{ animationDelay: `${rowIndex * 0.05}s` }}
-              aria-selected={rowProps['aria-selected']}
-              onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-                if (pluginOnClick) pluginOnClick(e);
-                rowClickFunction(row);
-              }}
-            >
-              <div className={styles['card-header']}> </div>
-              <div className={styles['card-body']}>
-                {columnDefinitions.map((columnDefinition, colIndex) => {
-                  const colDef = getColumnDefinition(columnDefinition, rowIndex);
-                  const onHeaderClick = onHeaderClickCallback(colDef);
-                  const clickableHeaderClassName = getClickableHeaderClassName(onHeaderClick, colDef);
-                  return (
-                    <div key={colIndex} className={styles['card-row']}>
-                      <p>
-                        <span
-                          className={`${styles['card-label']} ${clickableHeaderClassName}`}
-                          onClick={
-                            (e) => {
-                              if (onHeaderClick) {
-                                e.stopPropagation();
-                                onHeaderClick(colDef.interactivity!.id)
-                              }
-                            }
-                          }
-                        >
-                          {colDef.displayLabel}
-                        </span>
-                        <span className={styles['card-value']}>{renderCell(colDef.cellRenderer(row), row, colDef)}</span>
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-        {mobileFooter}
-      </div>
-    );
-  }, [currentData, onRowClick, selectionProps, animationProps, columnDefinitions, mobileFooter, activePlugins]);
+  const mobileView = (
+    <MobileView
+      currentData={currentData}
+      columnDefinitions={columnDefinitions}
+      onRowClick={onRowClick}
+      selectionProps={selectionProps}
+      animationProps={animationProps}
+      getRowProps={getRowProps}
+      getRowId={getRowId}
+      getColumnDefinition={getColumnDefinition}
+      onHeaderClickCallback={onHeaderClickCallback}
+      getClickableHeaderClassName={getClickableHeaderClassName}
+      renderCell={renderCell}
+      rowClickFunction={rowClickFunction}
+      mobileFooter={mobileFooter}
+    />
+  );
 
   const largeScreenView = (
     <DesktopView
