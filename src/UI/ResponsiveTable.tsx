@@ -1,13 +1,13 @@
-import React, { CSSProperties, useRef, ReactNode, useMemo, useCallback } from 'react';
+import React, { useRef, ReactNode, useMemo, useCallback } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
 import { IResponsiveTableColumnDefinition, SortDirection } from '../Data/IResponsiveTableColumnDefinition';
 import IFooterRowDefinition from '../Data/IFooterRowDefinition';
 import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
 
+import DesktopView from './DesktopView';
 import InfiniteTable from './InfiniteTable';
 import { useResponsiveTable } from '../Hooks/useResponsiveTable';
 import { useTablePlugins } from '../Hooks/useTablePlugins';
-
 
 export type ColumnDefinition<TData> =
   | IResponsiveTableColumnDefinition<TData>
@@ -409,91 +409,29 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     );
   }, [currentData, onRowClick, selectionProps, animationProps, columnDefinitions, mobileFooter, activePlugins]);
 
-  const largeScreenView = useMemo(() => {
-    const useFixedHeaders = maxHeight ? true : false;
-    const isClickable = onRowClick || selectionProps;
-
-    const fixedHeadersStyle = useFixedHeaders
-      ? ({ maxHeight, overflowY: 'auto' } as CSSProperties)
-      : {};
-
-    const headerClassName = useFixedHeaders
-      ? styles.internalStickyHeader
-      : (isHeaderSticky ? styles.stickyHeader : '');
-
-    return (
-      <div style={fixedHeadersStyle} ref={tableContainerRef}>
-        <table className={styles['responsiveTable']}>
-          <thead ref={headerRef} className={headerClassName}>
-            <tr>
-              {columnDefinitions.map((columnDefinition, colIndex) => {
-                const onHeaderClick = onHeaderClickCallback(columnDefinition);
-                const clickableHeaderClassName = getClickableHeaderClassName(
-                  onHeaderClick,
-                  columnDefinition,
-                );
-                const headerProps = getHeaderProps(columnDefinition);
-
-                const combinedClassName = `${clickableHeaderClassName} ${headerProps.className ? styles[headerProps.className] : ''}`.trim();
-
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const { className, ...restHeaderProps } = headerProps;
-
-                return (
-                  <th
-                    key={colIndex}
-                    className={combinedClassName}
-                    {...restHeaderProps}
-                    onClick={onHeaderClick ? () => onHeaderClick(getRawColumnDefinition(columnDefinition).interactivity!.id) : restHeaderProps.onClick}
-                  >
-                    <div className={styles.headerInnerWrapper}>
-                      <div className={styles.headerContent}>
-                        {getColumnDefinition(columnDefinition, 0).displayLabel}
-                      </div>
-                      <span className={styles.sortIcon}></span>
-                    </div>
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {currentData.map((row, rowIndex) => {
-              const rowProps = getRowProps(row);
-              const pluginOnClick = rowProps.onClick;
-              
-              return (
-                <tr
-                  key={getRowId(row, rowIndex)}
-                  className={`${isClickable ? styles.clickableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''}`.trim()}
-                  style={{ animationDelay: `${rowIndex * 0.05}s` }}
-                  aria-selected={rowProps['aria-selected']}
-                  onClick={(e: React.MouseEvent<HTMLTableRowElement>) => {
-                    if (pluginOnClick) {
-                        pluginOnClick(e);
-                    }
-                    rowClickFunction(row);
-                  }}
-                >
-                  {columnDefinitions.map((columnDefinition, colIndex) => {
-                    const colDef = getColumnDefinition(columnDefinition, rowIndex);
-                    const cellContent = colDef.cellRenderer(row);
-                    return (
-                      <td key={colIndex}>
-                        {renderCell(cellContent, row, colDef)}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-          {tableFooter}
-        </table>
-        {renderPluginFooters()}
-      </div>
-    );
-  }, [currentData, onRowClick, selectionProps, animationProps, columnDefinitions, tableFooter, maxHeight, isHeaderSticky, activePlugins, renderPluginFooters]);
+  const largeScreenView = (
+    <DesktopView
+      columnDefinitions={columnDefinitions}
+      currentData={currentData}
+      maxHeight={maxHeight}
+      isHeaderSticky={isHeaderSticky}
+      tableContainerRef={tableContainerRef}
+      headerRef={headerRef}
+      getRowProps={getRowProps}
+      getHeaderProps={getHeaderProps}
+      onHeaderClickCallback={onHeaderClickCallback}
+      getClickableHeaderClassName={getClickableHeaderClassName}
+      getRawColumnDefinition={getRawColumnDefinition}
+      getColumnDefinition={getColumnDefinition}
+      renderCell={renderCell}
+      rowClickFunction={rowClickFunction}
+      tableFooter={tableFooter}
+      renderPluginFooters={renderPluginFooters}
+      animationProps={animationProps}
+      onRowClick={onRowClick}
+      selectionProps={selectionProps}
+    />
+  );
 
   if (infiniteScrollProps) {
     return <InfiniteTable {...props} />;
