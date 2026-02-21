@@ -6,6 +6,7 @@ import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
 
 import DesktopView from './DesktopView';
 import MobileView from './MobileView';
+import SkeletonView from './SkeletonView';
 import InfiniteTable from './InfiniteTable';
 import { useResponsiveTable } from '../Hooks/useResponsiveTable';
 import { useTablePlugins } from '../Hooks/useTablePlugins';
@@ -282,49 +283,12 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     );
   }, [footerRows, columnDefinitions]);
 
-  const skeletonView = useMemo(() => {
-    const skeletonRowCount = 5;
-    const columnCount = columnDefinitions.length;
-
-    if (isMobile) {
-      return (
-        <div>
-          {[...Array(skeletonRowCount)].map((_, i) => (
-            <div key={i} className={styles.skeletonCard}>
-              {[...Array(columnCount)].map((_, j) => (
-                <div key={j} className={`${styles.skeleton} ${styles.skeletonText}`} style={{ marginBottom: '0.5rem' }} />
-              ))}
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    return (
-      <table className={styles.responsiveTable}>
-        <thead>
-          <tr>
-            {[...Array(columnCount)].map((_, i) => (
-              <th key={i}>
-                <div className={`${styles.skeleton} ${styles.skeletonText}`} />
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {[...Array(skeletonRowCount)].map((_, i) => (
-            <tr key={i}>
-              {[...Array(columnCount)].map((_, j) => (
-                <td key={j}>
-                  <div className={`${styles.skeleton} ${styles.skeletonText}`} />
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  }, [isMobile, columnDefinitions]);
+  const skeletonView = (
+    <SkeletonView
+      isMobile={isMobile}
+      columnDefinitions={columnDefinitions}
+    />
+  );
 
   const renderPluginHeaders = useCallback(() => {
     if (!activePlugins) {
