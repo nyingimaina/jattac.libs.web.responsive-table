@@ -4,6 +4,8 @@ import IFooterColumnDefinition from '../Data/IFooterColumnDefinition';
 import { useTableContext } from '../Context/TableContext';
 import { TableHeaderCell } from './TableHeaderCell';
 import { TableBodyRow } from './TableBodyRow';
+import { TableSentinel } from './TableSentinel';
+import LoadingSpinner from './LoadingSpinner';
 
 interface DesktopViewProps {
   maxHeight?: string;
@@ -34,6 +36,7 @@ function DesktopView<TData>(props: DesktopViewProps) {
     onRowClick,
     selectionProps,
     animationProps,
+    pagination,
   } = useTableContext<TData>();
 
   const getEffectiveColSpan = useCallback((
@@ -127,6 +130,17 @@ function DesktopView<TData>(props: DesktopViewProps) {
         </tbody>
         {tableFooter}
       </table>
+      {pagination?.hasMore && (
+        <TableSentinel 
+          onIntersect={() => pagination.loadNextPage()} 
+          isLoading={pagination.isFetchingMore}
+        />
+      )}
+      {pagination?.isFetchingMore && (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem' }}>
+          <LoadingSpinner />
+        </div>
+      )}
       {renderPluginFooters()}
     </div>
   );

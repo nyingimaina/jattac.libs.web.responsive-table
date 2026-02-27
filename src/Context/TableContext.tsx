@@ -52,6 +52,7 @@ interface TableContextValue<TData> {
     totalCount?: number;
     isLoading: boolean;
     isFetchingMore: boolean;
+    loadNextPage: () => void;
   };
 
   // Helper Functions (Logic)

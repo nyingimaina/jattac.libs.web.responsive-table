@@ -2,6 +2,8 @@ import React from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
 import { useTableContext } from '../Context/TableContext';
 import { TableBodyCell } from './TableBodyCell';
+import { TableSentinel } from './TableSentinel';
+import LoadingSpinner from './LoadingSpinner';
 
 interface MobileViewProps {
   mobileFooter: React.ReactNode;
@@ -20,6 +22,7 @@ function MobileView<TData>(props: MobileViewProps) {
     getColumnDefinition,
     onHeaderClickCallback,
     getClickableHeaderClassName,
+    pagination,
   } = useTableContext<TData>();
 
   const isClickable = onRowClick || selectionProps;
@@ -78,6 +81,17 @@ function MobileView<TData>(props: MobileViewProps) {
           </div>
         );
       })}
+      {pagination?.hasMore && (
+        <TableSentinel 
+          onIntersect={() => pagination.loadNextPage()} 
+          isLoading={pagination.isFetchingMore}
+        />
+      )}
+      {pagination?.isFetchingMore && (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem' }}>
+          <LoadingSpinner />
+        </div>
+      )}
       {mobileFooter}
     </div>
   );
