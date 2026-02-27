@@ -6,19 +6,33 @@ const commonjs = require('@rollup/plugin-commonjs');
 
 module.exports = {
   input: 'src/index.tsx',
-  output: {
-    dir: 'dist',
-    format: 'cjs',
-    sourcemap: true,
-    exports: 'named',
-  },
+  output: [
+    {
+      file: 'dist/index.js',
+      format: 'cjs',
+      sourcemap: true,
+      exports: 'named',
+    },
+    {
+      file: 'dist/index.es.js',
+      format: 'esm',
+      sourcemap: true,
+      exports: 'named',
+    },
+  ],
   plugins: [
     peerDepsExternal(),
     resolve(),
-    typescript(),
+    typescript({
+      tsconfig: './tsconfig.json',
+      declaration: true,
+      declarationDir: 'dist',
+    }),
     commonjs(),
     postcss({
       modules: true,
+      extract: true, // Also extract CSS to dist/index.css
+      minimize: true,
     }),
   ],
 };
