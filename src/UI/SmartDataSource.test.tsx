@@ -23,9 +23,11 @@ const mockColumnDefinitions: IResponsiveTableColumnDefinition<TestData>[] = [
 ];
 
 describe('ResponsiveTable Smart Data Source', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let intersectCallback: any;
 
   beforeAll(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (global as any).IntersectionObserver = jest.fn().mockImplementation((callback) => {
       intersectCallback = callback;
       return {
@@ -63,7 +65,7 @@ describe('ResponsiveTable Smart Data Source', () => {
     // Return only 1 item when pageSize is 2 -> should set hasMore to false
     const dataSource = jest.fn().mockResolvedValue([{ id: 1, name: 'Alice' }]);
 
-    let container: any;
+    let container: HTMLElement | undefined;
     await act(async () => {
       const result = render(
         <ResponsiveTable
@@ -78,7 +80,7 @@ describe('ResponsiveTable Smart Data Source', () => {
 
     // Sentinel shouldn't be rendered if hasMore is false
     // Note: Our current implementation sets hasMore based on newItems.length === pageSize
-    expect(container.querySelector('[style="height: 1px;"]')).not.toBeInTheDocument();
+    expect(container?.querySelector('[style="height: 1px;"]')).not.toBeInTheDocument();
   });
 
   it('paginates when sentinel is intersected', async () => {

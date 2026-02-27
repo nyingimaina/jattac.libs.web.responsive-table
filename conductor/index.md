@@ -6,6 +6,7 @@ Welcome to the Conductor documentation for **Jattac.Libs.Web.ResponsiveTable**.
 - [Product Definition](./product.md)
 - [Tech Stack](./tech-stack.md)
 - [Workflow](./workflow.md)
+- [Pitfalls & Avoidance](./avoidance.md)
 - [Tracks Registry](./tracks.md)
 
 ## Directories

@@ -26,3 +26,10 @@ As this project is developed on an unreliable system prone to crashes or session
 ## Finalization
 
 5.  **Finalize:** Once the plan is complete, perform a final project build and mark the track as completed in `conductor/tracks.md`.
+
+## Knowledge Persistence (Avoidance Mandate)
+
+To prevent the recurrence of bugs and build failures:
+1. **Discover & Document:** Whenever a build failure, lint error, or architectural pitfall is discovered, it MUST be documented in `conductor/avoidance.md`.
+2. **Contextual Learnings:** Include the "Issue", "Scenario", and "Avoidance strategy" for every entry.
+3. **Pre-emptive Check:** Before starting a new atom, review `avoidance.md` to ensure the planned changes don't fall into known traps.
