@@ -1,37 +1,17 @@
 import React from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
-import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumnDefinition';
-import { ColumnDefinition } from './ResponsiveTable';
+import { useTableContext } from '../Context/TableContext';
+import { TableBodyCell } from './TableBodyCell';
 
-interface MobileViewProps<TData> {
-  currentData: TData[];
-  columnDefinitions: ColumnDefinition<TData>[];
-  onRowClick?: (item: TData) => void;
-  selectionProps?: {
-    onSelectionChange: (selectedItems: TData[]) => void;
-    rowIdKey: keyof TData;
-    mode?: 'single' | 'multiple';
-    selectedItems?: TData[];
-    selectedRowClassName?: string;
-  };
-  animationProps?: {
-    isLoading?: boolean;
-    animateOnLoad?: boolean;
-  };
-  getRowProps: (row: TData) => React.HTMLAttributes<HTMLElement>;
-  getRowId: (row: TData, index: number) => string | number;
-  getColumnDefinition: (colDef: ColumnDefinition<TData>, rowIndex: number) => IResponsiveTableColumnDefinition<TData>;
-  onHeaderClickCallback: (colDef: ColumnDefinition<TData>) => ((id: string) => void) | undefined;
-  getClickableHeaderClassName: (onHeaderClick: ((id: string) => void) | undefined, colDef: ColumnDefinition<TData>) => string;
-  renderCell: (content: React.ReactNode, row: TData, colDef: IResponsiveTableColumnDefinition<TData>) => React.ReactNode;
-  rowClickFunction: (item: TData) => void;
+interface MobileViewProps {
   mobileFooter: React.ReactNode;
 }
 
-function MobileView<TData>(props: MobileViewProps<TData>) {
+function MobileView<TData>(props: MobileViewProps) {
+  const { mobileFooter } = props;
   const {
     currentData,
-    columnDefinitions,
+    visibleColumns,
     onRowClick,
     selectionProps,
     animationProps,
@@ -40,10 +20,7 @@ function MobileView<TData>(props: MobileViewProps<TData>) {
     getColumnDefinition,
     onHeaderClickCallback,
     getClickableHeaderClassName,
-    renderCell,
-    rowClickFunction,
-    mobileFooter,
-  } = props;
+  } = useTableContext<TData>();
 
   const isClickable = onRowClick || selectionProps;
 
@@ -61,15 +38,15 @@ function MobileView<TData>(props: MobileViewProps<TData>) {
             aria-selected={rowProps['aria-selected']}
             onClick={(e: React.MouseEvent<HTMLDivElement>) => {
               if (pluginOnClick) pluginOnClick(e);
-              rowClickFunction(row);
+              if (onRowClick) onRowClick(row);
             }}
           >
             <div className={styles['card-header']}> </div>
             <div className={styles['card-body']}>
-              {columnDefinitions.map((columnDefinition, colIndex) => {
+              {visibleColumns.map((columnDefinition, colIndex) => {
                 const colDef = getColumnDefinition(columnDefinition, rowIndex);
-                const onHeaderClick = onHeaderClickCallback(colDef);
-                const clickableHeaderClassName = getClickableHeaderClassName(onHeaderClick, colDef);
+                const onHeaderClick = onHeaderClickCallback(columnDefinition);
+                const clickableHeaderClassName = getClickableHeaderClassName(onHeaderClick, columnDefinition);
                 return (
                   <div key={colIndex} className={styles['card-row']}>
                     <p>
@@ -86,7 +63,13 @@ function MobileView<TData>(props: MobileViewProps<TData>) {
                       >
                         {colDef.displayLabel}
                       </span>
-                      <span className={styles['card-value']}>{renderCell(colDef.cellRenderer(row), row, colDef)}</span>
+                      <span className={styles['card-value']}>
+                        <TableBodyCell
+                          row={row}
+                          rowIndex={rowIndex}
+                          columnDefinition={columnDefinition}
+                        />
+                      </span>
                     </p>
                   </div>
                 );

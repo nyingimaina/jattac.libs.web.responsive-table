@@ -1,66 +1,40 @@
 import React, { CSSProperties, useCallback, useMemo } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
-import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumnDefinition';
 import IFooterColumnDefinition from '../Data/IFooterColumnDefinition';
-import { ColumnDefinition } from './ResponsiveTable';
+import { useTableContext } from '../Context/TableContext';
+import { TableHeaderCell } from './TableHeaderCell';
+import { TableBodyRow } from './TableBodyRow';
 
-interface DesktopViewProps<TData> {
-  columnDefinitions: ColumnDefinition<TData>[]; // This will be the visible columns
-  originalColumnDefinitions: ColumnDefinition<TData>[]; // The full set for footer math
-  currentData: TData[];
+interface DesktopViewProps {
   maxHeight?: string;
   isHeaderSticky: boolean;
   tableContainerRef: React.RefObject<HTMLDivElement>;
   headerRef: React.RefObject<HTMLTableSectionElement>;
-  getRowProps: (row: TData) => React.HTMLAttributes<HTMLElement>;
-  getHeaderProps: (colDef: ColumnDefinition<TData>) => React.HTMLAttributes<HTMLElement> & { className?: string };
-  onHeaderClickCallback: (colDef: ColumnDefinition<TData>) => ((id: string) => void) | undefined;
-  getClickableHeaderClassName: (onHeaderClick: ((id: string) => void) | undefined, colDef: ColumnDefinition<TData>) => string;
-  getRawColumnDefinition: (colDef: ColumnDefinition<TData>) => IResponsiveTableColumnDefinition<TData>;
-  getColumnDefinition: (colDef: ColumnDefinition<TData>, rowIndex: number) => IResponsiveTableColumnDefinition<TData>;
-  renderCell: (content: React.ReactNode, row: TData, colDef: IResponsiveTableColumnDefinition<TData>) => React.ReactNode;
-  rowClickFunction: (item: TData) => void;
   footerRows?: { columns: IFooterColumnDefinition[] }[];
   renderPluginFooters: () => React.ReactNode;
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
-  animationProps?: {
-    isLoading?: boolean;
-    animateOnLoad?: boolean;
-  };
-  selectionProps?: {
-    onSelectionChange: (selectedItems: TData[]) => void;
-    rowIdKey: keyof TData;
-    mode?: 'single' | 'multiple';
-    selectedItems?: TData[];
-    selectedRowClassName?: string;
-  };
-  onRowClick?: (item: TData) => void;
 }
 
-function DesktopView<TData>(props: DesktopViewProps<TData>) {
+function DesktopView<TData>(props: DesktopViewProps) {
   const {
-    columnDefinitions,
-    originalColumnDefinitions,
-    currentData,
     maxHeight,
     isHeaderSticky,
     tableContainerRef,
     headerRef,
-    getRowProps,
-    getHeaderProps,
-    onHeaderClickCallback,
-    getClickableHeaderClassName,
-    getRawColumnDefinition,
-    getColumnDefinition,
-    renderCell,
-    rowClickFunction,
     footerRows,
     renderPluginFooters,
-    animationProps,
-    onRowClick,
-    selectionProps,
     onScroll,
   } = props;
+
+  const {
+    visibleColumns,
+    originalColumnDefinitions,
+    currentData,
+    getRawColumnDefinition,
+    onRowClick,
+    selectionProps,
+    animationProps,
+  } = useTableContext<TData>();
 
   const getEffectiveColSpan = useCallback((
     footerCol: IFooterColumnDefinition,
@@ -114,8 +88,7 @@ function DesktopView<TData>(props: DesktopViewProps<TData>) {
     );
   }, [footerRows, getEffectiveColSpan]);
 
-  const useFixedHeaders = maxHeight ? true : false;
-  const isClickable = onRowClick || selectionProps;
+  const useFixedHeaders = !!maxHeight;
 
   const fixedHeadersStyle = useFixedHeaders
     ? ({ maxHeight, overflowY: 'auto' } as CSSProperties)
@@ -130,67 +103,27 @@ function DesktopView<TData>(props: DesktopViewProps<TData>) {
       <table className={styles['responsiveTable']}>
         <thead ref={headerRef} className={headerClassName}>
           <tr>
-            {columnDefinitions.map((columnDefinition, colIndex) => {
-              const onHeaderClick = onHeaderClickCallback(columnDefinition);
-              const clickableHeaderClassName = getClickableHeaderClassName(
-                onHeaderClick,
-                columnDefinition,
-              );
-              const headerProps = getHeaderProps(columnDefinition);
-
-              const combinedClassName = `${clickableHeaderClassName} ${headerProps.className ? styles[headerProps.className] : ''}`.trim();
-
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              const { className, ...restHeaderProps } = headerProps;
-
-              return (
-                <th
-                  key={colIndex}
-                  className={combinedClassName}
-                  {...restHeaderProps}
-                  onClick={onHeaderClick ? () => onHeaderClick(getRawColumnDefinition(columnDefinition).interactivity!.id) : restHeaderProps.onClick}
-                >
-                  <div className={styles.headerInnerWrapper}>
-                    <div className={styles.headerContent}>
-                      {getColumnDefinition(columnDefinition, 0).displayLabel}
-                    </div>
-                    <span className={styles.sortIcon}></span>
-                  </div>
-                </th>
-              );
-            })}
+            {visibleColumns.map((columnDefinition, colIndex) => (
+              <TableHeaderCell
+                key={colIndex}
+                columnDefinition={columnDefinition}
+                colIndex={colIndex}
+              />
+            ))}
           </tr>
         </thead>
         <tbody>
-          {currentData.map((row, rowIndex) => {
-            const rowProps = getRowProps(row);
-            const pluginOnClick = rowProps.onClick;
-            
-            return (
-              <tr
-                key={rowIndex} // Using index as fallback, key handling should be refined
-                className={`${isClickable ? styles.clickableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''}`.trim()}
-                style={{ animationDelay: `${rowIndex * 0.05}s` }}
-                aria-selected={rowProps['aria-selected']}
-                onClick={(e: React.MouseEvent<HTMLTableRowElement>) => {
-                  if (pluginOnClick) {
-                      pluginOnClick(e);
-                  }
-                  rowClickFunction(row);
-                }}
-              >
-                {columnDefinitions.map((columnDefinition, colIndex) => {
-                  const colDef = getColumnDefinition(columnDefinition, rowIndex);
-                  const cellContent = colDef.cellRenderer(row);
-                  return (
-                    <td key={colIndex}>
-                      {renderCell(cellContent, row, colDef)}
-                    </td>
-                  );
-                })}
-              </tr>
-            );
-          })}
+          {currentData.map((row, rowIndex) => (
+            <TableBodyRow
+              key={rowIndex}
+              row={row}
+              rowIndex={rowIndex}
+              columnDefinitions={visibleColumns}
+              onRowClick={onRowClick}
+              selectionProps={selectionProps}
+              animationProps={animationProps}
+            />
+          ))}
         </tbody>
         {tableFooter}
       </table>
