@@ -7,6 +7,17 @@ export type ColumnDefinition<TData> =
   | IResponsiveTableColumnDefinition<TData>
   | ((data: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>);
 
+export interface IDataSourceParams {
+  page: number;
+  pageSize: number;
+  sort?: { columnId: string; direction: 'asc' | 'desc' };
+  filter?: string;
+}
+
+export type DataSourceResult<TData> = TData[] | { items: TData[]; totalCount?: number };
+
+export type DataSource<TData> = (params: IDataSourceParams) => Promise<DataSourceResult<TData>>;
+
 interface TableContextValue<TData> {
   // Data & Columns
   data: TData[];
@@ -30,6 +41,17 @@ interface TableContextValue<TData> {
   animationProps?: {
     isLoading?: boolean;
     animateOnLoad?: boolean;
+  };
+
+  // Smart Data Source State
+  dataSource?: DataSource<TData>;
+  pagination?: {
+    currentPage: number;
+    pageSize: number;
+    hasMore: boolean;
+    totalCount?: number;
+    isLoading: boolean;
+    isFetchingMore: boolean;
   };
 
   // Helper Functions (Logic)
