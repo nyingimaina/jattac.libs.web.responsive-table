@@ -16,14 +16,6 @@ ResponsiveTable is a high-performance, type-safe React component designed for co
 npm install jattac.libs.web.responsive-table
 ```
 
-## Styling
-
-For the table to look its best, you must import the provided CSS in your application entry point (e.g., `_app.tsx` or `index.tsx`):
-
-```tsx
-import 'jattac.libs.web.responsive-table/dist/index.css';
-```
-
 ---
 
 ## Delightful Data Fetching: Smart Data Source

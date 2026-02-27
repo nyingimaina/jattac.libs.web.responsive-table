@@ -33,7 +33,7 @@ module.exports = {
     commonjs(),
     postcss({
       modules: true,
-      extract: 'index.css', // Explicitly name the CSS file
+      extract: false, // Inject CSS into the bundle
       minimize: true,
     }),
   ],
