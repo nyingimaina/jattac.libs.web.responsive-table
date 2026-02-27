@@ -3,6 +3,7 @@ const typescript = require('@rollup/plugin-typescript');
 const peerDepsExternal = require('rollup-plugin-peer-deps-external');
 const resolve = require('@rollup/plugin-node-resolve').default;
 const commonjs = require('@rollup/plugin-commonjs');
+const del = require('rollup-plugin-delete');
 
 module.exports = {
   input: 'src/index.tsx',
@@ -21,6 +22,7 @@ module.exports = {
     },
   ],
   plugins: [
+    del({ targets: 'dist/*' }),
     peerDepsExternal(),
     resolve(),
     typescript({
@@ -31,7 +33,7 @@ module.exports = {
     commonjs(),
     postcss({
       modules: true,
-      extract: true, // Also extract CSS to dist/index.css
+      extract: 'index.css', // Explicitly name the CSS file
       minimize: true,
     }),
   ],
