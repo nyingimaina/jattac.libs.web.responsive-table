@@ -227,4 +227,29 @@ describe('ResponsiveTable', () => {
     expect(footerCells[1]).toHaveTextContent('Footer 2');
     expect(footerCells[1]).toHaveAttribute('colSpan', '1');
   });
+
+  it('updates column visibility dynamically', () => {
+    const { rerender } = render(
+      <ResponsiveTable
+        columnDefinitions={mockColumnDefinitions}
+        data={mockData}
+      />
+    );
+
+    expect(screen.getByText('ID')).toBeInTheDocument();
+
+    const hiddenDefinitions = mockColumnDefinitions.map(col => 
+      col.columnId === 'id' ? { ...col, visible: false } : col
+    );
+
+    rerender(
+      <ResponsiveTable
+        columnDefinitions={hiddenDefinitions}
+        data={mockData}
+      />
+    );
+
+    expect(screen.queryByText('ID')).not.toBeInTheDocument();
+    expect(screen.getByText('Name')).toBeInTheDocument();
+  });
 });
