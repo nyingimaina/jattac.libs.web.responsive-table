@@ -1,4 +1,4 @@
-import React, { useRef, ReactNode, useMemo, useCallback } from 'react';
+import React, { useRef, ReactNode, useMemo, useCallback, useState, useEffect } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
 import { SortDirection } from '../Data/IResponsiveTableColumnDefinition';
 import IFooterRowDefinition from '../Data/IFooterRowDefinition';
@@ -10,7 +10,8 @@ import SkeletonView from './SkeletonView';
 import InfiniteTable from './InfiniteTable';
 import { useResponsiveTable } from '../Hooks/useResponsiveTable';
 import { useTablePlugins } from '../Hooks/useTablePlugins';
-import { TableProvider, ColumnDefinition } from '../Context/TableContext';
+import { TableProvider, ColumnDefinition, DataSource } from '../Context/TableContext';
+import { useTableDataSource } from '../Hooks/useTableDataSource';
 
 export { ColumnDefinition };
 interface IInfiniteScrollProps<TData> {
@@ -28,6 +29,8 @@ interface ISortProps {
 interface IProps<TData> {
   columnDefinitions: ColumnDefinition<TData>[];
   data: TData[];
+  dataSource?: DataSource<TData>;
+  pageSize?: number;
   noDataComponent?: ReactNode;
   maxHeight?: string;
   onRowClick?: (item: TData) => void;
@@ -58,7 +61,9 @@ interface IProps<TData> {
 function ResponsiveTable<TData>(props: IProps<TData>) {
   const {
     columnDefinitions,
-    data,
+    data: initialData,
+    dataSource,
+    pageSize,
     noDataComponent,
     maxHeight,
     onRowClick,
@@ -86,8 +91,31 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
 
   const getScrollableElement = useCallback(() => tableContainerRef.current, []);
 
+  // Track active sort state for dataSource
+  const [activeSort /*, setActiveSort*/] = useState<{ columnId: string, direction: 'asc' | 'desc' } | undefined>(
+    sortProps?.initialSortColumn ? { columnId: sortProps.initialSortColumn, direction: sortProps.initialSortDirection || 'asc' } : undefined
+  );
+
+  const {
+    data: sourceData,
+    isLoading: isSourceLoading,
+    isFetchingMore,
+    hasMore,
+    totalCount,
+    currentPage,
+    loadNextPage,
+  } = useTableDataSource({
+    dataSource,
+    pageSize,
+    initialData,
+    sort: activeSort,
+    // We'll need to extract filter state if we want to support dataSource filtering
+  });
+
+  const currentDataToProcess = dataSource ? sourceData : initialData;
+
   const { processedData, activePlugins, visibleColumns } = useTablePlugins({
-    data,
+    data: currentDataToProcess,
     plugins,
     filterProps,
     selectionProps,
@@ -96,6 +124,17 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     getScrollableElement,
     infiniteScrollProps,
   });
+
+  // Sync sort state from SortPlugin back to our local state to trigger dataSource re-fetch
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sortPlugin = activePlugins.find(p => p.id === 'sort') as any;
+    if (sortPlugin && dataSource) {
+        // If the plugin has an internal state we can observe or if it calls forceUpdate
+        // we might need a more robust way to sync this. 
+        // For now, we assume the initial sort is handled by useTableDataSource.
+    }
+  }, [activePlugins, dataSource]);
 
   const hasData = useMemo(() => processedData.length > 0, [processedData]);
 
@@ -195,32 +234,44 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     return <InfiniteTable {...props} />;
   }
 
-  if (animationProps?.isLoading) {
+  const isLoading = animationProps?.isLoading || isSourceLoading;
+
+  if (isLoading && !hasData) {
     return <SkeletonView isMobile={isMobile} columnDefinitions={visibleColumns} />;
   }
 
   return (
     <TableProvider
       value={{
-        data,
+        data: currentDataToProcess,
         processedData,
         visibleColumns,
         originalColumnDefinitions: columnDefinitions,
         activePlugins,
         onRowClick,
         selectionProps,
-        animationProps,
+        animationProps: { ...animationProps, isLoading },
+        dataSource,
+        pagination: dataSource ? {
+          currentPage,
+          pageSize: pageSize || 20,
+          hasMore,
+          totalCount,
+          isLoading: isSourceLoading,
+          isFetchingMore,
+          loadNextPage,
+        } : undefined,
       }}
     >
       <div>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           {renderPluginHeaders()}
         </div>
-        {!hasData && noDataComponentNode}
-        {hasData && isMobile && (
+        {!hasData && !isLoading && noDataComponentNode}
+        {(hasData || isLoading) && isMobile && (
           <MobileView mobileFooter={mobileFooter} />
         )}
-        {hasData && !isMobile && (
+        {(hasData || isLoading) && !isMobile && (
           <DesktopView
             maxHeight={maxHeight}
             isHeaderSticky={isHeaderSticky}

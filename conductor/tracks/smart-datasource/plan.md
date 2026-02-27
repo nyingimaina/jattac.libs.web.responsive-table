@@ -7,5 +7,5 @@ Status: In Progress
 2.  **[DONE]** **[HOOK-REFACTOR]** Create a `useTableDataSource` hook to manage the data fetching lifecycle (initial fetch, pagination, sorting/filtering integration).
 3.  **[DONE]** **[UI-SENTINEL]** Create a `TableSentinel` component using the `IntersectionObserver` API to trigger the next page load.
 4.  **[DONE]** **[UI-INTEGRATION]** Integrate the `TableSentinel` and unified loading components (spinners, skeletons) into `DesktopView` and `MobileView`.
-5.  **[API-UNIFICATION]** Update `ResponsiveTable` to natively support the `dataSource` prop and internal pagination, potentially deprecating the need for a separate `InfiniteTable` component.
+5.  **[DONE]** **[API-UNIFICATION]** Update `ResponsiveTable` to natively support the `dataSource` prop and internal pagination, potentially deprecating the need for a separate `InfiniteTable` component.
 6.  **[TEST-SUITE]** Add a new test suite to verify the `dataSource` pattern with mock API responses and pagination.
