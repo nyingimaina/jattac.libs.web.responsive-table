@@ -43,6 +43,7 @@ interface TableContextValue<TData> {
   renderCell: (content: React.ReactNode, row: TData, colDef: IResponsiveTableColumnDefinition<TData>) => React.ReactNode;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const TableContext = createContext<TableContextValue<any> | undefined>(undefined);
 
 export const useTableContext = <TData,>() => {
@@ -73,7 +74,7 @@ export function TableProvider<TData>({ children, value }: TableProviderProps<TDa
     processedData, 
     activePlugins, 
     selectionProps, 
-  } = value as any;
+  } = value;
 
   const getRawColumnDefinition = useCallback((columnDefinition: ColumnDefinition<TData>): IResponsiveTableColumnDefinition<TData> => {
     if (typeof columnDefinition === 'function') {
@@ -122,6 +123,7 @@ export function TableProvider<TData>({ children, value }: TableProviderProps<TDa
 
   const getRowId = useCallback((row: TData, index: number): string | number => {
     if (selectionProps && selectionProps.rowIdKey) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (row as any)[selectionProps.rowIdKey] as string | number;
     }
     return index;
