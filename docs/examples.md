@@ -143,42 +143,41 @@ const footerRows = [
 />
 ```
 
-### 8. High-Volume Data: Asynchronous Infinite Scroll
-For datasets that exceed standard memory constraints, the infinite scroll feature allows for incremental data fetching during vertical scrolling.
+### 8. High-Volume Data: Smart Data Source (Infinite Scroll)
+For datasets that exceed standard memory constraints, the `dataSource` pattern allows for seamless incremental data fetching during vertical scrolling. The table manages page tracking, data concatenation, and loading states automatically.
 
-#### 1. Data Fetching Logic
-Define an asynchronous function to retrieve subsequent data increments.
-
-```tsx
-const fetchAdditionalData = async (currentDataset) => {
-  const pageIndex = Math.floor(currentDataset.length / 10) + 1;
-  const response = await api.users.get({ page: pageIndex });
-  return response.data; // Return null to indicate EOF
-};
-```
-
-#### 2. Component Configuration
-Enable the feature by providing the `infiniteScrollProps` configuration.
+#### The Painless Implementation
+Provide a single async function that returns the next batch of data.
 
 ```tsx
 import ResponsiveTable from 'jattac.libs.web.responsive-table';
 
-const UserManagementTable = () => {
+export const InfiniteUserTable = () => {
+  const fetchUsers = async ({ page, pageSize, sort, filter }) => {
+    // Forward table state directly to your API
+    const response = await api.users.get({ 
+      page, 
+      limit: pageSize,
+      search: filter,
+      sortBy: sort?.columnId 
+    });
+    
+    // Return items; table detects EOF automatically if items.length < pageSize
+    return response.items; 
+  };
+
   return (
     <ResponsiveTable
-      data={[]} 
+      dataSource={fetchUsers}
+      pageSize={20}
       columnDefinitions={columns}
-      maxHeight="600px" // Necessary for scroll event interception
-      infiniteScrollProps={{
-        onLoadMore: fetchAdditionalData,
-        hasMore: true,
-        loadingMoreComponent: <LoadingIndicator />,
-        noMoreDataComponent: <EndOfDataNotification />
-      }}
+      animationProps={{ animateOnLoad: true }}
     />
   );
 };
 ```
+
+---
 
 ### 9. Internal Plugin Development
 Extend the functional capabilities of the component by implementing the `IResponsiveTablePlugin` interface.

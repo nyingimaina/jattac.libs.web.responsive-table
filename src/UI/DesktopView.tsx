@@ -5,7 +5,6 @@ import { useTableContext } from '../Context/TableContext';
 import { TableHeaderCell } from './TableHeaderCell';
 import { TableBodyRow } from './TableBodyRow';
 import { TableSentinel } from './TableSentinel';
-import LoadingSpinner from './LoadingSpinner';
 
 interface DesktopViewProps {
   maxHeight?: string;
@@ -102,7 +101,7 @@ function DesktopView<TData>(props: DesktopViewProps) {
     : (isHeaderSticky ? styles.stickyHeader : '');
 
   return (
-    <div style={fixedHeadersStyle} ref={tableContainerRef} onScroll={onScroll}>
+    <div className={styles.tableContainer} style={fixedHeadersStyle} ref={tableContainerRef} onScroll={onScroll}>
       <table className={styles['responsiveTable']}>
         <thead ref={headerRef} className={headerClassName}>
           <tr>
@@ -137,8 +136,9 @@ function DesktopView<TData>(props: DesktopViewProps) {
         />
       )}
       {pagination?.isFetchingMore && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem' }}>
-          <LoadingSpinner />
+        <div className={styles.infoContainer}>
+          <div className={styles.spinner}></div>
+          <span>Loading more items...</span>
         </div>
       )}
       {renderPluginFooters()}

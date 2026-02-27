@@ -1,7 +1,8 @@
 import IFooterColumnDefinition from './Data/IFooterColumnDefinition';
 import IFooterRowDefinition from './Data/IFooterRowDefinition';
 import { IResponsiveTableColumnDefinition, SortDirection } from './Data/IResponsiveTableColumnDefinition';
-import ResponsiveTable, { ColumnDefinition } from './UI/ResponsiveTable';
+import ResponsiveTable from './UI/ResponsiveTable';
+import { ColumnDefinition, DataSource, IDataSourceParams, DataSourceResult } from './Context/TableContext';
 import { FilterPlugin } from './Plugins/FilterPlugin';
 import { InfiniteScrollPlugin } from './Plugins/InfiniteScrollPlugin';
 import { IResponsiveTablePlugin } from './Plugins/IResponsiveTablePlugin';
@@ -12,6 +13,9 @@ export {
   SortDirection,
   IResponsiveTableColumnDefinition,
   ColumnDefinition,
+  DataSource,
+  IDataSourceParams,
+  DataSourceResult,
   IFooterColumnDefinition,
   IFooterRowDefinition,
   FilterPlugin,

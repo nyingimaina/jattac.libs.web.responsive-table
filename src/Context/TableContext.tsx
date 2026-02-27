@@ -7,30 +7,50 @@ export type ColumnDefinition<TData> =
   | IResponsiveTableColumnDefinition<TData>
   | ((data: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>);
 
+/**
+ * Parameters passed to the dataSource function.
+ */
 export interface IDataSourceParams {
+  /** The 1-based page number to fetch. */
   page: number;
+  /** The number of items to fetch per page. */
   pageSize: number;
+  /** The active sort configuration, if any. */
   sort?: { columnId: string; direction: 'asc' | 'desc' };
+  /** The active filter string, if any. */
   filter?: string;
 }
 
+/**
+ * The result of a dataSource fetch.
+ * Can be a simple array of items (hasMore will be auto-detected)
+ * or an object containing items and an optional totalCount.
+ */
 export type DataSourceResult<TData> = TData[] | { items: TData[]; totalCount?: number };
 
+/**
+ * A function that fetches data from an external source (e.g., an API).
+ */
 export type DataSource<TData> = (params: IDataSourceParams) => Promise<DataSourceResult<TData>>;
 
 interface TableContextValue<TData> {
-  // Data & Columns
+  /** The raw data provided to the table (or the combined data from dataSource). */
   data: TData[];
+  /** The data after being processed by plugins (sort, filter, etc.). */
   processedData: TData[];
-  currentData: TData[]; // Added for backward compatibility/clarity
+  /** Alias for processedData, used for backward compatibility. */
+  currentData: TData[];
+  /** The list of columns that are currently visible. */
   visibleColumns: ColumnDefinition<TData>[];
+  /** The full list of column definitions provided to the table. */
   originalColumnDefinitions: ColumnDefinition<TData>[];
   
-  // Plugin State
+  /** The list of plugins currently active on the table. */
   activePlugins: IResponsiveTablePlugin<TData>[];
   
-  // Props
+  /** Callback for when a row is clicked. */
   onRowClick?: (item: TData) => void;
+  /** Configuration for row selection. */
   selectionProps?: {
     onSelectionChange: (selectedItems: TData[]) => void;
     rowIdKey: keyof TData;
@@ -38,13 +58,15 @@ interface TableContextValue<TData> {
     selectedItems?: TData[];
     selectedRowClassName?: string;
   };
+  /** Configuration for table animations and loading states. */
   animationProps?: {
     isLoading?: boolean;
     animateOnLoad?: boolean;
   };
 
-  // Smart Data Source State
+  /** The smart data source used for server-side operations and infinite scroll. */
   dataSource?: DataSource<TData>;
+  /** The current state of pagination and async loading. */
   pagination?: {
     currentPage: number;
     pageSize: number;

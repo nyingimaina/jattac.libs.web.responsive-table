@@ -27,23 +27,43 @@ interface ISortProps {
 }
 
 interface IProps<TData> {
+  /** The definitions for each column in the table. */
   columnDefinitions: ColumnDefinition<TData>[];
+  /** The initial data to display. If using dataSource, this acts as the starting set. */
   data: TData[];
+  /** 
+   * A smart data source function for server-side pagination, sorting, and filtering.
+   * If provided, the table automatically handles infinite scroll and re-fetching on sort/filter.
+   */
   dataSource?: DataSource<TData>;
+  /** The number of items to fetch per page when using dataSource. Defaults to 20. */
   pageSize?: number;
+  /** A component to display when there is no data. */
   noDataComponent?: ReactNode;
+  /** The maximum height of the table container (enables internal scrolling). */
   maxHeight?: string;
+  /** Callback for when a row is clicked. */
   onRowClick?: (item: TData) => void;
+  /** Custom definitions for footer rows. */
   footerRows?: IFooterRowDefinition[];
+  /** The pixel width at which the table switches to mobile card view. Defaults to 600. */
   mobileBreakpoint?: number;
+  /** An array of plugins to extend table functionality. */
   plugins?: IResponsiveTablePlugin<TData>[];
+  /** If true, the header will stick to the top of the page when scrolling. */
   enablePageLevelStickyHeader?: boolean;
+  /** 
+   * Props for manual infinite scroll handling. 
+   * NOTE: Prefer using `dataSource` for a more seamless experience.
+   */
   infiniteScrollProps?: IInfiniteScrollProps<TData>;
+  /** Configuration for the built-in filter plugin. */
   filterProps?: {
     showFilter?: boolean;
     filterPlaceholder?: string;
     className?: string;
   };
+  /** Configuration for row selection. */
   selectionProps?: {
     onSelectionChange: (selectedItems: TData[]) => void;
     rowIdKey: keyof TData;
@@ -51,13 +71,19 @@ interface IProps<TData> {
     selectedItems?: TData[];
     selectedRowClassName?: string;
   };
+  /** Configuration for loading states and entrance animations. */
   animationProps?: {
     isLoading?: boolean;
     animateOnLoad?: boolean;
   };
+  /** Initial sort state for the table. */
   sortProps?: ISortProps;
 }
 
+/**
+ * A highly customizable, mobile-first responsive React table.
+ * Supports static data or async data sources with built-in infinite scroll.
+ */
 function ResponsiveTable<TData>(props: IProps<TData>) {
   const {
     columnDefinitions,

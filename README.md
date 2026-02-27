@@ -16,6 +16,52 @@ ResponsiveTable is a high-performance, type-safe React component designed for co
 npm install jattac.libs.web.responsive-table
 ```
 
+## Styling
+
+For the table to look its best, you must import the provided CSS in your application entry point (e.g., `_app.tsx` or `index.tsx`):
+
+```tsx
+import 'jattac.libs.web.responsive-table/dist/index.css';
+```
+
+---
+
+## Delightful Data Fetching: Smart Data Source
+
+The new `dataSource` pattern makes handling large datasets, server-side sorting, and infinite scroll completely painless. You provide the fetch logic; we handle the bookkeeping.
+
+### Basic Usage
+```tsx
+<ResponsiveTable
+  dataSource={async ({ page, pageSize }) => {
+    const users = await api.getUsers({ page, pageSize });
+    return users; // Table automatically handles appending and hasMore detection!
+  }}
+  columnDefinitions={columns}
+/>
+```
+
+### With Sorting & Filtering
+The table tells you exactly what it needs based on user interaction:
+```tsx
+<ResponsiveTable
+  dataSource={async ({ page, pageSize, sort, filter }) => {
+    return await api.getUsers({
+      page,
+      limit: pageSize,
+      sortBy: sort?.columnId,
+      order: sort?.direction,
+      search: filter
+    });
+  }}
+  columnDefinitions={columns}
+  sortProps={{ initialSortColumn: 'name' }}
+  filterProps={{ showFilter: true }}
+/>
+```
+
+---
+
 ## Basic Implementation
 
 The following example demonstrates a standard implementation of the ResponsiveTable component:

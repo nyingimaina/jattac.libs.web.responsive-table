@@ -3,7 +3,6 @@ import styles from '../Styles/ResponsiveTable.module.css';
 import { useTableContext } from '../Context/TableContext';
 import { TableBodyCell } from './TableBodyCell';
 import { TableSentinel } from './TableSentinel';
-import LoadingSpinner from './LoadingSpinner';
 
 interface MobileViewProps {
   mobileFooter: React.ReactNode;
@@ -28,7 +27,7 @@ function MobileView<TData>(props: MobileViewProps) {
   const isClickable = onRowClick || selectionProps;
 
   return (
-    <div>
+    <div className={styles.cardContainer}>
       {currentData.map((row, rowIndex) => {
         const rowProps = getRowProps(row);
         const pluginOnClick = rowProps.onClick;
@@ -44,7 +43,6 @@ function MobileView<TData>(props: MobileViewProps) {
               if (onRowClick) onRowClick(row);
             }}
           >
-            <div className={styles['card-header']}> </div>
             <div className={styles['card-body']}>
               {visibleColumns.map((columnDefinition, colIndex) => {
                 const colDef = getColumnDefinition(columnDefinition, rowIndex);
@@ -52,7 +50,7 @@ function MobileView<TData>(props: MobileViewProps) {
                 const clickableHeaderClassName = getClickableHeaderClassName(onHeaderClick, columnDefinition);
                 return (
                   <div key={colIndex} className={styles['card-row']}>
-                    <p>
+                    <p className={styles['card-row-content']}>
                       <span
                         className={`${styles['card-label']} ${clickableHeaderClassName}`}
                         onClick={
@@ -88,8 +86,9 @@ function MobileView<TData>(props: MobileViewProps) {
         />
       )}
       {pagination?.isFetchingMore && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem' }}>
-          <LoadingSpinner />
+        <div className={styles.infoContainer}>
+          <div className={styles.spinner}></div>
+          <span>Loading more items...</span>
         </div>
       )}
       {mobileFooter}
