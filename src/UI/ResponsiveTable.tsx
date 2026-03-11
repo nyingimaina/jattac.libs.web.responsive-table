@@ -42,7 +42,23 @@ interface IProps<TData> {
   noDataComponent?: ReactNode;
   /** The maximum height of the table container (enables internal scrolling). */
   maxHeight?: string;
-  /** Callback for when a row is clicked. */
+  /** 
+   * Callback for when a row is clicked. 
+   * 
+   * @note To prevent this event from triggering when clicking interactive elements 
+   * (buttons, links, custom components) inside a cell, add the `data-rt-ignore-row-click` 
+   * attribute to those elements.
+   * 
+   * @example
+   * (row) => (
+   *   <button 
+   *     data-rt-ignore-row-click 
+   *     onClick={() => handleAction(row)}
+   *   >
+   *     Action
+   *   </button>
+   * )
+   */
   onRowClick?: (item: TData) => void;
   /** Custom definitions for footer rows. */
   footerRows?: IFooterRowDefinition[];

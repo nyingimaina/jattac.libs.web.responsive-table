@@ -5,6 +5,20 @@ export type SortDirection = 'asc' | 'desc';
 // Base interface with common properties that all column definitions share
 interface IResponsiveTableColumnDefinitionBase<TData> {
   displayLabel: ReactNode;
+  /** 
+   * Function to render the content of a cell. 
+   * 
+   * @note If the rendered content is interactive (e.g., a button or link) and 
+   * the table has an `onRowClick` handler, add the `data-rt-ignore-row-click` 
+   * attribute to the interactive element to prevent the row click from triggering.
+   * 
+   * @example
+   * cellRenderer: (row) => (
+   *   <button data-rt-ignore-row-click onClick={() => alert(row.id)}>
+   *     Click Me
+   *   </button>
+   * )
+   */
   cellRenderer: (data: TData) => ReactNode;
   visible?: boolean;
   dataKey?: keyof TData;

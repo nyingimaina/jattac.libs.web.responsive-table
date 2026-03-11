@@ -85,6 +85,33 @@ describe('ResponsiveTable', () => {
     expect(onRowClick).toHaveBeenCalledWith(mockData[0]);
   });
 
+  it('ignores row click when an element has data-rt-ignore-row-click attribute', () => {
+    const onRowClick = jest.fn();
+    const columnsWithAction: IResponsiveTableColumnDefinition<TestData>[] = [
+      ...mockColumnDefinitions,
+      {
+        columnId: 'action',
+        displayLabel: 'Action',
+        cellRenderer: () => <button data-rt-ignore-row-click>Click Me</button>,
+      },
+    ];
+
+    render(
+      <ResponsiveTable
+        columnDefinitions={columnsWithAction}
+        data={mockData}
+        onRowClick={onRowClick}
+      />
+    );
+
+    fireEvent.click(screen.getAllByText('Click Me')[0]);
+    expect(onRowClick).not.toHaveBeenCalled();
+
+    // Verify it still works for the rest of the row
+    fireEvent.click(screen.getByText('Alice'));
+    expect(onRowClick).toHaveBeenCalledTimes(1);
+  });
+
   it('sorts data when a sortable header is clicked', () => {
     render(
       <ResponsiveTable

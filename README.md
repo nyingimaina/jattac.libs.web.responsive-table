@@ -82,6 +82,30 @@ const App = () => (
 
 ---
 
+## Handling Interactive Elements
+
+When using the `onRowClick` prop, clicking any element within a row will trigger the callback. To prevent this when clicking buttons or other interactive elements, use the `data-rt-ignore-row-click` attribute.
+
+```tsx
+const columns = [
+  {
+    displayLabel: 'Actions',
+    cellRenderer: (row) => (
+      <button 
+        data-rt-ignore-row-click 
+        onClick={() => handleDelete(row.id)}
+      >
+        Delete
+      </button>
+    )
+  }
+];
+```
+
+For a deep dive into more complex scenarios, see the **[Handling Interactive Elements Guide](./docs/handling-interactive-elements.md)**.
+
+---
+
 ## Documentation Directory
 
 The following technical documentation provides comprehensive implementation guidance:
@@ -91,6 +115,7 @@ The following technical documentation provides comprehensive implementation guid
 3.  **[API Reference](./docs/api.md)** - Technical specifications for props, interfaces, and type definitions.
 4.  **[Configuration Specification](./docs/configuration.md)** - Detailed guidance on performance tuning and UI customization.
 5.  **[Architecture and Contribution Guide](./docs/development.md)** - Internal system design and development environment setup.
+6.  **[Handling Interactive Elements](./docs/handling-interactive-elements.md)** - Guide on preventing row click bubbling for buttons and custom components.
 
 ---
 **Next Step:** [Review the Technical Implementation Guide](./docs/examples.md)

@@ -1,0 +1,8 @@
+{
+  "track_id": "fix_row_click_bubbling_20260311",
+  "type": "bug",
+  "status": "completed",
+  "created_at": "2026-03-11T08:34:00Z",
+  "updated_at": "2026-03-11T09:05:00Z",
+  "description": "Prevent row click events from triggering when clicking interactive elements (buttons, inputs, etc.) within a table row."
+}

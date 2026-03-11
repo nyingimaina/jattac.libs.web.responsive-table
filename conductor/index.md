@@ -1,13 +1,15 @@
-# Conductor Index
+# Project Context
 
-Welcome to the Conductor documentation for **Jattac.Libs.Web.ResponsiveTable**.
-
-## Core Documentation
+## Definition
 - [Product Definition](./product.md)
+- [Product Guidelines](./product-guidelines.md)
 - [Tech Stack](./tech-stack.md)
-- [Workflow](./workflow.md)
-- [Pitfalls & Avoidance](./avoidance.md)
-- [Tracks Registry](./tracks.md)
 
-## Directories
+## Workflow
+- [Workflow](./workflow.md)
+- [Code Style Guides](./code_styleguides/)
+- [Pitfalls & Avoidance](./avoidance.md)
+
+## Management
+- [Tracks Registry](./tracks.md)
 - [Tracks Directory](./tracks/)
