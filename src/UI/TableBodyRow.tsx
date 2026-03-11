@@ -58,12 +58,18 @@ export function TableBodyRow<TData>(props: TableBodyRowProps<TData>) {
       className={`${isClickable ? styles.clickableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''}`.trim()}
       style={{ animationDelay: `${rowIndex * 0.05}s` }}
       aria-selected={rowProps['aria-selected']}
-    onClick={(e: React.MouseEvent<HTMLTableRowElement>) => {
+    onClickCapture={(e: React.MouseEvent<HTMLTableRowElement>) => {
+        // Capture Phase: Check for the ignore attribute BEFORE child handlers run.
+        // This prevents issues where child handlers trigger a re-render/unmount
+        // that detaches the target from the DOM before the bubbling phase.
         const target = e.target as HTMLElement;
-        
-        // Check if the click originated from or passed through an element marked to ignore row clicks.
-        // This is the explicit contract for interactive elements (buttons, links, custom components).
         if (target.closest('[data-rt-ignore-row-click]')) {
+          (e.nativeEvent as any)._rtIgnoreRowClick = true;
+        }
+    }}
+    onClick={(e: React.MouseEvent<HTMLTableRowElement>) => {
+        // Bubbling Phase: Check the flag set during the capture phase.
+        if ((e.nativeEvent as any)._rtIgnoreRowClick) {
           return;
         }
 

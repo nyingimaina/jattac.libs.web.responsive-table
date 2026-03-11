@@ -112,6 +112,36 @@ describe('ResponsiveTable', () => {
     expect(onRowClick).toHaveBeenCalledTimes(1);
   });
 
+  it('ignores row click even if target disappears during bubbling', () => {
+    const onRowClick = jest.fn();
+    const DisappearingButton = () => {
+        const [show, setShow] = React.useState(true);
+        if (!show) return null;
+        return (
+            <button 
+                data-rt-ignore-row-click 
+                onClick={() => setShow(false)}
+            >
+                Hide Me
+            </button>
+        );
+    };
+
+    render(
+      <ResponsiveTable
+        columnDefinitions={[
+            { columnId: 'a', displayLabel: 'A', cellRenderer: () => <DisappearingButton /> }
+        ]}
+        data={[{ id: 1, name: 'Alice' }]}
+        onRowClick={onRowClick}
+      />
+    );
+
+    fireEvent.click(screen.getByText('Hide Me'));
+    expect(onRowClick).not.toHaveBeenCalled();
+    expect(screen.queryByText('Hide Me')).not.toBeInTheDocument();
+  });
+
   it('sorts data when a sortable header is clicked', () => {
     render(
       <ResponsiveTable
