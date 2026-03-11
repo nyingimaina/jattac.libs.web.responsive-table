@@ -1,22 +1,27 @@
 import React, { useState, useEffect, useRef, ReactNode, useMemo, useCallback } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
-import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumnDefinition';
+import { SortDirection } from '../Data/IResponsiveTableColumnDefinition';
 import IFooterRowDefinition from '../Data/IFooterRowDefinition';
 import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
-import { FilterPlugin } from '../Plugins/FilterPlugin';
 import LoadingSpinner from './LoadingSpinner';
 import NoMoreDataMessage from './NoMoreDataMessage';
 import { useResponsiveTable } from '../Hooks/useResponsiveTable';
-
-export type ColumnDefinition<TData> = 
-  | IResponsiveTableColumnDefinition<TData>
-  | ((data: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>);
+import { useTablePlugins } from '../Hooks/useTablePlugins';
+import DesktopView from './DesktopView';
+import MobileView from './MobileView';
+import SkeletonView from './SkeletonView';
+import { TableProvider, ColumnDefinition } from '../Context/TableContext';
 
 interface IInfiniteScrollProps<TData> {
   onLoadMore: (currentData: TData[]) => Promise<TData[] | null>;
   hasMore?: boolean;
   loadingMoreComponent?: ReactNode;
   noMoreDataComponent?: ReactNode;
+}
+
+interface ISortProps {
+    initialSortColumn?: string;
+    initialSortDirection?: SortDirection;
 }
 
 interface IProps<TData> {
@@ -33,11 +38,20 @@ interface IProps<TData> {
   filterProps?: {
     showFilter?: boolean;
     filterPlaceholder?: string;
+    className?: string;
+  };
+  selectionProps?: {
+    onSelectionChange: (selectedItems: TData[]) => void;
+    rowIdKey: keyof TData;
+    mode?: 'single' | 'multiple';
+    selectedItems?: TData[];
+    selectedRowClassName?: string;
   };
   animationProps?: {
     isLoading?: boolean;
     animateOnLoad?: boolean;
   };
+  sortProps?: ISortProps;
 }
 
 function InfiniteTable<TData>(props: IProps<TData>) {
@@ -47,12 +61,15 @@ function InfiniteTable<TData>(props: IProps<TData>) {
     noDataComponent,
     maxHeight,
     onRowClick,
+    footerRows,
     mobileBreakpoint,
     plugins,
     enablePageLevelStickyHeader,
     infiniteScrollProps,
     filterProps,
+    selectionProps,
     animationProps,
+    sortProps,
   } = props;
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -67,67 +84,31 @@ function InfiniteTable<TData>(props: IProps<TData>) {
   });
 
   const [internalData, setInternalData] = useState<TData[]>(data || []);
-  const [processedData, setProcessedData] = useState<TData[]>(data || []);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [internalHasMore, setInternalHasMore] = useState<boolean>(true);
-  const [activePlugins, setActivePlugins] = useState<IResponsiveTablePlugin<TData>[]>([]);
+
+  const getScrollableElement = useCallback(() => tableContainerRef.current, []);
+
+  const { processedData, activePlugins, visibleColumns } = useTablePlugins({
+    data: internalData,
+    plugins,
+    filterProps,
+    selectionProps,
+    sortProps,
+    columnDefinitions,
+    getScrollableElement,
+    infiniteScrollProps,
+  });
 
   const currentHasMore = infiniteScrollProps?.hasMore !== undefined 
     ? infiniteScrollProps.hasMore 
     : internalHasMore;
 
-  const currentData = useMemo(() => processedData || [], [processedData]);
-  const hasData = useMemo(() => currentData.length > 0, [currentData]);
+  const hasData = useMemo(() => processedData.length > 0, [processedData]);
 
   const noDataComponentNode = noDataComponent || <div className={styles.noData}>No data</div>;
   const defaultLoadingComponent = <LoadingSpinner />;
   const defaultNoMoreDataComponent = <NoMoreDataMessage />;
-
-  const getRawColumnDefinition = useCallback((colDef: ColumnDefinition<TData>): IResponsiveTableColumnDefinition<TData> => {
-    if (typeof colDef === 'function') {
-      if (currentData.length === 0) {
-        return { displayLabel: '', cellRenderer: () => '' };
-      }
-      return colDef(currentData[0], 0);
-    }
-    return colDef;
-  }, [currentData]);
-
-  const getColumnDefinition = useCallback((colDef: ColumnDefinition<TData>, rowIndex: number): IResponsiveTableColumnDefinition<TData> => {
-    if (typeof colDef === 'function') {
-      return colDef(currentData[rowIndex], rowIndex);
-    }
-    return colDef;
-  }, [currentData]);
-
-  const processData = useCallback(() => {
-    let processed = [...internalData];
-    activePlugins.forEach((plugin) => {
-      if (plugin.processData) {
-        processed = plugin.processData(processed);
-      }
-    });
-    setProcessedData(processed);
-  }, [internalData, activePlugins]);
-
-  const initializePlugins = useCallback(() => {
-    const pluginsToActivate: IResponsiveTablePlugin<TData>[] = [];
-    if (plugins) pluginsToActivate.push(...plugins);
-    if (filterProps?.showFilter && !pluginsToActivate.some(p => p.id === 'filter')) {
-      pluginsToActivate.push(new FilterPlugin());
-    }
-    
-    setActivePlugins(pluginsToActivate);
-    pluginsToActivate.forEach(plugin => {
-        plugin.onPluginInit?.({
-            getData: () => internalData,
-            forceUpdate: processData,
-            getScrollableElement: () => tableContainerRef.current,
-            ...props,
-        });
-    });
-    processData();
-  }, [plugins, filterProps?.showFilter, internalData, processData, props]);
 
   const loadMoreData = useCallback(async () => {
     if (!infiniteScrollProps || isLoadingMore) return;
@@ -157,10 +138,6 @@ function InfiniteTable<TData>(props: IProps<TData>) {
   }, [data]);
 
   useEffect(() => {
-    initializePlugins();
-  }, [initializePlugins, internalData]); // Re-initialize plugins when internalData changes
-
-  useEffect(() => {
     if (data.length === 0) {
         loadMoreData();
     }
@@ -175,121 +152,133 @@ function InfiniteTable<TData>(props: IProps<TData>) {
     }
   }, [currentHasMore, isLoadingMore, loadMoreData]);
 
-  const onHeaderClickCallback = useCallback((colDef: ColumnDefinition<TData>): ((id: string) => void) | undefined => {
-    const raw = getRawColumnDefinition(colDef);
-    return raw.interactivity?.onHeaderClick;
-  }, [getRawColumnDefinition]);
+  const mobileFooter = useMemo(() => {
+    if (!footerRows || footerRows.length === 0) {
+      return null;
+    }
 
-  const getClickableHeaderClassName = useCallback((colDef: ColumnDefinition<TData>): string => {
-    const raw = getRawColumnDefinition(colDef);
-    return raw.interactivity?.onHeaderClick ? raw.interactivity.className || styles.clickableHeader : '';
-  }, [getRawColumnDefinition]);
-
-  const getHeaderProps = useCallback((colDef: ColumnDefinition<TData>): React.HTMLAttributes<HTMLElement> & { className?: string } => {
-    const headerProps: React.HTMLAttributes<HTMLElement> & { className?: string } = {};
-    activePlugins.forEach(plugin => {
-        if (plugin.getHeaderProps) {
-            Object.assign(headerProps, plugin.getHeaderProps(getRawColumnDefinition(colDef)));
+    // Helper to get raw column definition in this context
+    const getRaw = (colDef: ColumnDefinition<TData>) => {
+        if (typeof colDef === 'function') {
+            return processedData.length > 0 ? colDef(processedData[0], 0) : { displayLabel: '', cellRenderer: () => '' };
         }
-    });
-    return headerProps;
-  }, [activePlugins, getRawColumnDefinition]);
+        return colDef;
+    };
 
-  const rowClickFunction = onRowClick || (() => {});
-
-  const rowClickStyle = useMemo(() => onRowClick ? { cursor: 'pointer' } : {}, [onRowClick]);
-
-  const mobileView = useMemo(() => {
     return (
-        <div>
-            {currentData.map((row, rowIndex) => (
-                <div key={rowIndex} className={`${styles['card']} ${animationProps?.animateOnLoad ? styles.animatedRow : ''}`} style={{ animationDelay: `${rowIndex * 0.05}s` }} onClick={() => rowClickFunction(row)}>
-                    <div className={styles['card-body']}>
-                        {columnDefinitions.map((colDef, colIndex) => {
-                            const column = getColumnDefinition(colDef, rowIndex);
-                            return (
-                                <div key={colIndex} className={styles['card-row']}>
-                                    <p>
-                                        <span className={styles['card-label']}>{column.displayLabel}</span>
-                                        <span className={styles['card-value']}>{column.cellRenderer(row)}</span>
-                                    </p>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            ))}
-            {isLoadingMore && (infiniteScrollProps?.loadingMoreComponent || defaultLoadingComponent)}
-            {!isLoadingMore && !currentHasMore && (infiniteScrollProps?.noMoreDataComponent || defaultNoMoreDataComponent)}
+      <div className={styles.footerCard}>
+        <div className={styles['footer-card-body']}>
+          {footerRows.map((row, rowIndex) => {
+            let currentColumnIndex = 0;
+            return (
+              <div key={rowIndex}>
+                {row.columns.map((col, colIndex) => {
+                  let label = col.displayLabel;
+                  if (!label && col.colSpan === 1) {
+                    const header = columnDefinitions[currentColumnIndex];
+                    if (header) {
+                      label = getRaw(header).displayLabel;
+                    }
+                  }
+                  currentColumnIndex += col.colSpan;
+                  return (
+                    <p
+                      key={colIndex}
+                      className={`${styles['footer-card-row']} ${col.className || ''} ${
+                        col.onCellClick ? styles.clickableFooterCell : ''
+                      }`}
+                      onClick={col.onCellClick}
+                    >
+                      {label && <span className={styles['card-label']}>{label}</span>}
+                      <span className={styles['card-value']}>{col.cellRenderer()}</span>
+                    </p>
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
-    );
-  }, [currentData, animationProps, rowClickFunction, columnDefinitions, getColumnDefinition, isLoadingMore, infiniteScrollProps, defaultLoadingComponent, currentHasMore, defaultNoMoreDataComponent]);
-
-  const largeScreenView = useMemo(() => {
-    const headerClassName = maxHeight
-      ? styles.internalStickyHeader
-      : isHeaderSticky
-      ? styles.stickyHeader
-      : '';
-
-    return (
-      <div
-        ref={tableContainerRef}
-        onScroll={(e) => {
-          debouncedScrollHandler(e.currentTarget); // For sticky header
-          handleScrollForInfinite(e.currentTarget); // For infinite scroll
-        }}
-        style={{ maxHeight: maxHeight, overflowY: 'auto' }}
-      >
-        <table className={styles['responsiveTable']}>
-          <thead ref={headerRef} className={headerClassName}>
-            <tr>
-              {columnDefinitions.map((colDef, colIndex) => {
-                const rawColDef = getRawColumnDefinition(colDef);
-                const headerProps = getHeaderProps(rawColDef);
-                const onHeaderClick = onHeaderClickCallback(rawColDef);
-                const combinedClassName = `${getClickableHeaderClassName(rawColDef)} ${headerProps.className ? styles[headerProps.className] : ''}`.trim();
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const { className, ...restHeaderProps } = headerProps;
-
-                return (
-                  <th key={colIndex} className={combinedClassName} {...restHeaderProps} onClick={onHeaderClick ? () => onHeaderClick(rawColDef.interactivity!.id) : undefined}>
-                    <div className={styles.headerInnerWrapper}>
-                        <div className={styles.headerContent}>{rawColDef.displayLabel}</div>
-                        <span className={styles.sortIcon}></span>
-                    </div>
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {currentData.map((row, rowIndex) => (
-              <tr key={rowIndex} className={animationProps?.animateOnLoad ? styles.animatedRow : ''} style={{ animationDelay: `${rowIndex * 0.05}s` }}>
-                {columnDefinitions.map((colDef, colIndex) => (
-                  <td key={colIndex} onClick={() => rowClickFunction(row)} style={rowClickStyle}>
-                    {getColumnDefinition(colDef, rowIndex).cellRenderer(row)}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {isLoadingMore && (infiniteScrollProps?.loadingMoreComponent || defaultLoadingComponent)}
-        {!isLoadingMore && !currentHasMore && (infiniteScrollProps?.noMoreDataComponent || defaultNoMoreDataComponent)}
       </div>
     );
-  }, [maxHeight, isHeaderSticky, tableContainerRef, debouncedScrollHandler, handleScrollForInfinite, columnDefinitions, getRawColumnDefinition, getHeaderProps, onHeaderClickCallback, getClickableHeaderClassName, currentData, animationProps, rowClickFunction, rowClickStyle, getColumnDefinition, isLoadingMore, infiniteScrollProps, defaultLoadingComponent, currentHasMore, defaultNoMoreDataComponent]);
+  }, [footerRows, columnDefinitions, processedData]);
+
+  const renderPluginHeaders = useCallback(() => {
+    if (!activePlugins) {
+      return null;
+    }
+
+    return activePlugins.map((plugin: IResponsiveTablePlugin<TData>) => {
+      if (plugin.renderHeader) {
+        if (plugin.id === 'sort' && !isMobile) {
+          return null;
+        }
+        return <div key={plugin.id}>{plugin.renderHeader()}</div>;
+      }
+      return null;
+    });
+  }, [activePlugins, isMobile]);
+
+  const renderPluginFooters = useCallback(() => {
+    if (!plugins) {
+      return null;
+    }
+
+    return plugins.map((plugin: IResponsiveTablePlugin<TData>) => {
+      if (plugin.renderFooter) {
+        return <div key={plugin.id + '-footer'}>{plugin.renderFooter()}</div>;
+      }
+      return null;
+    });
+  }, [plugins]);
+
+  const infiniteStatusUI = (
+    <>
+      {isLoadingMore && (infiniteScrollProps?.loadingMoreComponent || defaultLoadingComponent)}
+      {!isLoadingMore && !currentHasMore && (infiniteScrollProps?.noMoreDataComponent || defaultNoMoreDataComponent)}
+    </>
+  );
 
   if (animationProps?.isLoading && !hasData) {
-    return <div>Skeleton View Placeholder</div>;
+    return <SkeletonView isMobile={isMobile} columnDefinitions={visibleColumns} />;
   }
 
   return (
-    <div>
-      {!hasData && noDataComponentNode}
-      {hasData && (isMobile ? mobileView : largeScreenView)}
-    </div>
+    <TableProvider
+      value={{
+        data: internalData,
+        processedData,
+        visibleColumns,
+        originalColumnDefinitions: columnDefinitions,
+        activePlugins,
+        onRowClick,
+        selectionProps,
+        animationProps,
+      }}
+    >
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          {renderPluginHeaders()}
+        </div>
+        {!hasData && noDataComponentNode}
+        {hasData && (isMobile ? (
+          <MobileView mobileFooter={mobileFooter} />
+        ) : (
+          <DesktopView
+            maxHeight={maxHeight}
+            isHeaderSticky={isHeaderSticky}
+            tableContainerRef={tableContainerRef}
+            headerRef={headerRef}
+            footerRows={footerRows}
+            renderPluginFooters={renderPluginFooters}
+            onScroll={(e) => {
+              debouncedScrollHandler(e.currentTarget); // For sticky header
+              handleScrollForInfinite(e.currentTarget); // For infinite scroll
+            }}
+          />
+        ))}
+        {hasData && infiniteStatusUI}
+      </div>
+    </TableProvider>
   );
 }
 

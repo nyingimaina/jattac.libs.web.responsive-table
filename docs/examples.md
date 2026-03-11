@@ -1,0 +1,206 @@
+# Technical Implementation Guide
+## Implementation Patterns for the ResponsiveTable Component
+
+This guide details standard implementation patterns for the ResponsiveTable component, ordered by increasing complexity. Each section contains a production-ready example designed for integration into enterprise applications.
+
+## Table of Contents
+*   [Standard Tabular Implementation](#1-standard-tabular-implementation)
+*   [Implementing Sortable Columns](#2-implementing-sortable-columns)
+*   [Asynchronous Data Filtering](#3-asynchronous-data-filtering)
+*   [Row Selection Mechanisms](#4-row-selection-mechanisms)
+*   [Navigation and Master-Detail Patterns](#5-navigation-and-master-detail-patterns)
+*   [Programmatic Column Visibility Management](#6-programmatic-column-visibility-management)
+*   [Automated Footer Scaling Logic](#7-automated-footer-scaling-logic)
+*   [High-Volume Data: Asynchronous Infinite Scroll](#8-high-volume-data-asynchronous-infinite-scroll)
+*   [Internal Plugin Development](#9-internal-plugin-development)
+
+---
+
+[← Return to Overview](../README.md)
+
+### 1. Standard Tabular Implementation
+A baseline implementation for displaying structured data. The component will automatically transition to a card-based layout when the viewport width is less than 600px.
+
+```tsx
+import ResponsiveTable from 'jattac.libs.web.responsive-table';
+
+const data = [
+  { id: 1, name: 'Administrative User', role: 'Administrator' },
+  { id: 2, name: 'Standard User', role: 'User' },
+];
+
+const columns = [
+  { displayLabel: 'User Name', cellRenderer: (row) => row.name },
+  { displayLabel: 'Assigned Role', cellRenderer: (row) => row.role },
+];
+
+export const BasicTable = () => (
+  <ResponsiveTable data={data} columnDefinitions={columns} />
+);
+```
+
+### 2. Implementing Sortable Columns
+Enable sorting by defining a unique `columnId` and an associated sorting strategy via `getSortableValue` or a custom `sortComparer`.
+
+```tsx
+const columns = [
+  { 
+    columnId: 'name', 
+    displayLabel: 'Name', 
+    cellRenderer: (row) => row.name,
+    getSortableValue: (row) => row.name // Lexicographical sort
+  },
+  { 
+    columnId: 'date', 
+    displayLabel: 'Registration Date', 
+    cellRenderer: (row) => row.date.toLocaleDateString(),
+    sortComparer: (a, b, dir) => { // Chronological sort implementation
+      const diff = a.date.getTime() - b.date.getTime();
+      return dir === 'asc' ? diff : -diff;
+    }
+  },
+];
+```
+
+### 3. Asynchronous Data Filtering
+Implement client-side data filtering by providing the `filterProps` configuration object.
+
+```tsx
+const columns = [
+  { 
+    displayLabel: 'Name', 
+    cellRenderer: (row) => row.name,
+    getFilterableValue: (row) => row.name // Search target definition
+  },
+];
+
+<ResponsiveTable 
+  data={data} 
+  columnDefinitions={columns} 
+  filterProps={{ showFilter: true, filterPlaceholder: 'Filter by name...' }} 
+/>
+```
+
+### 4. Row Selection Mechanisms
+The component supports persistent row selection in both single and multiple selection modes. State is maintained across re-renders via internal plugin orchestration.
+
+```tsx
+<ResponsiveTable 
+  data={data} 
+  columnDefinitions={columns} 
+  selectionProps={{
+    mode: 'multiple',
+    rowIdKey: 'id',
+    onSelectionChange: (items) => console.info('Current Selection:', items)
+  }} 
+/>
+```
+
+### 5. Navigation and Master-Detail Patterns
+The `onRowClick` callback allows for the implementation of navigation patterns or detailed data inspection.
+
+```tsx
+<ResponsiveTable 
+  data={data} 
+  columnDefinitions={columns} 
+  onRowClick={(row) => navigateToDetail(row.id)} 
+/>
+```
+
+### 6. Programmatic Column Visibility Management
+Toggle column visibility dynamically. The component will automatically adjust the layout to reflect changes in the visible column set.
+
+```tsx
+const [isRoleVisible, setIsRoleVisible] = useState(false);
+
+const columns = [
+  { displayLabel: 'User Name', cellRenderer: (row) => row.name },
+  { 
+    displayLabel: 'Assigned Role', 
+    cellRenderer: (row) => row.role,
+    visible: isRoleVisible // State-driven visibility
+  },
+];
+```
+
+### 7. Automated Footer Scaling Logic
+When columns are programmatically hidden, the component automatically recalculates the `colSpan` of defined footer cells to maintain structural integrity.
+
+```tsx
+const footerRows = [
+  {
+    columns: [
+      { colSpan: 2, cellRenderer: () => <strong>Aggregate Totals</strong> },
+      { colSpan: 1, cellRenderer: () => <span>Count: {data.length}</span> },
+    ]
+  }
+];
+
+<ResponsiveTable 
+  data={data} 
+  columnDefinitions={columns} 
+  footerRows={footerRows} 
+/>
+```
+
+### 8. High-Volume Data: Smart Data Source (Infinite Scroll)
+For datasets that exceed standard memory constraints, the `dataSource` pattern allows for seamless incremental data fetching during vertical scrolling. The table manages page tracking, data concatenation, and loading states automatically.
+
+#### The Painless Implementation
+Provide a single async function that returns the next batch of data.
+
+```tsx
+import ResponsiveTable from 'jattac.libs.web.responsive-table';
+
+export const InfiniteUserTable = () => {
+  const fetchUsers = async ({ page, pageSize, sort, filter }) => {
+    // Forward table state directly to your API
+    const response = await api.users.get({ 
+      page, 
+      limit: pageSize,
+      search: filter,
+      sortBy: sort?.columnId 
+    });
+    
+    // Return items; table detects EOF automatically if items.length < pageSize
+    return response.items; 
+  };
+
+  return (
+    <ResponsiveTable
+      dataSource={fetchUsers}
+      pageSize={20}
+      columnDefinitions={columns}
+      animationProps={{ animateOnLoad: true }}
+    />
+  );
+};
+```
+
+---
+
+### 9. Internal Plugin Development
+Extend the functional capabilities of the component by implementing the `IResponsiveTablePlugin` interface.
+
+```tsx
+import { IResponsiveTablePlugin } from 'jattac.libs.web.responsive-table';
+
+class CustomStylingPlugin<TData> implements IResponsiveTablePlugin<TData> {
+  public id = 'status-styler';
+
+  public getRowProps = (row: any) => {
+    if (row.isActive) return { className: 'row-active' };
+    return { className: 'row-inactive' };
+  };
+}
+
+// Integration
+<ResponsiveTable 
+  data={data} 
+  columnDefinitions={columns} 
+  plugins={[new CustomStylingPlugin()]} 
+/>
+```
+
+---
+**Previous:** [Overview](../README.md) | **Next:** [Functional Capabilities](./features.md)

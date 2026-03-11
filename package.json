@@ -1,34 +1,70 @@
 {
   "name": "jattac.libs.web.responsive-table",
-  "version": "0.7.6",
+  "version": "0.8.4",
   "description": "A fully responsive, customizable, and lightweight React table component with a modern, mobile-first design and a powerful plugin system.",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
-  "types": "dist/index.d.ts",
+  "author": {
+    "name": "Nyingi Maina",
+    "email": "nyingi@jattac.com"
+  },
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.js"
+    },
+    "./dist/*.css": "./dist/*.css"
+  },
   "files": [
-    "dist"
+    "dist",
+    "docs",
+    "README.md",
+    "LICENSE"
   ],
+  "sideEffects": [
+    "**/*.css",
+    "**/*.scss"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://nyingi.visualstudio.com/DefaultCollection/Jattac.Libs.Web.ResponsiveTable/_git/Jattac.Libs.Web.ResponsiveTable"
+  },
+  "bugs": {
+    "url": "https://nyingi.visualstudio.com/DefaultCollection/Jattac.Libs.Web.ResponsiveTable/_workitems"
+  },
+  "homepage": "https://nyingi.visualstudio.com/DefaultCollection/Jattac.Libs.Web.ResponsiveTable/_git/Jattac.Libs.Web.ResponsiveTable#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
+    "dev": "rollup -c -w",
     "build": "rollup -c",
-    "watch": "rollup -c -w",
-    "lint": "eslint \"./{src,app}/**/*.{ts,tsx}\"",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,md}\"",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "size": "size-limit",
-    "prepare": "npm run build"
+    "type-check": "tsc --noEmit",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run type-check && npm run lint && npm test"
   },
   "keywords": [
     "react",
     "typescript",
     "table",
+    "datagrid",
     "responsive",
-    "component"
+    "mobile-first",
+    "infinite-scroll",
+    "plugin-system"
   ],
-  "author": "Nyingi Maina",
-  "license": "MIT",
   "peerDependencies": {
     "react": ">=18.2.0",
-    "react-dom": ">=18.2.0",
-    "typescript": ">=3.7.0"
+    "react-dom": ">=18.2.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",

@@ -63,9 +63,13 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
     });
   };
 
-  public renderCell = (content: React.ReactNode, _row: TData, _column: IResponsiveTableColumnDefinition<TData>): React.ReactNode => {
-    // Workaround to satisfy linter for unused parameters
-    console.log(_row, _column);
+  public renderCell = (
+    content: React.ReactNode,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _row: TData,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _column: IResponsiveTableColumnDefinition<TData>
+  ): React.ReactNode => {
     if (!this.filterText || typeof content !== 'string') {
       return content;
     }

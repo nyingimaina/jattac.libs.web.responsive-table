@@ -1,9 +1,16 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { ReactNode, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { IResponsiveTablePlugin, IPluginAPI } from '../Plugins/IResponsiveTablePlugin';
 import { FilterPlugin } from '../Plugins/FilterPlugin';
 import { SelectionPlugin } from '../Plugins/SelectionPlugin';
 import { SortPlugin } from '../Plugins/SortPlugin';
 import { IResponsiveTableColumnDefinition, SortDirection } from '../Data/IResponsiveTableColumnDefinition';
+
+interface IInfiniteScrollProps<TData> {
+  onLoadMore: (currentData: TData[]) => Promise<TData[] | null>;
+  hasMore?: boolean;
+  loadingMoreComponent?: ReactNode;
+  noMoreDataComponent?: ReactNode;
+}
 
 interface UseTablePluginsProps<TData> {
   data: TData[];
@@ -25,12 +32,13 @@ interface UseTablePluginsProps<TData> {
   };
   columnDefinitions: (IResponsiveTableColumnDefinition<TData> | ((data: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>))[];
   getScrollableElement: () => HTMLElement | null;
-  infiniteScrollProps?: any; // TODO: Define proper type for IInfiniteScrollProps
+  infiniteScrollProps?: IInfiniteScrollProps<TData>;
 }
 
 interface UseTablePluginsReturn<TData> {
   processedData: TData[];
   activePlugins: IResponsiveTablePlugin<TData>[];
+  visibleColumns: (IResponsiveTableColumnDefinition<TData> | ((data: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>))[];
   forceUpdatePlugins: () => void;
 }
 
@@ -48,35 +56,35 @@ export const useTablePlugins = <TData>(props: UseTablePluginsProps<TData>): UseT
 
   const [processedData, setProcessedData] = useState<TData[]>(data);
   const [activePlugins, setActivePlugins] = useState<IResponsiveTablePlugin<TData>[]>([]);
+  
+  // Persist internal plugins using refs to prevent state loss
   const filterPluginRef = useRef<FilterPlugin<TData> | null>(null);
+  const selectionPluginRef = useRef<SelectionPlugin<TData> | null>(null);
+  const sortPluginRef = useRef<SortPlugin<TData> | null>(null);
 
-  // Memoize getRawColumnDefinition to avoid re-creation
   const getRawColumnDefinition = useCallback((columnDefinition: IResponsiveTableColumnDefinition<TData> | ((data: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>)): IResponsiveTableColumnDefinition<TData> => {
     if (typeof columnDefinition === 'function') {
-      // This is a simplified version for plugin initialization context.
-      // In actual rendering, it would use real data.
       return columnDefinition(data[0] || {} as TData, 0); 
     }
     return columnDefinition;
   }, [data]);
 
-  const processData = useCallback((currentData: TData[], currentActivePlugins: IResponsiveTablePlugin<TData>[]): TData[] => {
-    let processed = [...currentData];
-    currentActivePlugins.forEach((plugin) => {
-      if (plugin.processData) {
-        processed = plugin.processData(processed);
-      }
+  const visibleColumns = useMemo(() => {
+    return columnDefinitions.filter(col => {
+      const raw = getRawColumnDefinition(col);
+      return raw.visible !== false;
     });
-    return processed;
-  }, []);
+  }, [columnDefinitions, getRawColumnDefinition]);
 
   const initializePlugins = useCallback(() => {
     const newActivePlugins: IResponsiveTablePlugin<TData>[] = [];
 
+    // 1. Add external plugins
     if (plugins) {
       newActivePlugins.push(...plugins);
     }
 
+    // 2. Manage internal FilterPlugin
     if (filterProps?.showFilter) {
       if (!filterPluginRef.current) {
         filterPluginRef.current = new FilterPlugin();
@@ -88,17 +96,33 @@ export const useTablePlugins = <TData>(props: UseTablePluginsProps<TData>): UseT
       filterPluginRef.current = null;
     }
 
-    if (selectionProps?.onSelectionChange && !newActivePlugins.some(p => p.id === 'selection')) {
-      newActivePlugins.push(new SelectionPlugin());
+    // 3. Manage internal SelectionPlugin
+    if (selectionProps?.onSelectionChange) {
+      if (!selectionPluginRef.current) {
+        selectionPluginRef.current = new SelectionPlugin();
+      }
+      if (!newActivePlugins.some(p => p.id === 'selection')) {
+        newActivePlugins.push(selectionPluginRef.current);
+      }
+    } else {
+      selectionPluginRef.current = null;
     }
 
+    // 4. Manage internal SortPlugin
     const isAnyColumnSortable = columnDefinitions.some(col => {
         const rawCol = getRawColumnDefinition(col);
         return rawCol.sortComparer || rawCol.getSortableValue;
     });
 
-    if (isAnyColumnSortable && !newActivePlugins.some(p => p.id === 'sort')) {
-        newActivePlugins.push(new SortPlugin(sortProps));
+    if (isAnyColumnSortable) {
+      if (!sortPluginRef.current) {
+        sortPluginRef.current = new SortPlugin(sortProps);
+      }
+      if (!newActivePlugins.some(p => p.id === 'sort')) {
+        newActivePlugins.push(sortPluginRef.current);
+      }
+    } else {
+      sortPluginRef.current = null;
     }
 
     setActivePlugins(newActivePlugins);
@@ -113,13 +137,22 @@ export const useTablePlugins = <TData>(props: UseTablePluginsProps<TData>): UseT
         columnDefinitions: columnDefinitions,
     };
 
+    // Initialize/Refresh all active plugins with the current API
     newActivePlugins.forEach((plugin) => {
       if (plugin.onPluginInit) {
         plugin.onPluginInit(api);
       }
     });
 
-    return processData(data, newActivePlugins);
+    // Run the data processing pipeline
+    let currentProcessedData = [...data];
+    newActivePlugins.forEach((plugin) => {
+      if (plugin.processData) {
+        currentProcessedData = plugin.processData(currentProcessedData);
+      }
+    });
+
+    return currentProcessedData;
   }, [
     data,
     plugins,
@@ -129,7 +162,6 @@ export const useTablePlugins = <TData>(props: UseTablePluginsProps<TData>): UseT
     columnDefinitions,
     getScrollableElement,
     infiniteScrollProps,
-    processData,
     getRawColumnDefinition,
   ]);
 
@@ -137,18 +169,10 @@ export const useTablePlugins = <TData>(props: UseTablePluginsProps<TData>): UseT
     setProcessedData(initializePlugins());
   }, [initializePlugins]);
 
+  // Handle re-initialization when props change
   useEffect(() => {
-    forceUpdatePlugins();
-  }, [
-    data,
-    plugins,
-    filterProps,
-    selectionProps,
-    sortProps,
-    columnDefinitions,
-    infiniteScrollProps,
-    forceUpdatePlugins,
-  ]);
+    setProcessedData(initializePlugins());
+  }, [initializePlugins]);
 
-  return { processedData, activePlugins, forceUpdatePlugins };
+  return { processedData, activePlugins, visibleColumns, forceUpdatePlugins };
 };

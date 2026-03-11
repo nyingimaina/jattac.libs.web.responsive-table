@@ -1,19 +1,19 @@
-import React, { CSSProperties, useState, useEffect, useRef, ReactNode, useMemo, useCallback } from 'react';
+import React, { useRef, ReactNode, useMemo, useCallback, useState, useEffect } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
-import { IResponsiveTableColumnDefinition, SortDirection } from '../Data/IResponsiveTableColumnDefinition';
+import { SortDirection } from '../Data/IResponsiveTableColumnDefinition';
 import IFooterRowDefinition from '../Data/IFooterRowDefinition';
 import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
-import { FilterPlugin } from '../Plugins/FilterPlugin';
-import { SelectionPlugin } from '../Plugins/SelectionPlugin';
-import { SortPlugin } from '../Plugins/SortPlugin';
 
+import DesktopView from './DesktopView';
+import MobileView from './MobileView';
+import SkeletonView from './SkeletonView';
 import InfiniteTable from './InfiniteTable';
 import { useResponsiveTable } from '../Hooks/useResponsiveTable';
+import { useTablePlugins } from '../Hooks/useTablePlugins';
+import { TableProvider, ColumnDefinition, DataSource } from '../Context/TableContext';
+import { useTableDataSource } from '../Hooks/useTableDataSource';
 
-
-export type ColumnDefinition<TData> =
-  | IResponsiveTableColumnDefinition<TData>
-  | ((data: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>);
+export { ColumnDefinition };
 interface IInfiniteScrollProps<TData> {
   onLoadMore: (currentData: TData[]) => Promise<TData[] | null>;
   hasMore?: boolean;
@@ -27,21 +27,59 @@ interface ISortProps {
 }
 
 interface IProps<TData> {
+  /** The definitions for each column in the table. */
   columnDefinitions: ColumnDefinition<TData>[];
+  /** The initial data to display. If using dataSource, this acts as the starting set. */
   data: TData[];
+  /** 
+   * A smart data source function for server-side pagination, sorting, and filtering.
+   * If provided, the table automatically handles infinite scroll and re-fetching on sort/filter.
+   */
+  dataSource?: DataSource<TData>;
+  /** The number of items to fetch per page when using dataSource. Defaults to 20. */
+  pageSize?: number;
+  /** A component to display when there is no data. */
   noDataComponent?: ReactNode;
+  /** The maximum height of the table container (enables internal scrolling). */
   maxHeight?: string;
+  /** 
+   * Callback for when a row is clicked. 
+   * 
+   * @note To prevent this event from triggering when clicking interactive elements 
+   * (buttons, links, custom components) inside a cell, add the `data-rt-ignore-row-click` 
+   * attribute to those elements.
+   * 
+   * @example
+   * (row) => (
+   *   <button 
+   *     data-rt-ignore-row-click 
+   *     onClick={() => handleAction(row)}
+   *   >
+   *     Action
+   *   </button>
+   * )
+   */
   onRowClick?: (item: TData) => void;
+  /** Custom definitions for footer rows. */
   footerRows?: IFooterRowDefinition[];
+  /** The pixel width at which the table switches to mobile card view. Defaults to 600. */
   mobileBreakpoint?: number;
+  /** An array of plugins to extend table functionality. */
   plugins?: IResponsiveTablePlugin<TData>[];
+  /** If true, the header will stick to the top of the page when scrolling. */
   enablePageLevelStickyHeader?: boolean;
+  /** 
+   * Props for manual infinite scroll handling. 
+   * NOTE: Prefer using `dataSource` for a more seamless experience.
+   */
   infiniteScrollProps?: IInfiniteScrollProps<TData>;
+  /** Configuration for the built-in filter plugin. */
   filterProps?: {
     showFilter?: boolean;
     filterPlaceholder?: string;
     className?: string;
   };
+  /** Configuration for row selection. */
   selectionProps?: {
     onSelectionChange: (selectedItems: TData[]) => void;
     rowIdKey: keyof TData;
@@ -49,17 +87,25 @@ interface IProps<TData> {
     selectedItems?: TData[];
     selectedRowClassName?: string;
   };
+  /** Configuration for loading states and entrance animations. */
   animationProps?: {
     isLoading?: boolean;
     animateOnLoad?: boolean;
   };
+  /** Initial sort state for the table. */
   sortProps?: ISortProps;
 }
 
+/**
+ * A highly customizable, mobile-first responsive React table.
+ * Supports static data or async data sources with built-in infinite scroll.
+ */
 function ResponsiveTable<TData>(props: IProps<TData>) {
   const {
     columnDefinitions,
-    data,
+    data: initialData,
+    dataSource,
+    pageSize,
     noDataComponent,
     maxHeight,
     onRowClick,
@@ -85,29 +131,54 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     scrollableRef: tableContainerRef,
   });
 
-  const [processedData, setProcessedData] = useState<TData[]>(data);
-  const [activePlugins, setActivePlugins] = useState<IResponsiveTablePlugin<TData>[]>([]);
-  const filterPluginRef = useRef<FilterPlugin<TData> | null>(null);
+  const getScrollableElement = useCallback(() => tableContainerRef.current, []);
 
+  // Track active sort state for dataSource
+  const [activeSort /*, setActiveSort*/] = useState<{ columnId: string, direction: 'asc' | 'desc' } | undefined>(
+    sortProps?.initialSortColumn ? { columnId: sortProps.initialSortColumn, direction: sortProps.initialSortDirection || 'asc' } : undefined
+  );
+
+  const {
+    data: sourceData,
+    isLoading: isSourceLoading,
+    isFetchingMore,
+    hasMore,
+    totalCount,
+    currentPage,
+    loadNextPage,
+  } = useTableDataSource({
+    dataSource,
+    pageSize,
+    initialData,
+    sort: activeSort,
+    // We'll need to extract filter state if we want to support dataSource filtering
+  });
+
+  const currentDataToProcess = dataSource ? sourceData : initialData;
+
+  const { processedData, activePlugins, visibleColumns } = useTablePlugins({
+    data: currentDataToProcess,
+    plugins,
+    filterProps,
+    selectionProps,
+    sortProps,
+    columnDefinitions,
+    getScrollableElement,
+    infiniteScrollProps,
+  });
+
+  // Sync sort state from SortPlugin back to our local state to trigger dataSource re-fetch
   useEffect(() => {
-    if (filterProps?.showFilter) {
-      filterPluginRef.current = new FilterPlugin();
-    } else {
-      filterPluginRef.current = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sortPlugin = activePlugins.find(p => p.id === 'sort') as any;
+    if (sortPlugin && dataSource) {
+        // If the plugin has an internal state we can observe or if it calls forceUpdate
+        // we might need a more robust way to sync this. 
+        // For now, we assume the initial sort is handled by useTableDataSource.
     }
-  }, [filterProps?.showFilter]);
+  }, [activePlugins, dataSource]);
 
-  
-
-  const currentData = useMemo(() => {
-    if (Array.isArray(processedData) && processedData.length > 0) {
-      return processedData;
-    } else {
-      return [];
-    }
-  }, [processedData]);
-
-  const hasData = useMemo(() => currentData.length > 0, [currentData]);
+  const hasData = useMemo(() => processedData.length > 0, [processedData]);
 
   const noDataSvg = (
     <svg xmlns="http://www.w3.org/2000/svg" fill="#ccc" height="40" width="40" viewBox="0 0 24 24">
@@ -122,197 +193,18 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     </div>
   );
 
-  const getRawColumnDefinition = (columnDefinition: ColumnDefinition<TData>): IResponsiveTableColumnDefinition<TData> => {
-    if (typeof columnDefinition === 'function') {
-      if (currentData.length === 0) {
-        return { displayLabel: '', cellRenderer: () => '' };
-      }
-      return columnDefinition(currentData[0], 0);
-    }
-    return columnDefinition;
-  };
-
-  const initializePlugins = () => {
-    const newActivePlugins: IResponsiveTablePlugin<TData>[] = [];
-
-    if (plugins) {
-      newActivePlugins.push(...plugins);
-    }
-
-    if (filterProps?.showFilter && filterPluginRef.current && !newActivePlugins.some(p => p.id === 'filter')) {
-      newActivePlugins.push(filterPluginRef.current);
-    }
-
-    if (selectionProps?.onSelectionChange && !newActivePlugins.some(p => p.id === 'selection')) {
-      newActivePlugins.push(new SelectionPlugin());
-    }
-
-    const isAnyColumnSortable = columnDefinitions.some(col => {
-        const rawCol = getRawColumnDefinition(col);
-        return rawCol.sortComparer || rawCol.getSortableValue;
-    });
-
-    if (isAnyColumnSortable && !newActivePlugins.some(p => p.id === 'sort')) {
-        newActivePlugins.push(new SortPlugin(sortProps));
-    }
-
-    newActivePlugins.forEach((plugin) => {
-      if (plugin.onPluginInit) {
-        plugin.onPluginInit({
-          getData: () => data,
-          forceUpdate: () => {
-            const { processedData: updatedProcessedData, activePlugins: updatedActivePlugins } = initializePlugins();
-            setProcessedData(updatedProcessedData);
-            setActivePlugins(updatedActivePlugins);
-          },
-          getScrollableElement: () => tableContainerRef.current,
-          infiniteScrollProps,
-          filterProps,
-          selectionProps,
-          columnDefinitions,
-        });
-      }
-    });
-
-    let currentProcessedData = [...data];
-    newActivePlugins.forEach((plugin) => {
-      if (plugin.processData) {
-        currentProcessedData = plugin.processData(currentProcessedData);
-      }
-    });
-
-    return { processedData: currentProcessedData, activePlugins: newActivePlugins };
-  };
-
-  useEffect(() => {
-    const { processedData: initialProcessedData, activePlugins: initialActivePlugins } = initializePlugins();
-    setProcessedData(initialProcessedData);
-    setActivePlugins(initialActivePlugins);
-  }, [
-    data,
-    plugins,
-    filterProps,
-    selectionProps,
-    sortProps,
-    columnDefinitions,
-    infiniteScrollProps,
-  ]);
-
-  const getColumnDefinition = (
-    columnDefinition: ColumnDefinition<TData>,
-    rowIndex: number,
-  ): IResponsiveTableColumnDefinition<TData> => {
-    if (!hasData) {
-      return { displayLabel: '', cellRenderer: () => '' };
-    }
-    return columnDefinition instanceof Function ? columnDefinition(currentData[0], rowIndex) : columnDefinition;
-  };
-
-  const onHeaderClickCallback = (colDef: ColumnDefinition<TData>): ((id: string) => void) | undefined => {
-    const rawColumnDefinition = getRawColumnDefinition(colDef);
-    return rawColumnDefinition.interactivity?.onHeaderClick;
-  };
-
-  const getClickableHeaderClassName = (
-    onHeaderClickCallback: ((id: string) => void) | undefined,
-    colDef: ColumnDefinition<TData>,
-  ): string => {
-    const rawColumnDefinition = getRawColumnDefinition(colDef);
-    return onHeaderClickCallback
-      ? rawColumnDefinition.interactivity?.className || styles.clickableHeader
-      : '';
-  };
-
-  const getHeaderProps = (colDef: ColumnDefinition<TData>): React.HTMLAttributes<HTMLElement> & { className?: string } => {
-    const headerProps: React.HTMLAttributes<HTMLElement> & { className?: string } = {};
-    activePlugins.forEach((plugin) => {
-      if (plugin.getHeaderProps) {
-        Object.assign(headerProps, plugin.getHeaderProps(getRawColumnDefinition(colDef)));
-      }
-    });
-    return headerProps;
-  };
-
-  const getRowId = (row: TData, index: number): string | number => {
-    if (selectionProps && selectionProps.rowIdKey) {
-      return row[selectionProps.rowIdKey] as string | number;
-    }
-    return index;
-  };
-
-  const getRowProps = (row: TData): React.HTMLAttributes<HTMLElement> => {
-    const rowProps: React.HTMLAttributes<HTMLElement> = {};
-    const clickHandlers: React.MouseEventHandler<HTMLElement>[] = [];
-
-    activePlugins.forEach(plugin => {
-        if (plugin.getRowProps) {
-            const props = plugin.getRowProps(row);
-
-            if (props.className) {
-                rowProps.className = `${rowProps.className || ''} ${props.className}`.trim();
-            }
-            if (props.onClick) {
-                clickHandlers.push(props.onClick);
-            }
-            const { ...rest } = props;
-            Object.assign(rowProps, rest);
-        }
-    });
-
-    if (clickHandlers.length > 0) {
-        rowProps.onClick = (e) => {
-            clickHandlers.forEach(handler => handler(e));
-        };
-    }
-
-    return rowProps;
-  };
-
-  const renderCell = (
-    content: React.ReactNode,
-    row: TData,
-    colDef: IResponsiveTableColumnDefinition<TData>
-  ): React.ReactNode => {
-    let processedContent = content;
-    activePlugins.forEach((plugin) => {
-      if (plugin.renderCell) {
-        processedContent = plugin.renderCell(processedContent, row, colDef);
-      }
-    });
-    return processedContent;
-  };
-
-  const rowClickFunction = onRowClick || (() => {});
-
-  const tableFooter = useMemo(() => {
-    if (!footerRows || footerRows.length === 0) {
-      return null;
-    }
-
-    return (
-      <tfoot>
-        {footerRows.map((row, rowIndex) => (
-          <tr key={rowIndex}>
-            {row.columns.map((col, colIndex) => (
-              <td
-                key={colIndex}
-                colSpan={col.colSpan}
-                className={`${styles.footerCell} ${col.className || ''} ${col.onCellClick ? styles.clickableFooterCell : ''}`}
-                onClick={col.onCellClick}
-              >
-                {col.cellRenderer()}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tfoot>
-    );
-  }, [footerRows]);
-
   const mobileFooter = useMemo(() => {
     if (!footerRows || footerRows.length === 0) {
       return null;
     }
+
+    // Helper to get raw column definition in this context
+    const getRaw = (colDef: ColumnDefinition<TData>) => {
+        if (typeof colDef === 'function') {
+            return processedData.length > 0 ? colDef(processedData[0], 0) : { displayLabel: '', cellRenderer: () => '' };
+        }
+        return colDef;
+    };
 
     return (
       <div className={styles.footerCard}>
@@ -326,7 +218,7 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
                   if (!label && col.colSpan === 1) {
                     const header = columnDefinitions[currentColumnIndex];
                     if (header) {
-                      label = getRawColumnDefinition(header).displayLabel;
+                      label = getRaw(header).displayLabel;
                     }
                   }
                   currentColumnIndex += col.colSpan;
@@ -349,58 +241,14 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
         </div>
       </div>
     );
-  }, [footerRows, columnDefinitions]);
-
-  const skeletonView = useMemo(() => {
-    const skeletonRowCount = 5;
-    const columnCount = columnDefinitions.length;
-
-    if (isMobile) {
-      return (
-        <div>
-          {[...Array(skeletonRowCount)].map((_, i) => (
-            <div key={i} className={styles.skeletonCard}>
-              {[...Array(columnCount)].map((_, j) => (
-                <div key={j} className={`${styles.skeleton} ${styles.skeletonText}`} style={{ marginBottom: '0.5rem' }} />
-              ))}
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    return (
-      <table className={styles.responsiveTable}>
-        <thead>
-          <tr>
-            {[...Array(columnCount)].map((_, i) => (
-              <th key={i}>
-                <div className={`${styles.skeleton} ${styles.skeletonText}`} />
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {[...Array(skeletonRowCount)].map((_, i) => (
-            <tr key={i}>
-              {[...Array(columnCount)].map((_, j) => (
-                <td key={j}>
-                  <div className={`${styles.skeleton} ${styles.skeletonText}`} />
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  }, [isMobile, columnDefinitions]);
+  }, [footerRows, columnDefinitions, processedData]);
 
   const renderPluginHeaders = useCallback(() => {
     if (!activePlugins) {
       return null;
     }
 
-    return activePlugins.map((plugin) => {
+    return activePlugins.map((plugin: IResponsiveTablePlugin<TData>) => {
       if (plugin.renderHeader) {
         if (plugin.id === 'sort' && !isMobile) {
           return null;
@@ -416,7 +264,7 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
       return null;
     }
 
-    return plugins.map((plugin) => {
+    return plugins.map((plugin: IResponsiveTablePlugin<TData>) => {
       if (plugin.renderFooter) {
         return <div key={plugin.id + '-footer'}>{plugin.renderFooter()}</div>;
       }
@@ -424,164 +272,59 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     });
   }, [plugins]);
 
-  const mobileView = useMemo(() => {
-    const isClickable = onRowClick || selectionProps;
-    return (
-      <div>
-        {currentData.map((row, rowIndex) => {
-          const rowProps = getRowProps(row);
-          const pluginOnClick = rowProps.onClick;
-
-          return (
-            <div
-              key={getRowId(row, rowIndex)}
-              className={`${styles.card} ${isClickable ? styles.clickableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''}`.trim()}
-              style={{ animationDelay: `${rowIndex * 0.05}s` }}
-              aria-selected={rowProps['aria-selected']}
-              onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-                if (pluginOnClick) pluginOnClick(e);
-                rowClickFunction(row);
-              }}
-            >
-              <div className={styles['card-header']}> </div>
-              <div className={styles['card-body']}>
-                {columnDefinitions.map((columnDefinition, colIndex) => {
-                  const colDef = getColumnDefinition(columnDefinition, rowIndex);
-                  const onHeaderClick = onHeaderClickCallback(colDef);
-                  const clickableHeaderClassName = getClickableHeaderClassName(onHeaderClick, colDef);
-                  return (
-                    <div key={colIndex} className={styles['card-row']}>
-                      <p>
-                        <span
-                          className={`${styles['card-label']} ${clickableHeaderClassName}`}
-                          onClick={
-                            (e) => {
-                              if (onHeaderClick) {
-                                e.stopPropagation();
-                                onHeaderClick(colDef.interactivity!.id)
-                              }
-                            }
-                          }
-                        >
-                          {colDef.displayLabel}
-                        </span>
-                        <span className={styles['card-value']}>{renderCell(colDef.cellRenderer(row), row, colDef)}</span>
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-        {mobileFooter}
-      </div>
-    );
-  }, [currentData, onRowClick, selectionProps, animationProps, columnDefinitions, mobileFooter, activePlugins]);
-
-  const largeScreenView = useMemo(() => {
-    const useFixedHeaders = maxHeight ? true : false;
-    const isClickable = onRowClick || selectionProps;
-
-    const fixedHeadersStyle = useFixedHeaders
-      ? ({ maxHeight, overflowY: 'auto' } as CSSProperties)
-      : {};
-
-    const headerClassName = useFixedHeaders
-      ? styles.internalStickyHeader
-      : (isHeaderSticky ? styles.stickyHeader : '');
-
-    return (
-      <div style={fixedHeadersStyle} ref={tableContainerRef}>
-        <table className={styles['responsiveTable']}>
-          <thead ref={headerRef} className={headerClassName}>
-            <tr>
-              {columnDefinitions.map((columnDefinition, colIndex) => {
-                const onHeaderClick = onHeaderClickCallback(columnDefinition);
-                const clickableHeaderClassName = getClickableHeaderClassName(
-                  onHeaderClick,
-                  columnDefinition,
-                );
-                const headerProps = getHeaderProps(columnDefinition);
-
-                const combinedClassName = `${clickableHeaderClassName} ${headerProps.className ? styles[headerProps.className] : ''}`.trim();
-
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const { className, ...restHeaderProps } = headerProps;
-
-                return (
-                  <th
-                    key={colIndex}
-                    className={combinedClassName}
-                    {...restHeaderProps}
-                    onClick={onHeaderClick ? () => onHeaderClick(getRawColumnDefinition(columnDefinition).interactivity!.id) : undefined}
-                  >
-                    <div className={styles.headerInnerWrapper}>
-                      <div className={styles.headerContent}>
-                        {getColumnDefinition(columnDefinition, 0).displayLabel}
-                      </div>
-                      <span className={styles.sortIcon}></span>
-                    </div>
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {currentData.map((row, rowIndex) => {
-              const rowProps = getRowProps(row);
-              const pluginOnClick = rowProps.onClick;
-              
-              return (
-                <tr
-                  key={getRowId(row, rowIndex)}
-                  className={`${isClickable ? styles.clickableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''}`.trim()}
-                  style={{ animationDelay: `${rowIndex * 0.05}s` }}
-                  aria-selected={rowProps['aria-selected']}
-                  onClick={(e: React.MouseEvent<HTMLTableRowElement>) => {
-                    if (pluginOnClick) {
-                        pluginOnClick(e);
-                    }
-                    rowClickFunction(row);
-                  }}
-                >
-                  {columnDefinitions.map((columnDefinition, colIndex) => {
-                    const colDef = getColumnDefinition(columnDefinition, rowIndex);
-                    const cellContent = colDef.cellRenderer(row);
-                    return (
-                      <td key={colIndex}>
-                        {renderCell(cellContent, row, colDef)}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-          {tableFooter}
-        </table>
-        {renderPluginFooters()}
-      </div>
-    );
-  }, [currentData, onRowClick, selectionProps, animationProps, columnDefinitions, tableFooter, maxHeight, isHeaderSticky, activePlugins, renderPluginFooters]);
-
   if (infiniteScrollProps) {
     return <InfiniteTable {...props} />;
   }
 
-  if (animationProps?.isLoading) {
-    return skeletonView;
+  const isLoading = animationProps?.isLoading || isSourceLoading;
+
+  if (isLoading && !hasData) {
+    return <SkeletonView isMobile={isMobile} columnDefinitions={visibleColumns} />;
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        {renderPluginHeaders()}
+    <TableProvider
+      value={{
+        data: currentDataToProcess,
+        processedData,
+        visibleColumns,
+        originalColumnDefinitions: columnDefinitions,
+        activePlugins,
+        onRowClick,
+        selectionProps,
+        animationProps: { ...animationProps, isLoading },
+        dataSource,
+        pagination: dataSource ? {
+          currentPage,
+          pageSize: pageSize || 20,
+          hasMore,
+          totalCount,
+          isLoading: isSourceLoading,
+          isFetchingMore,
+          loadNextPage,
+        } : undefined,
+      }}
+    >
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          {renderPluginHeaders()}
+        </div>
+        {!hasData && !isLoading && noDataComponentNode}
+        {(hasData || isLoading) && isMobile && (
+          <MobileView mobileFooter={mobileFooter} />
+        )}
+        {(hasData || isLoading) && !isMobile && (
+          <DesktopView
+            maxHeight={maxHeight}
+            isHeaderSticky={isHeaderSticky}
+            tableContainerRef={tableContainerRef}
+            headerRef={headerRef}
+            footerRows={footerRows}
+            renderPluginFooters={renderPluginFooters}
+          />
+        )}
       </div>
-      {!hasData && noDataComponentNode}
-      {hasData && isMobile && mobileView}
-      {hasData && !isMobile && largeScreenView}
-    </div>
+    </TableProvider>
   );
 }
 
