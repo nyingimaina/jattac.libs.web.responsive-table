@@ -37,6 +37,10 @@ interface TableBodyRowProps<TData> {
   };
 }
 
+interface RTNativeEvent extends Event {
+  _rtIgnoreRowClick?: boolean;
+}
+
 export function TableBodyRow<TData>(props: TableBodyRowProps<TData>) {
   const {
     row,
@@ -64,12 +68,12 @@ export function TableBodyRow<TData>(props: TableBodyRowProps<TData>) {
         // that detaches the target from the DOM before the bubbling phase.
         const target = e.target as HTMLElement;
         if (target.closest('[data-rt-ignore-row-click]')) {
-          (e.nativeEvent as any)._rtIgnoreRowClick = true;
+          (e.nativeEvent as RTNativeEvent)._rtIgnoreRowClick = true;
         }
     }}
     onClick={(e: React.MouseEvent<HTMLTableRowElement>) => {
         // Bubbling Phase: Check the flag set during the capture phase.
-        if ((e.nativeEvent as any)._rtIgnoreRowClick) {
+        if ((e.nativeEvent as RTNativeEvent)._rtIgnoreRowClick) {
           return;
         }
 
