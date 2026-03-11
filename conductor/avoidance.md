@@ -4,13 +4,12 @@ This document tracks discovered issues, architectural gotchas, and pitfalls enco
 
 ## TypeScript & Linting
 
-### 1. The `any` Type Trap (Lint Failures on Publish)
-- **Issue:** Using the `any` type triggers `@typescript-eslint/no-explicit-any`, which causes `npm run lint` to fail. Since `prepublishOnly` runs linting, this blocks `npm publish`.
-- **Scenario:** This often happens in generic Context providers or when mocking globals (like `IntersectionObserver`) in tests.
-- **Avoidance:**
-    - Prefer `unknown` over `any` when possible.
-    - If `any` is truly unavoidable (e.g., generic React Context initialization), use `// eslint-disable-next-line @typescript-eslint/no-explicit-any`.
-    - Ensure all new test files are checked with `npm run lint` before committing.
+### 1. The `any` Type Prohibition (Strict Directive)
+- **Mandate:** The use of `any` is strictly prohibited in application code. It causes lint failures that block the `npm publish` pipeline.
+- **Strict Avoidance:**
+    - **NEVER** use `as any` for quick casting. Define a local interface or use `unknown` with a type guard.
+    - If a third-party library or native API requires dynamic property access, use a properly typed extension interface (e.g., `interface CustomEvent extends Event { ... }`).
+    - **CRITICAL:** Before every commit, you **MUST** execute `npm run lint` and `npm run type-check`. A task is not "implemented" until it passes these checks locally.
 
 ### 2. Unused Variables/Imports
 - **Issue:** TypeScript and ESLint are configured to fail on unused locals or imports.
