@@ -18,13 +18,14 @@ export function TableHeaderCell<TData>(props: TableHeaderCellProps<TData>) {
   } = useTableContext<TData>();
 
   const onHeaderClick = onHeaderClickCallback(columnDefinition);
+  const rawColDef = getRawColumnDefinition(columnDefinition);
   const clickableHeaderClassName = getClickableHeaderClassName(
     onHeaderClick,
     columnDefinition,
   );
   const headerProps = getHeaderProps(columnDefinition);
 
-  const combinedClassName = `${clickableHeaderClassName} ${headerProps.className ? styles[headerProps.className] : ''}`.trim();
+  const combinedClassName = `${clickableHeaderClassName} ${headerProps.className ? styles[headerProps.className] : ''} ${rawColDef.headerClassName || ''}`.trim();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { className, ...restHeaderProps } = headerProps;
@@ -33,8 +34,9 @@ export function TableHeaderCell<TData>(props: TableHeaderCellProps<TData>) {
     <th
       key={colIndex}
       className={combinedClassName}
+      style={{ ...headerProps.style, ...rawColDef.headerStyle }}
       {...restHeaderProps}
-      onClick={onHeaderClick ? () => onHeaderClick(getRawColumnDefinition(columnDefinition).interactivity!.id) : restHeaderProps.onClick}
+      onClick={onHeaderClick ? () => onHeaderClick(rawColDef.interactivity!.id) : restHeaderProps.onClick}
     >
       <div className={styles.headerInnerWrapper}>
         <div className={styles.headerContent}>

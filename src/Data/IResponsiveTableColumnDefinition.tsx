@@ -22,6 +22,14 @@ interface IResponsiveTableColumnDefinitionBase<TData> {
   cellRenderer: (data: TData) => ReactNode;
   visible?: boolean;
   dataKey?: keyof TData;
+  /** Custom CSS class for the header cell. */
+  headerClassName?: string;
+  /** Custom styles for the header cell. */
+  headerStyle?: React.CSSProperties;
+  /** Custom CSS class for each body cell in this column. */
+  cellClassName?: string;
+  /** Custom styles for each body cell in this column. */
+  cellStyle?: React.CSSProperties;
   getFilterableValue?: (data: TData) => string | number;
   interactivity?: {
     id: string;

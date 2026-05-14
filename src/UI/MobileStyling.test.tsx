@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ResponsiveTable from './ResponsiveTable';
 import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumnDefinition';
@@ -58,6 +58,31 @@ describe('Mobile Styling', () => {
     );
 
     const cards = document.querySelectorAll('.card');
-    expect(cards[0]).toHaveClass('custom-mobile-card'); // This should fail
+    expect(cards[0]).toHaveClass('custom-mobile-card');
+  });
+
+  it('inherits visual cues from column definitions', () => {
+    const styledDefinitions: IResponsiveTableColumnDefinition<TestData>[] = [
+      {
+        columnId: 'id',
+        displayLabel: 'ID',
+        cellRenderer: (data: TestData) => data.id,
+        headerStyle: { color: 'red' },
+        cellStyle: { fontWeight: 'bold' },
+      },
+    ];
+
+    render(
+      <ResponsiveTable
+        columnDefinitions={styledDefinitions}
+        data={mockData}
+      />
+    );
+
+    const label = screen.getByText('ID');
+    const value = screen.getByText('1');
+
+    expect(label).toHaveStyle({ color: 'rgb(255, 0, 0)' });
+    expect(value.parentElement).toHaveStyle({ fontWeight: 'bold' });
   });
 });

@@ -51,28 +51,30 @@ function MobileView<TData>(props: MobileViewProps) {
                 const clickableHeaderClassName = getClickableHeaderClassName(onHeaderClick, columnDefinition);
                 return (
                   <div key={colIndex} className={`${styles['card-row']} ${styles.stacked}`}>
-                    <p className={styles['card-row-content']}>
-                      <span
-                        className={`${styles['card-label']} ${clickableHeaderClassName}`}
-                        onClick={
-                          (e) => {
-                            if (onHeaderClick) {
-                              e.stopPropagation();
-                              onHeaderClick(colDef.interactivity!.id)
-                            }
+                    <span
+                      className={`${styles['card-label']} ${clickableHeaderClassName} ${colDef.headerClassName || ''}`}
+                      style={colDef.headerStyle}
+                      onClick={
+                        (e) => {
+                          if (onHeaderClick) {
+                            e.stopPropagation();
+                            onHeaderClick(colDef.interactivity!.id)
                           }
                         }
-                      >
-                        {colDef.displayLabel}
-                      </span>
-                      <span className={styles['card-value']}>
-                        <TableBodyCell
-                          row={row}
-                          rowIndex={rowIndex}
-                          columnDefinition={columnDefinition}
-                        />
-                      </span>
-                    </p>
+                      }
+                    >
+                      {colDef.displayLabel}
+                    </span>
+                    <span 
+                      className={`${styles['card-value']} ${colDef.cellClassName || ''}`}
+                      style={colDef.cellStyle}
+                    >
+                      <TableBodyCell
+                        row={row}
+                        rowIndex={rowIndex}
+                        columnDefinition={columnDefinition}
+                      />
+                    </span>
                   </div>
                 );
               })}

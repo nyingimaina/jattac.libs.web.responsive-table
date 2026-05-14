@@ -10,12 +10,12 @@
 - [x] **Task: Conductor - User Manual Verification 'Foundation' (Protocol in workflow.md)**
 
 ## Phase 2: Enhanced MobileView Implementation
-- [ ] **Task: Refactor MobileView for "Stacked" Layout**
-    - [ ] Update `MobileView.tsx` to use a stacked (Label over Value) structure.
-    - [ ] Ensure `mobileCardClassName` is applied to individual cards.
-- [ ] **Task: Implement Visual Inheritance Logic**
-    - [ ] Create a utility to extract baseline visual cues (color, font-weight) from column definitions.
-    - [ ] Apply these cues to mobile labels and values.
+- [x] **Task: Refactor MobileView for "Stacked" Layout**
+    - [x] Update `MobileView.tsx` to use a stacked (Label over Value) structure.
+    - [x] Ensure `mobileCardClassName` is applied to individual cards.
+- [x] **Task: Implement Visual Inheritance Logic**
+    - [x] Create a utility to extract baseline visual cues (color, font-weight) from column definitions.
+    - [x] Apply these cues to mobile labels and values.
 - [ ] **Task: Conductor - User Manual Verification 'MobileView' (Protocol in workflow.md)**
 
 ## Phase 3: Type-Specific Styling & Interactions
