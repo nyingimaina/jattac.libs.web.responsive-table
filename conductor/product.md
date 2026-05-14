@@ -19,10 +19,13 @@ A fully responsive, customizable, and lightweight React table component with a m
 
 ## Key Features & Capabilities
 - **Mobile-First Design:** Optimized for small screens with a card-based mobile view.
+- **Zero-Config Mobile Styling:** Beautiful, "Corporate Playful" default cards with "Quiet Luxury" aesthetics, requiring no extra setup.
 - **Plugin System:** Easily extend functionality with plugins (Sort, Filter, Infinite Scroll, etc.).
 - **TypeScript First:** Built with TypeScript for excellent developer experience and type safety.
 - **Smart Data Source:** A painless pattern for handling large datasets, server-side sorting, and infinite scroll.
 - **Layout Transitions:** Automated transformation between standard table structures and mobile-optimized interfaces.
+- **Visual Inheritance:** Mobile cards automatically inherit visual cues (colors, weights) from desktop column definitions.
+- **Type-Specific Optimization:** Specialized mobile layouts for Numbers, Dates, Images, and Inputs with optimized tap targets (44px).
 
 ## Current Priorities
 - **Maintenance & Optimization:** Focus on bug fixes, performance tuning, and targeted miscellaneous improvements to ensure stability within Jattac projects.
