@@ -18,8 +18,14 @@ ResponsiveTable performs real-time viewport analysis to transition between a sta
 *   [Implementation Example: Standard Tabular Implementation](./examples.md#1-standard-tabular-implementation)
 
 ### Asynchronous Data Stream Support
-Native integration for high-volume data sets via an infinite scrolling orchestrator. The component handles event interception, asynchronous state transitions, and subsequent data integration without disrupting the internal processing pipeline.
+Native integration for high-volume data sets via an infinite scrolling orchestrator. The component handles event interception, asynchronous state transitions, and subsequent data integration without disrupting the internal processing pipeline. Supports both client-side and server-side filtering modes. The `dataSource` pattern provides full external observability via callbacks and imperative handles.
 *   [Implementation Example: Asynchronous Infinite Scroll](./examples.md#8-high-volume-data-asynchronous-infinite-scroll)
+*   [Implementation Example: Server-Side Search](./examples.md#10-server-side-search-with-datasource)
+*   [State Observability via Callbacks](./examples.md#11-observing-datasource-state-callbacks)
+
+### Error Resilience
+Automatic error detection and recovery for `dataSource` operations. When a fetch fails, the component surfaces the error with a retry mechanism, accessible both through the UI and programmatically.
+*   [Implementation Example: Error Handling and Retry](./examples.md#13-error-handling-and-retry)
 
 ### Persistent Plugin Lifecycle
 The component features a robust internal lifecycle management system for plugins. State for sorting, filtering, and selection is persisted across re-renders and data updates using non-reactive references, optimizing performance and ensuring data consistency.

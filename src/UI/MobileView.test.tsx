@@ -52,7 +52,6 @@ describe('Mobile Styling', () => {
       <ResponsiveTable
         columnDefinitions={mockColumnDefinitions}
         data={mockData}
-        // @ts-expect-error - Prop doesn't exist yet
         mobileCardClassName="custom-mobile-card"
       />
     );

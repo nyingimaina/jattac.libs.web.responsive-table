@@ -19,6 +19,7 @@ interface UseTablePluginsProps<TData> {
     showFilter?: boolean;
     filterPlaceholder?: string;
     className?: string;
+    mode?: 'client' | 'server';
   };
   selectionProps?: {
     onSelectionChange: (selectedItems: TData[]) => void;
@@ -33,6 +34,7 @@ interface UseTablePluginsProps<TData> {
   columnDefinitions: (IResponsiveTableColumnDefinition<TData> | ((data: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>))[];
   getScrollableElement: () => HTMLElement | null;
   infiniteScrollProps?: IInfiniteScrollProps<TData>;
+  onFilterChange?: (filterText: string) => void;
 }
 
 interface UseTablePluginsReturn<TData> {
@@ -52,6 +54,7 @@ export const useTablePlugins = <TData>(props: UseTablePluginsProps<TData>): UseT
     columnDefinitions,
     getScrollableElement,
     infiniteScrollProps,
+    onFilterChange,
   } = props;
 
   const [processedData, setProcessedData] = useState<TData[]>(data);
@@ -135,6 +138,7 @@ export const useTablePlugins = <TData>(props: UseTablePluginsProps<TData>): UseT
         filterProps: filterProps,
         selectionProps: selectionProps,
         columnDefinitions: columnDefinitions,
+        onFilterChange: onFilterChange,
     };
 
     // Initialize/Refresh all active plugins with the current API
@@ -163,6 +167,7 @@ export const useTablePlugins = <TData>(props: UseTablePluginsProps<TData>): UseT
     getScrollableElement,
     infiniteScrollProps,
     getRawColumnDefinition,
+    onFilterChange,
   ]);
 
   const forceUpdatePlugins = useCallback(() => {

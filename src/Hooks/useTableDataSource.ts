@@ -9,6 +9,16 @@ interface UseTableDataSourceProps<TData> {
   filter?: string;
 }
 
+export interface DataSourceState<TData> {
+  data: TData[];
+  currentPage: number;
+  hasMore: boolean;
+  totalCount?: number;
+  isLoading: boolean;
+  isFetchingMore: boolean;
+  error?: Error;
+}
+
 interface UseTableDataSourceReturn<TData> {
   data: TData[];
   currentPage: number;
@@ -18,6 +28,7 @@ interface UseTableDataSourceReturn<TData> {
   isFetchingMore: boolean;
   loadNextPage: () => Promise<void>;
   resetAndFetch: () => Promise<void>;
+  error?: Error;
 }
 
 export const useTableDataSource = <TData,>(props: UseTableDataSourceProps<TData>): UseTableDataSourceReturn<TData> => {
@@ -29,6 +40,7 @@ export const useTableDataSource = <TData,>(props: UseTableDataSourceProps<TData>
   const [totalCount, setTotalCount] = useState<number | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
+  const [error, setError] = useState<Error | undefined>(undefined);
 
   const isInitialMount = useRef(true);
 
@@ -42,6 +54,8 @@ export const useTableDataSource = <TData,>(props: UseTableDataSourceProps<TData>
     }
 
     try {
+      setError(undefined);
+
       const params: IDataSourceParams = {
         page,
         pageSize,
@@ -74,9 +88,10 @@ export const useTableDataSource = <TData,>(props: UseTableDataSourceProps<TData>
         setHasMore(newItems.length === pageSize);
       }
 
-    } catch (error) {
-      console.error('Error fetching data from dataSource:', error);
+    } catch (err) {
+      setError(err as Error);
       setHasMore(false);
+      console.error('Error fetching data from dataSource:', err);
     } finally {
       setIsLoading(false);
       setIsFetchingMore(false);
@@ -115,5 +130,6 @@ export const useTableDataSource = <TData,>(props: UseTableDataSourceProps<TData>
     isFetchingMore,
     loadNextPage,
     resetAndFetch,
+    error,
   };
 };

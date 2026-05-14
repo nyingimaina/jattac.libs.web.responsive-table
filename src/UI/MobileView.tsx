@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
-import { useTableContext, ColumnDefinition } from '../Context/TableContext';
+import { useTableContext } from '../Context/TableContext';
 import { TableBodyCell } from './TableBodyCell';
 import { TableSentinel } from './TableSentinel';
 import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumnDefinition';
@@ -99,7 +99,7 @@ function MobileView<TData>(props: MobileViewProps) {
                 // Use a dummy call or dataKey to get a sample value for inference if cellRenderer is too complex
                 // For now, we'll try to infer from what cellRenderer returns if it's a simple primitive
                 const sampleValue = colDef.dataKey ? (row as Record<string, unknown>)[colDef.dataKey as string] : null;
-                const dataType = inferDataType(colDef, sampleValue);
+                const dataType = inferDataType(colDef, sampleValue as React.ReactNode);
                 const typeClassName = getTypeClassName(dataType);
 
                 return (

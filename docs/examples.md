@@ -12,7 +12,11 @@ This guide details standard implementation patterns for the ResponsiveTable comp
 *   [Programmatic Column Visibility Management](#6-programmatic-column-visibility-management)
 *   [Automated Footer Scaling Logic](#7-automated-footer-scaling-logic)
 *   [High-Volume Data: Asynchronous Infinite Scroll](#8-high-volume-data-asynchronous-infinite-scroll)
-*   [Internal Plugin Development](#9-internal-plugin-development)
+   *   [Internal Plugin Development](#9-internal-plugin-development)
+   *   [Server-Side Search with dataSource](#10-server-side-search-with-datasource)
+   *   [Observing dataSource State: Callbacks](#11-observing-datasource-state-callbacks)
+   *   [Imperative Control via Ref](#12-imperative-control-via-ref)
+   *   [Error Handling and Retry](#13-error-handling-and-retry)
 
 ---
 
@@ -200,6 +204,149 @@ class CustomStylingPlugin<TData> implements IResponsiveTablePlugin<TData> {
   columnDefinitions={columns} 
   plugins={[new CustomStylingPlugin()]} 
 />
+```
+
+### 10. Server-Side Search with dataSource
+Enable REST-powered search by setting `filterProps.mode` to `'server'`. Filter input changes will trigger a `dataSource` re-fetch with the `filter` parameter, rather than filtering in-memory.
+
+```tsx
+import ResponsiveTable from 'jattac.libs.web.responsive-table';
+
+const columns = [
+  {
+    columnId: 'name',
+    displayLabel: 'Name',
+    cellRenderer: (row) => row.name,
+  },
+  {
+    columnId: 'email',
+    displayLabel: 'Email',
+    cellRenderer: (row) => row.email,
+  },
+];
+
+const searchUsers = async ({ page, pageSize, filter }) => {
+  // Forward the filter term to your API
+  const response = await api.users.search({
+    page,
+    limit: pageSize,
+    query: filter, // Comes from the search input
+  });
+  return response.items;
+};
+
+export const ServerSearchTable = () => (
+  <ResponsiveTable
+    dataSource={searchUsers}
+    pageSize={20}
+    columnDefinitions={columns}
+    filterProps={{
+      showFilter: true,
+      filterPlaceholder: 'Search by name or email...',
+      mode: 'server', // Enables server-side search
+    }}
+  />
+);
+```
+
+### 11. Observing dataSource State: Callbacks
+Track pagination, loading, and error state changes from outside the component.
+
+```tsx
+import { useState } from 'react';
+import ResponsiveTable from 'jattac.libs.web.responsive-table';
+
+export const ObservableTable = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+
+  return (
+    <ResponsiveTable
+      dataSource={async ({ page, pageSize, filter, sort }) => {
+        const response = await api.items.list({ page, limit: pageSize });
+        return response;
+      }}
+      pageSize={20}
+      columnDefinitions={columns}
+      onPageChange={(page) => setCurrentPage(page)}
+      onDataSourceStateChange={(state) => {
+        setTotalItems(state.totalCount ?? 0);
+        console.log('Page:', state.currentPage, 'Loading:', state.isLoading);
+      }}
+      onDataSourceError={(error) => {
+        console.error('Fetch failed:', error.message);
+      }}
+    />
+  );
+};
+```
+
+### 12. Imperative Control via Ref
+Programmatically control pagination and read state using a ref.
+
+```tsx
+import { useRef } from 'react';
+import ResponsiveTable, { ResponsiveTableHandle } from 'jattac.libs.web.responsive-table';
+
+export const ImperativeTable = () => {
+  const tableRef = useRef<ResponsiveTableHandle<MyData>>(null);
+
+  const handleRefresh = () => {
+    tableRef.current?.resetAndFetch();
+  };
+
+  const handleLogState = () => {
+    const state = tableRef.current?.getState();
+    console.log('Current state:', state);
+  };
+
+  return (
+    <>
+      <button onClick={handleRefresh}>Refresh</button>
+      <button onClick={handleLogState}>Log State</button>
+      <ResponsiveTable
+        ref={tableRef}
+        dataSource={async ({ page, pageSize }) => {
+          const response = await api.items.list({ page, limit: pageSize });
+          return response;
+        }}
+        pageSize={20}
+        columnDefinitions={columns}
+      />
+    </>
+  );
+};
+```
+
+### 13. Error Handling and Retry
+When a `dataSource` fetch fails, the component displays an error message with a **Retry** button. The error state and retry are also accessible via callbacks and the imperative handle.
+
+```tsx
+import ResponsiveTable from 'jattac.libs.web.responsive-table';
+
+// The component handles errors automatically:
+// - Shows "Failed to load data" with the error message
+// - Provides a "Retry" button that calls resetAndFetch()
+// - Exposes onDataSourceError callback for custom handling
+
+export const ResilientTable = () => (
+  <ResponsiveTable
+    dataSource={async ({ page, pageSize }) => {
+      // Simulate an unreliable API
+      const response = await fetch(`/api/items?page=${page}&limit=${pageSize}`);
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+      return response.json();
+    }}
+    pageSize={20}
+    columnDefinitions={columns}
+    onDataSourceError={(error) => {
+      // Optionally log to your error tracking service
+      reportError(error);
+    }}
+  />
+);
 ```
 
 ---

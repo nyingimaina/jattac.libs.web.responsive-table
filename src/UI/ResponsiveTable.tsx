@@ -1,4 +1,4 @@
-import React, { useRef, ReactNode, useMemo, useCallback, useState, useEffect } from 'react';
+import React, { useRef, ReactNode, useMemo, useCallback, useState, useEffect, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
 import { SortDirection } from '../Data/IResponsiveTableColumnDefinition';
 import IFooterRowDefinition from '../Data/IFooterRowDefinition';
@@ -11,9 +11,14 @@ import InfiniteTable from './InfiniteTable';
 import { useResponsiveTable } from '../Hooks/useResponsiveTable';
 import { useTablePlugins } from '../Hooks/useTablePlugins';
 import { TableProvider, ColumnDefinition, DataSource } from '../Context/TableContext';
-import { useTableDataSource } from '../Hooks/useTableDataSource';
+import { useTableDataSource, DataSourceState } from '../Hooks/useTableDataSource';
 
 export { ColumnDefinition };
+export interface ResponsiveTableHandle<TData> {
+  loadNextPage: () => Promise<void>;
+  resetAndFetch: () => Promise<void>;
+  getState: () => DataSourceState<TData>;
+}
 interface IInfiniteScrollProps<TData> {
   onLoadMore: (currentData: TData[]) => Promise<TData[] | null>;
   hasMore?: boolean;
@@ -78,6 +83,8 @@ interface IProps<TData> {
     showFilter?: boolean;
     filterPlaceholder?: string;
     className?: string;
+    /** When 'server', filter changes trigger a dataSource re-fetch with the filter param instead of client-side filtering. Default: 'client'. */
+    mode?: 'client' | 'server';
   };
   /** Configuration for row selection. */
   selectionProps?: {
@@ -96,13 +103,19 @@ interface IProps<TData> {
   sortProps?: ISortProps;
   /** Custom CSS class to apply to each card in mobile view. */
   mobileCardClassName?: string;
+  /** Callback fired whenever the dataSource state changes (data, page, loading, error). */
+  onDataSourceStateChange?: (state: DataSourceState<TData>) => void;
+  /** Callback fired when the current page changes. */
+  onPageChange?: (page: number) => void;
+  /** Callback fired when a dataSource fetch fails. */
+  onDataSourceError?: (error: Error) => void;
 }
 
 /**
  * A highly customizable, mobile-first responsive React table.
  * Supports static data or async data sources with built-in infinite scroll.
  */
-function ResponsiveTable<TData>(props: IProps<TData>) {
+function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<ResponsiveTableHandle<TData>>) {
   const {
     columnDefinitions,
     data: initialData,
@@ -121,6 +134,9 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     animationProps,
     sortProps,
     mobileCardClassName,
+    onDataSourceStateChange,
+    onPageChange,
+    onDataSourceError,
   } = props;
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -141,6 +157,12 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     sortProps?.initialSortColumn ? { columnId: sortProps.initialSortColumn, direction: sortProps.initialSortDirection || 'asc' } : undefined
   );
 
+  // Track active filter state for dataSource
+  const [activeFilter, setActiveFilter] = useState<string>('');
+  const handleFilterChange = useCallback((text: string) => {
+    setActiveFilter(text);
+  }, []);
+
   const {
     data: sourceData,
     isLoading: isSourceLoading,
@@ -149,19 +171,36 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     totalCount,
     currentPage,
     loadNextPage,
+    error,
+    resetAndFetch,
   } = useTableDataSource({
     dataSource,
     pageSize,
     initialData,
     sort: activeSort,
-    // We'll need to extract filter state if we want to support dataSource filtering
+    filter: filterProps?.mode === 'server' ? activeFilter : undefined,
   });
+
+  useImperativeHandle(ref, () => ({
+    loadNextPage: () => loadNextPage(),
+    resetAndFetch: () => resetAndFetch(),
+    getState: () => ({
+      data: sourceData,
+      currentPage,
+      hasMore,
+      totalCount,
+      isLoading: isSourceLoading,
+      isFetchingMore,
+      error,
+    }),
+  }), [loadNextPage, resetAndFetch, sourceData, currentPage, hasMore, totalCount, isSourceLoading, isFetchingMore, error]);
 
   const currentDataToProcess = dataSource ? sourceData : initialData;
 
   const { processedData, activePlugins, visibleColumns } = useTablePlugins({
     data: currentDataToProcess,
     plugins,
+    onFilterChange: filterProps?.mode === 'server' ? handleFilterChange : undefined,
     filterProps,
     selectionProps,
     sortProps,
@@ -170,16 +209,34 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     infiniteScrollProps,
   });
 
-  // Sync sort state from SortPlugin back to our local state to trigger dataSource re-fetch
+  // Fire onDataSourceStateChange when dataSource state changes
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sortPlugin = activePlugins.find(p => p.id === 'sort') as any;
-    if (sortPlugin && dataSource) {
-        // If the plugin has an internal state we can observe or if it calls forceUpdate
-        // we might need a more robust way to sync this. 
-        // For now, we assume the initial sort is handled by useTableDataSource.
+    if (dataSource && onDataSourceStateChange) {
+      onDataSourceStateChange({
+        data: sourceData,
+        currentPage,
+        hasMore,
+        totalCount,
+        isLoading: isSourceLoading,
+        isFetchingMore,
+        error,
+      });
     }
-  }, [activePlugins, dataSource]);
+  }, [dataSource, sourceData, currentPage, hasMore, totalCount, isSourceLoading, isFetchingMore, error, onDataSourceStateChange]);
+
+  // Fire onPageChange when page changes
+  useEffect(() => {
+    if (dataSource && onPageChange) {
+      onPageChange(currentPage);
+    }
+  }, [dataSource, currentPage, onPageChange]);
+
+  // Fire onDataSourceError when error occurs
+  useEffect(() => {
+    if (dataSource && error && onDataSourceError) {
+      onDataSourceError(error);
+    }
+  }, [dataSource, error, onDataSourceError]);
 
   const hasData = useMemo(() => processedData.length > 0, [processedData]);
 
@@ -285,6 +342,40 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     return <SkeletonView isMobile={isMobile} columnDefinitions={visibleColumns} />;
   }
 
+  if (error && !isLoading && !hasData) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '4rem 2rem',
+        gap: '1rem',
+        color: '#6c757d',
+        border: '2px dashed #e0e0e0',
+        borderRadius: '12px',
+        backgroundColor: '#f8f9fa',
+      }}>
+        <div style={{ fontWeight: 500, fontSize: '1.1rem' }}>Failed to load data</div>
+        <div style={{ fontSize: '0.85rem', textAlign: 'center' }}>{error.message}</div>
+        <button
+          onClick={resetAndFetch}
+          style={{
+            padding: '0.5rem 1.5rem',
+            backgroundColor: '#007bff',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontWeight: 500,
+          }}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
     <TableProvider
       value={{
@@ -305,6 +396,7 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
           isLoading: isSourceLoading,
           isFetchingMore,
           loadNextPage,
+          error,
         } : undefined,
         mobileCardClassName,
       }}
@@ -331,5 +423,9 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     </TableProvider>
   );
 }
+
+const ResponsiveTable = forwardRef(ResponsiveTableInner) as <TData>(
+  props: IProps<TData> & { ref?: React.Ref<ResponsiveTableHandle<TData>> }
+) => React.ReactElement;
 
 export default ResponsiveTable;

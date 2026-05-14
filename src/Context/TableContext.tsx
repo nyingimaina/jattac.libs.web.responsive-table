@@ -75,6 +75,7 @@ interface TableContextValue<TData> {
     isLoading: boolean;
     isFetchingMore: boolean;
     loadNextPage: () => void;
+    error?: Error;
   };
 
   /** Custom CSS class to apply to each card in mobile view. */

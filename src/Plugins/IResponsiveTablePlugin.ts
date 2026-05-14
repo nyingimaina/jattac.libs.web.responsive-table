@@ -54,6 +54,7 @@ export interface IPluginAPI<TData> {
     showFilter?: boolean;
     filterPlaceholder?: string;
     className?: string;
+    mode?: 'client' | 'server';
   };
 
   // Optional: Selection props from the ResponsiveTable component
@@ -64,4 +65,7 @@ export interface IPluginAPI<TData> {
     selectedItems?: TData[];
     selectedRowClassName?: string;
   };
+
+  // Optional: Callback fired when the filter text changes
+  onFilterChange?: (filterText: string) => void;
 }

@@ -37,6 +37,10 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
   };
 
   public processData = (data: TData[]): TData[] => {
+    if (this.api.filterProps?.mode === 'server') {
+      return data;
+    }
+
     if (!this.filterText || !this.api.columnDefinitions) {
       return data;
     }
@@ -70,6 +74,10 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _column: IResponsiveTableColumnDefinition<TData>
   ): React.ReactNode => {
+    if (this.api.filterProps?.mode === 'server') {
+      return content;
+    }
+
     if (!this.filterText || typeof content !== 'string') {
       return content;
     }
@@ -99,6 +107,7 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
     this.debounceTimeout = setTimeout(() => {
       this.filterText = currentFilterText;
       this.api.forceUpdate();
+      this.api.onFilterChange?.(currentFilterText);
     }, 300);
   };
 }
