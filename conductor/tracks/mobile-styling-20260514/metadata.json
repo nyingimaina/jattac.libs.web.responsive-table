@@ -1,0 +1,8 @@
+{
+  "track_id": "mobile-styling-20260514",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-05-14T08:58:00Z",
+  "updated_at": "2026-05-14T08:58:00Z",
+  "description": "for most tables, users build on desktop devices and forget to add formatting for mobile, so it looks really messy when viewed on mobile. We would want to have some kind of default and zero-config beautiful styling that overrides the desktop styles on mobile but also allow dev to fully customize if they have. Ideally the default mobule styling should take cues from the desktop styles and adapt them for mobile is this reasonable?"
+}
