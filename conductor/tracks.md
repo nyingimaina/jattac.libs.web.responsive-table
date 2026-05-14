@@ -14,8 +14,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 - [x] **Track: Atomize Table**
 - [x] **Track: Fix Package Resolution**
 
----
 
-- [x] **Track: Beautiful Default Mobile Styling**
-*Link: [./conductor/tracks/mobile-styling-20260514/](./conductor/tracks/mobile-styling-20260514/)*
 
