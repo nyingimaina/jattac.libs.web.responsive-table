@@ -16,6 +16,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Beautiful Default Mobile Styling**
+- [~] **Track: Beautiful Default Mobile Styling**
 *Link: [./conductor/tracks/mobile-styling-20260514/](./conductor/tracks/mobile-styling-20260514/)*
 

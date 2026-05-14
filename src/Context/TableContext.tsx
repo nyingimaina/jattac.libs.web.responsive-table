@@ -77,6 +77,9 @@ interface TableContextValue<TData> {
     loadNextPage: () => void;
   };
 
+  /** Custom CSS class to apply to each card in mobile view. */
+  mobileCardClassName?: string;
+
   // Helper Functions (Logic)
   getRawColumnDefinition: (colDef: ColumnDefinition<TData>) => IResponsiveTableColumnDefinition<TData>;
   getColumnDefinition: (colDef: ColumnDefinition<TData>, rowIndex: number) => IResponsiveTableColumnDefinition<TData>;

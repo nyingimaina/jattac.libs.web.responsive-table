@@ -94,6 +94,8 @@ interface IProps<TData> {
   };
   /** Initial sort state for the table. */
   sortProps?: ISortProps;
+  /** Custom CSS class to apply to each card in mobile view. */
+  mobileCardClassName?: string;
 }
 
 /**
@@ -118,6 +120,7 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
     selectionProps,
     animationProps,
     sortProps,
+    mobileCardClassName,
   } = props;
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -303,6 +306,7 @@ function ResponsiveTable<TData>(props: IProps<TData>) {
           isFetchingMore,
           loadNextPage,
         } : undefined,
+        mobileCardClassName,
       }}
     >
       <div>

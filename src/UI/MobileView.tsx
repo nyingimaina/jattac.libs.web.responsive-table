@@ -22,6 +22,7 @@ function MobileView<TData>(props: MobileViewProps) {
     onHeaderClickCallback,
     getClickableHeaderClassName,
     pagination,
+    mobileCardClassName,
   } = useTableContext<TData>();
 
   const isClickable = onRowClick || selectionProps;
@@ -35,7 +36,7 @@ function MobileView<TData>(props: MobileViewProps) {
         return (
           <div
             key={getRowId(row, rowIndex)}
-            className={`${styles.card} ${isClickable ? styles.clickableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''}`.trim()}
+            className={`${styles.card} ${isClickable ? styles.clickableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''} ${mobileCardClassName || ''}`.trim()}
             style={{ animationDelay: `${rowIndex * 0.05}s` }}
             aria-selected={rowProps['aria-selected']}
             onClick={(e: React.MouseEvent<HTMLDivElement>) => {
@@ -49,7 +50,7 @@ function MobileView<TData>(props: MobileViewProps) {
                 const onHeaderClick = onHeaderClickCallback(columnDefinition);
                 const clickableHeaderClassName = getClickableHeaderClassName(onHeaderClick, columnDefinition);
                 return (
-                  <div key={colIndex} className={styles['card-row']}>
+                  <div key={colIndex} className={`${styles['card-row']} ${styles.stacked}`}>
                     <p className={styles['card-row-content']}>
                       <span
                         className={`${styles['card-label']} ${clickableHeaderClassName}`}

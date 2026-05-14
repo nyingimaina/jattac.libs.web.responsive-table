@@ -11,6 +11,13 @@
   --text-color-muted: #6c757d;
   --interactive-color: #0056b3;
   --primary-color: #007bff;
+  
+  /* Mobile-specific Quiet Luxury variables */
+  --rt-mobile-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --rt-mobile-card-radius: 16px;
+  --rt-mobile-bg-wash: rgba(79, 70, 229, 0.04);
+  --rt-mobile-label-color: #475569; /* Slate 600 */
+  --rt-mobile-value-color: #1e293b; /* Slate 800 */
 }
 
 .tableContainer {
@@ -65,21 +72,23 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: 0.5rem;
+  padding: 1rem;
+  background-color: var(--rt-mobile-bg-wash);
+  border-radius: var(--rt-mobile-card-radius);
 }
 
 .card {
   background-color: var(--card-bg);
   border: 1px solid var(--card-border-color);
-  border-radius: 12px;
+  border-radius: var(--rt-mobile-card-radius);
   overflow: hidden;
-  box-shadow: var(--card-shadow);
+  box-shadow: var(--rt-mobile-card-shadow);
   transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
   padding: 1.25rem;
 }
 
 .card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
 }
 
@@ -97,22 +106,33 @@
   gap: 1rem;
 }
 
+.card-row.stacked {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
 .card-row:last-child {
   margin-bottom: 0;
 }
 
 .card-label {
   font-weight: 600;
-  color: var(--text-color-muted);
+  color: var(--rt-mobile-label-color);
   font-size: 0.75rem;
   text-transform: uppercase;
   white-space: nowrap;
 }
 
 .card-value {
-  font-size: 0.9rem;
-  color: var(--text-color);
+  font-size: 0.95rem;
+  color: var(--rt-mobile-value-color);
   text-align: right;
+}
+
+.card-row.stacked .card-value {
+  text-align: left;
 }
 
 /* Interactive States */
