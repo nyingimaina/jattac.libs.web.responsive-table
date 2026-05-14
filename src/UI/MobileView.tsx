@@ -1,8 +1,9 @@
 import React from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
-import { useTableContext } from '../Context/TableContext';
+import { useTableContext, ColumnDefinition } from '../Context/TableContext';
 import { TableBodyCell } from './TableBodyCell';
 import { TableSentinel } from './TableSentinel';
+import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumnDefinition';
 
 interface MobileViewProps {
   mobileFooter: React.ReactNode;
@@ -31,7 +32,7 @@ function MobileView<TData>(props: MobileViewProps) {
 
   const isClickable = onRowClick || selectionProps;
 
-  const inferDataType = (colDef: any, value: any): string => {
+  const inferDataType = (colDef: IResponsiveTableColumnDefinition<TData>, value: React.ReactNode): string => {
     if (colDef.dataType) return colDef.dataType;
     
     // Inference logic
@@ -45,8 +46,9 @@ function MobileView<TData>(props: MobileViewProps) {
     }
     // Check for React elements that might be inputs/buttons
     if (React.isValidElement(value)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const type = (value.type as any)?.name || (value.type as any);
-        if (['button', 'input', 'select', 'textarea'].includes(type?.toLowerCase())) return 'input';
+        if (['button', 'input', 'select', 'textarea'].includes(typeof type === 'string' ? type.toLowerCase() : '')) return 'input';
     }
     
     return 'text';
@@ -96,7 +98,7 @@ function MobileView<TData>(props: MobileViewProps) {
                 
                 // Use a dummy call or dataKey to get a sample value for inference if cellRenderer is too complex
                 // For now, we'll try to infer from what cellRenderer returns if it's a simple primitive
-                const sampleValue = colDef.dataKey ? (row as any)[colDef.dataKey] : null;
+                const sampleValue = colDef.dataKey ? (row as Record<string, unknown>)[colDef.dataKey as string] : null;
                 const dataType = inferDataType(colDef, sampleValue);
                 const typeClassName = getTypeClassName(dataType);
 
