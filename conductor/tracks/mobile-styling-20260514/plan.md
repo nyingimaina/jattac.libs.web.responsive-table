@@ -31,9 +31,9 @@
     - [x] Implement subtle micro-interactions/animations for card loading.
 - [x] **Task: Conductor - User Manual Verification 'Styling & Interactions' (Protocol in workflow.md)**
 
-## Phase 4: Finalization & Regression Testing
-- [ ] **Task: Verification and TDD Cleanup**
-    - [ ] Write unit tests in `MobileView.test.tsx` (to be created) for stacked layout and type-specific styles.
-    - [ ] Verify row-click bubbling fix still works in the new card layout.
-    - [ ] Confirm coverage >= 81% for modified files.
-- [ ] **Task: Conductor - User Manual Verification 'Finalization' (Protocol in workflow.md)**
+## Phase 4: Finalization & Regression Testing [checkpoint: current]
+- [x] **Task: Verification and TDD Cleanup**
+    - [x] Rename `MobileStyling.test.tsx` to `MobileView.test.tsx`.
+    - [x] Write unit tests for row-click bubbling in mobile layout.
+    - [x] Confirm coverage >= 81% for modified files (MobileView.tsx: 83.67%).
+- [x] **Task: Conductor - User Manual Verification 'Finalization' (Protocol in workflow.md)**

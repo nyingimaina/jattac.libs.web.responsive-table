@@ -8,6 +8,10 @@ interface MobileViewProps {
   mobileFooter: React.ReactNode;
 }
 
+interface RTNativeEvent extends Event {
+  _rtIgnoreRowClick?: boolean;
+}
+
 function MobileView<TData>(props: MobileViewProps) {
   const { mobileFooter } = props;
   const {
@@ -70,7 +74,16 @@ function MobileView<TData>(props: MobileViewProps) {
             className={`${styles.card} ${isClickable ? styles.clickableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''} ${mobileCardClassName || ''}`.trim()}
             style={{ animationDelay: `${rowIndex * 0.05}s` }}
             aria-selected={rowProps['aria-selected']}
+            onClickCapture={(e: React.MouseEvent<HTMLDivElement>) => {
+              const target = e.target as HTMLElement;
+              if (target.closest('[data-rt-ignore-row-click]')) {
+                (e.nativeEvent as RTNativeEvent)._rtIgnoreRowClick = true;
+              }
+            }}
             onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+              if ((e.nativeEvent as RTNativeEvent)._rtIgnoreRowClick) {
+                return;
+              }
               if (pluginOnClick) pluginOnClick(e);
               if (onRowClick) onRowClick(row);
             }}

@@ -159,4 +159,31 @@ describe('Mobile Styling', () => {
     const container = screen.getByText('Save').closest('.card-value');
     expect(container).toHaveClass('inputValue');
   });
+
+  it('preserves row-click bubbling fix in mobile card layout', () => {
+    const onRowClick = jest.fn();
+    render(
+      <ResponsiveTable
+        columnDefinitions={[
+          { 
+            columnId: 'action', 
+            displayLabel: 'Action', 
+            cellRenderer: () => <button data-rt-ignore-row-click>Ignore Row Click</button> 
+          }
+        ]}
+        data={[{ id: 1 }]}
+        onRowClick={onRowClick}
+      />
+    );
+
+    const button = screen.getByText('Ignore Row Click');
+    fireEvent.click(button);
+    
+    expect(onRowClick).not.toHaveBeenCalled();
+    
+    // Clicking the card itself should still trigger row click
+    const label = screen.getByText('Action');
+    fireEvent.click(label.closest('.card')!);
+    expect(onRowClick).toHaveBeenCalledTimes(1);
+  });
 });
