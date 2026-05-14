@@ -30,6 +30,8 @@ interface IResponsiveTableColumnDefinitionBase<TData> {
   cellClassName?: string;
   /** Custom styles for each body cell in this column. */
   cellStyle?: React.CSSProperties;
+  /** Explicitly define the type of data in this column for specialized mobile formatting. */
+  dataType?: 'text' | 'number' | 'date' | 'image' | 'input';
   getFilterableValue?: (data: TData) => string | number;
   interactivity?: {
     id: string;

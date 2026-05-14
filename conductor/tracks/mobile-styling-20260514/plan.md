@@ -19,14 +19,16 @@
 - [x] **Task: Conductor - User Manual Verification 'MobileView' (Protocol in workflow.md)**
 
 ## Phase 3: Type-Specific Styling & Interactions
-- [ ] **Task: Implement Formatting for Numbers, Dates, and Images**
-    - [ ] Add conditional styling for numeric cells (monospace/alignment).
-    - [ ] Add styles for images/icons (rounded corners, thumbnail sizing).
-- [ ] **Task: Optimize Inputs and Tap Targets**
-    - [ ] Update CSS to force buttons and textboxes to span full width in mobile rows.
-    - [ ] Ensure tap targets are minimum 44px.
-- [ ] **Task: Add Entrance Animations**
-    - [ ] Implement subtle micro-interactions/animations for card loading.
+- [x] **Task: Implement Formatting for Numbers, Dates, and Images**
+    - [x] Add `dataType` to `IResponsiveTableColumnDefinition`.
+    - [x] Implement type inference logic for auto-detection.
+    - [x] Add conditional styling for numeric cells (monospace/alignment).
+    - [x] Add styles for images/icons (rounded corners, thumbnail sizing).
+- [x] **Task: Optimize Inputs and Tap Targets**
+    - [x] Update CSS to force buttons and textboxes to span full width in mobile rows.
+    - [x] Ensure tap targets are minimum 44px.
+- [x] **Task: Add Entrance Animations**
+    - [x] Implement subtle micro-interactions/animations for card loading.
 - [ ] **Task: Conductor - User Manual Verification 'Styling & Interactions' (Protocol in workflow.md)**
 
 ## Phase 4: Finalization & Regression Testing

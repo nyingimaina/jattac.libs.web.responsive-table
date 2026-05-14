@@ -135,6 +135,37 @@
   text-align: left;
 }
 
+/* Type-specific Mobile Formatting */
+.numberValue {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  text-align: right !important;
+}
+
+.dateValue {
+  font-size: 0.85rem;
+  color: var(--text-color-muted);
+}
+
+.imageValue img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.inputValue {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.inputValue button,
+.inputValue input[type="text"],
+.inputValue select,
+.inputValue textarea {
+  width: 100% !important;
+  min-height: 44px; /* Mobile tap target optimization */
+}
+
 /* Interactive States */
 .clickableRow {
   cursor: pointer;
@@ -252,8 +283,19 @@
 
 /* Animations */
 .animatedRow {
-  animation: fadeInUp 0.4s ease-out forwards;
+  animation: cardEntrance 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   opacity: 0;
+}
+
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes fadeInUp {

@@ -85,4 +85,78 @@ describe('Mobile Styling', () => {
     expect(label).toHaveStyle({ color: 'rgb(255, 0, 0)' });
     expect(value.parentElement).toHaveStyle({ fontWeight: 'bold' });
   });
+
+  it('infers number type and applies monospace styling', () => {
+    const dataWithNumbers = [{ id: 123, name: 'Alice' }];
+    render(
+      <ResponsiveTable
+        columnDefinitions={[
+          { columnId: 'id', displayLabel: 'ID', cellRenderer: (d) => d.id, dataKey: 'id' }
+        ]}
+        data={dataWithNumbers}
+      />
+    );
+
+    const value = screen.getByText('123');
+    // Check for monospace font-family (mapped to numberValue class)
+    expect(value.parentElement).toHaveClass('numberValue');
+  });
+
+  it('infers image type and applies image styling', () => {
+    const dataWithImages = [{ id: 1, avatar: 'https://example.com/photo.jpg' }];
+    render(
+      <ResponsiveTable
+        columnDefinitions={[
+          { columnId: 'avatar', displayLabel: 'Avatar', cellRenderer: (d) => <img src={d.avatar} alt="Avatar" />, dataKey: 'avatar' }
+        ]}
+        data={dataWithImages}
+      />
+    );
+
+    // The imageValue class is on the .card-value span, which is the parent of the TableBodyCell div, 
+    // which is the parent of the img.
+    const img = screen.getByAltText('Avatar');
+    const cardValue = img.closest('.card-value');
+    expect(cardValue).toHaveClass('imageValue');
+  });
+
+  it('respects explicit dataType override', () => {
+    const data = [{ id: 1, status: 'Active' }];
+    render(
+      <ResponsiveTable
+        columnDefinitions={[
+          { 
+            columnId: 'status', 
+            displayLabel: 'Status', 
+            cellRenderer: (d) => d.status, 
+            dataType: 'number' // Explicitly override text as number for monospace
+          }
+        ]}
+        data={data}
+      />
+    );
+
+    const value = screen.getByText('Active');
+    expect(value.parentElement).toHaveClass('numberValue');
+  });
+
+  it('optimizes inputs for full width and tap targets', () => {
+    const dataWithButtons = [{ id: 1, action: 'Save' }];
+    render(
+      <ResponsiveTable
+        columnDefinitions={[
+          { 
+            columnId: 'action', 
+            displayLabel: 'Action', 
+            cellRenderer: (d) => <button>{d.action}</button>,
+            dataType: 'input'
+          }
+        ]}
+        data={dataWithButtons}
+      />
+    );
+
+    const container = screen.getByText('Save').closest('.card-value');
+    expect(container).toHaveClass('inputValue');
+  });
 });

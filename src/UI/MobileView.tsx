@@ -27,6 +27,37 @@ function MobileView<TData>(props: MobileViewProps) {
 
   const isClickable = onRowClick || selectionProps;
 
+  const inferDataType = (colDef: any, value: any): string => {
+    if (colDef.dataType) return colDef.dataType;
+    
+    // Inference logic
+    if (typeof value === 'number') return 'number';
+    if (value instanceof Date) return 'date';
+    if (typeof value === 'string') {
+        // Check for images
+        if (value.match(/\.(jpeg|jpg|gif|png|svg|webp)$/i) || value.startsWith('data:image/')) return 'image';
+        // Check for dates
+        if (!isNaN(Date.parse(value)) && (value.includes('-') || value.includes('/'))) return 'date';
+    }
+    // Check for React elements that might be inputs/buttons
+    if (React.isValidElement(value)) {
+        const type = (value.type as any)?.name || (value.type as any);
+        if (['button', 'input', 'select', 'textarea'].includes(type?.toLowerCase())) return 'input';
+    }
+    
+    return 'text';
+  };
+
+  const getTypeClassName = (dataType: string): string => {
+    switch (dataType) {
+      case 'number': return styles.numberValue;
+      case 'date': return styles.dateValue;
+      case 'image': return styles.imageValue;
+      case 'input': return styles.inputValue;
+      default: return '';
+    }
+  };
+
   return (
     <div className={styles.cardContainer}>
       {currentData.map((row, rowIndex) => {
@@ -49,6 +80,13 @@ function MobileView<TData>(props: MobileViewProps) {
                 const colDef = getColumnDefinition(columnDefinition, rowIndex);
                 const onHeaderClick = onHeaderClickCallback(columnDefinition);
                 const clickableHeaderClassName = getClickableHeaderClassName(onHeaderClick, columnDefinition);
+                
+                // Use a dummy call or dataKey to get a sample value for inference if cellRenderer is too complex
+                // For now, we'll try to infer from what cellRenderer returns if it's a simple primitive
+                const sampleValue = colDef.dataKey ? (row as any)[colDef.dataKey] : null;
+                const dataType = inferDataType(colDef, sampleValue);
+                const typeClassName = getTypeClassName(dataType);
+
                 return (
                   <div key={colIndex} className={`${styles['card-row']} ${styles.stacked}`}>
                     <span
@@ -66,7 +104,7 @@ function MobileView<TData>(props: MobileViewProps) {
                       {colDef.displayLabel}
                     </span>
                     <span 
-                      className={`${styles['card-value']} ${colDef.cellClassName || ''}`}
+                      className={`${styles['card-value']} ${typeClassName} ${colDef.cellClassName || ''}`}
                       style={colDef.cellStyle}
                     >
                       <TableBodyCell
