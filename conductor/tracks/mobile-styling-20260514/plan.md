@@ -9,14 +9,14 @@
     - [x] Pass new customization props through `TableContext` for use in `MobileView`.
 - [x] **Task: Conductor - User Manual Verification 'Foundation' (Protocol in workflow.md)**
 
-## Phase 2: Enhanced MobileView Implementation
+## Phase 2: Enhanced MobileView Implementation [checkpoint: 75f1dbf]
 - [x] **Task: Refactor MobileView for "Stacked" Layout**
     - [x] Update `MobileView.tsx` to use a stacked (Label over Value) structure.
     - [x] Ensure `mobileCardClassName` is applied to individual cards.
 - [x] **Task: Implement Visual Inheritance Logic**
     - [x] Create a utility to extract baseline visual cues (color, font-weight) from column definitions.
     - [x] Apply these cues to mobile labels and values.
-- [ ] **Task: Conductor - User Manual Verification 'MobileView' (Protocol in workflow.md)**
+- [x] **Task: Conductor - User Manual Verification 'MobileView' (Protocol in workflow.md)**
 
 ## Phase 3: Type-Specific Styling & Interactions
 - [ ] **Task: Implement Formatting for Numbers, Dates, and Images**
