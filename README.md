@@ -13,43 +13,79 @@ ResponsiveTable is a high-performance, type-safe React component designed for co
 ## Installation
 
 ```bash
-npm install jattac.libs.web.responsive-table
+npm install jattac.libs.web.responsive-table jattac.libs.web.zest-textbox react-icons
 ```
+
+---
+
+## Built-in Filter
+
+Enable the search box with one prop. A clear (×) button appears automatically when the field has text.
+
+**Client-side** — filters the in-memory `data` array and highlights matches:
+```tsx
+<ResponsiveTable
+  data={rows}
+  columnDefinitions={columns}
+  filterProps={{ showFilter: true }}
+/>
+```
+
+**Server-side** — when `dataSource` is present, server mode is automatic. The table resets to page 1 and calls your fetch function with the current `filter` string on every change:
+```tsx
+<ResponsiveTable
+  dataSource={async ({ page, pageSize, filter }) =>
+    api.getUsers({ page, pageSize, search: filter })
+  }
+  columnDefinitions={columns}
+  filterProps={{ showFilter: true }}
+/>
+```
+
+> To force client-side filtering even with a `dataSource`, pass `mode: 'client'`.
 
 ---
 
 ## Delightful Data Fetching: Smart Data Source
 
-The new `dataSource` pattern makes handling large datasets, server-side sorting, and infinite scroll completely painless. You provide the fetch logic; we handle the bookkeeping.
+The `dataSource` pattern makes handling large datasets, server-side sorting, filtering, and infinite scroll completely painless. You provide the fetch logic; the table handles bookkeeping.
 
-### Basic Usage
+### Pagination only
 ```tsx
 <ResponsiveTable
   dataSource={async ({ page, pageSize }) => {
     const users = await api.getUsers({ page, pageSize });
-    return users; // Table automatically handles appending and hasMore detection!
+    return users; // hasMore is auto-detected from page size
   }}
   columnDefinitions={columns}
 />
 ```
 
-### With Sorting & Filtering
-The table tells you exactly what it needs based on user interaction:
+### Pagination + sorting + filtering
 ```tsx
 <ResponsiveTable
-  dataSource={async ({ page, pageSize, sort, filter }) => {
-    return await api.getUsers({
+  dataSource={async ({ page, pageSize, sort, filter }) =>
+    api.getUsers({
       page,
       limit: pageSize,
       sortBy: sort?.columnId,
       order: sort?.direction,
-      search: filter
-    });
-  }}
+      search: filter,
+    })
+  }
   columnDefinitions={columns}
   sortProps={{ initialSortColumn: 'name' }}
   filterProps={{ showFilter: true }}
 />
+```
+
+### With total count (accurate hasMore)
+Return `{ items, totalCount }` instead of a plain array and the table derives `hasMore` precisely:
+```tsx
+dataSource={async ({ page, pageSize }) => {
+  const { data, total } = await api.getUsers({ page, pageSize });
+  return { items: data, totalCount: total };
+}}
 ```
 
 ---
