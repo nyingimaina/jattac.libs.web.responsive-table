@@ -83,7 +83,7 @@ interface IProps<TData> {
     showFilter?: boolean;
     filterPlaceholder?: string;
     className?: string;
-    /** When 'server', filter changes trigger a dataSource re-fetch with the filter param instead of client-side filtering. Default: 'client'. */
+    /** Default: 'server' when dataSource is present, 'client' otherwise. Pass 'client' to force in-memory filtering even with a dataSource. */
     mode?: 'client' | 'server';
   };
   /** Configuration for row selection. */
@@ -163,6 +163,12 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
     setActiveFilter(text);
   }, []);
 
+  const isServerFilter = !!dataSource && !!filterProps?.showFilter && filterProps?.mode !== 'client';
+
+  const resolvedFilterProps = filterProps
+    ? { ...filterProps, mode: isServerFilter ? 'server' as const : (filterProps.mode ?? 'client' as const) }
+    : undefined;
+
   const {
     data: sourceData,
     isLoading: isSourceLoading,
@@ -178,7 +184,7 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
     pageSize,
     initialData,
     sort: activeSort,
-    filter: filterProps?.mode === 'server' ? activeFilter : undefined,
+    filter: isServerFilter ? activeFilter : undefined,
   });
 
   useImperativeHandle(ref, () => ({
@@ -200,8 +206,8 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
   const { processedData, activePlugins, visibleColumns } = useTablePlugins({
     data: currentDataToProcess,
     plugins,
-    onFilterChange: filterProps?.mode === 'server' ? handleFilterChange : undefined,
-    filterProps,
+    onFilterChange: isServerFilter ? handleFilterChange : undefined,
+    filterProps: resolvedFilterProps,
     selectionProps,
     sortProps,
     columnDefinitions,

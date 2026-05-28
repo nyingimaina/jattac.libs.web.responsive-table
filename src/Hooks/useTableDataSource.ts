@@ -43,6 +43,8 @@ export const useTableDataSource = <TData,>(props: UseTableDataSourceProps<TData>
   const [error, setError] = useState<Error | undefined>(undefined);
 
   const isInitialMount = useRef(true);
+  const dataLengthRef = useRef(0);
+  dataLengthRef.current = data.length;
 
   const fetchData = useCallback(async (page: number, isAppend: boolean) => {
     if (!dataSource) return;
@@ -81,7 +83,7 @@ export const useTableDataSource = <TData,>(props: UseTableDataSourceProps<TData>
 
       // Intelligent hasMore detection
       if (newTotalCount !== undefined) {
-        const currentTotalLoaded = (isAppend ? data.length : 0) + newItems.length;
+        const currentTotalLoaded = (isAppend ? dataLengthRef.current : 0) + newItems.length;
         setHasMore(currentTotalLoaded < newTotalCount);
       } else {
         // If we got fewer items than pageSize, we've reached the end
@@ -96,7 +98,7 @@ export const useTableDataSource = <TData,>(props: UseTableDataSourceProps<TData>
       setIsLoading(false);
       setIsFetchingMore(false);
     }
-  }, [dataSource, pageSize, sort, filter, data.length]);
+  }, [dataSource, pageSize, sort, filter]);
 
   const loadNextPage = useCallback(async () => {
     if (isLoading || isFetchingMore || !hasMore || !dataSource) return;
