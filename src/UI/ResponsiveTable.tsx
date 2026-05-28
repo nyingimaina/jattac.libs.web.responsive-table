@@ -165,9 +165,16 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
 
   const isServerFilter = !!dataSource && !!filterProps?.showFilter && filterProps?.mode !== 'client';
 
-  const resolvedFilterProps = filterProps
-    ? { ...filterProps, mode: isServerFilter ? 'server' as const : (filterProps.mode ?? 'client' as const) }
-    : undefined;
+  const resolvedFilterProps = useMemo(() => {
+    if (!filterProps) return undefined;
+    return {
+      showFilter: filterProps.showFilter,
+      filterPlaceholder: filterProps.filterPlaceholder,
+      className: filterProps.className,
+      mode: isServerFilter ? 'server' as const : (filterProps.mode ?? 'client' as const),
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterProps?.showFilter, filterProps?.filterPlaceholder, filterProps?.className, filterProps?.mode, isServerFilter]);
 
   const {
     data: sourceData,
