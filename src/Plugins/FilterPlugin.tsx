@@ -1,4 +1,6 @@
 import React from 'react';
+import ZestTextbox from 'jattac.libs.web.zest-textbox';
+import { MdClose } from 'react-icons/md';
 import { IResponsiveTablePlugin, IPluginAPI } from './IResponsiveTablePlugin';
 import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumnDefinition';
 
@@ -20,18 +22,37 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
       return null;
     }
     return (
-      <div style={{ marginBottom: '1rem' }}>
-        <input
-          type="text"
-          placeholder={this.api.filterProps.filterPlaceholder || "Search..."}
+      <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <ZestTextbox
+          value={this.filterText}
+          placeholder={this.api.filterProps.filterPlaceholder ?? 'Search...'}
           onChange={this.handleFilterChange}
           className={this.api.filterProps.className}
-          style={{
-            padding: '0.5rem',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-          }}
+          zest={{ stretch: true }}
         />
+        <button
+          onClick={this.handleClear}
+          aria-label="Clear filter"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minWidth: '2.75rem',
+            minHeight: '2.75rem',
+            padding: 0,
+            border: 'none',
+            borderRadius: '50%',
+            background: 'transparent',
+            cursor: 'pointer',
+            color: '#666',
+            opacity: this.filterText ? 1 : 0,
+            pointerEvents: this.filterText ? 'auto' : 'none',
+            transition: 'opacity 0.15s ease',
+            flexShrink: 0,
+          }}
+        >
+          <MdClose size={20} />
+        </button>
       </div>
     );
   };
@@ -97,7 +118,7 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
     );
   };
 
-  private handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  private handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const currentFilterText = e.target.value;
 
     if (this.debounceTimeout) {
@@ -109,5 +130,14 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
       this.api.forceUpdate();
       this.api.onFilterChange?.(currentFilterText);
     }, 300);
+  };
+
+  private handleClear = () => {
+    if (this.debounceTimeout) {
+      clearTimeout(this.debounceTimeout);
+    }
+    this.filterText = '';
+    this.api.forceUpdate();
+    this.api.onFilterChange?.('');
   };
 }
