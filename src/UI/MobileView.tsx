@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
 import { useTableContext } from '../Context/TableContext';
 import { TableBodyCell } from './TableBodyCell';
@@ -11,6 +11,42 @@ interface MobileViewProps {
 
 interface RTNativeEvent extends Event {
   _rtIgnoreRowClick?: boolean;
+}
+
+interface MobileDetailSectionProps<TData> {
+  row: TData;
+  expandRowRenderer: (row: TData) => React.ReactNode;
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
+function MobileDetailSection<TData>({ row, expandRowRenderer, isExpanded, onToggle }: MobileDetailSectionProps<TData>) {
+  const content = expandRowRenderer(row);
+  const hasContent = content != null;
+  const [everExpanded, setEverExpanded] = useState(false);
+  if (isExpanded && !everExpanded) setEverExpanded(true);
+
+  if (!hasContent) return null;
+
+  return (
+    <div className={styles.mobileDetailOuter}>
+      <div className={`${styles.detailToggleBar} ${styles.detailToggleBarVisible}`}>
+        <button
+          className={styles.detailToggleBtn}
+          onClick={onToggle}
+          aria-expanded={isExpanded}
+          data-rt-ignore-row-click
+        >
+          {isExpanded ? '−' : '+'}
+        </button>
+      </div>
+      <div className={`${styles.detailContentWrapper} ${isExpanded ? styles.detailContentWrapperExpanded : ''}`}>
+        <div className={styles.detailContentInner}>
+          {everExpanded && content}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function MobileView<TData>(props: MobileViewProps) {
@@ -28,9 +64,24 @@ function MobileView<TData>(props: MobileViewProps) {
     getClickableHeaderClassName,
     pagination,
     mobileCardClassName,
+    expandRowRenderer,
   } = useTableContext<TData>();
 
   const isClickable = onRowClick || selectionProps;
+
+  const [expandedIds, setExpandedIds] = useState<Set<string | number>>(new Set());
+
+  const toggleExpanded = useCallback((id: string | number) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
 
   const inferDataType = (colDef: IResponsiveTableColumnDefinition<TData>, value: React.ReactNode): string => {
     if (colDef.dataType) return colDef.dataType;
@@ -71,8 +122,8 @@ function MobileView<TData>(props: MobileViewProps) {
         const pluginOnClick = rowProps.onClick;
 
         return (
+          <React.Fragment key={getRowId(row, rowIndex)}>
           <div
-            key={getRowId(row, rowIndex)}
             className={`${styles.card} ${isClickable ? styles.clickableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''} ${mobileCardClassName || ''}`.trim()}
             style={{ animationDelay: `${rowIndex * 0.05}s` }}
             aria-selected={rowProps['aria-selected']}
@@ -133,6 +184,15 @@ function MobileView<TData>(props: MobileViewProps) {
               })}
             </div>
           </div>
+          {expandRowRenderer && (
+            <MobileDetailSection
+              row={row}
+              expandRowRenderer={expandRowRenderer}
+              isExpanded={expandedIds.has(getRowId(row, rowIndex))}
+              onToggle={() => toggleExpanded(getRowId(row, rowIndex))}
+            />
+          )}
+        </React.Fragment>
         );
       })}
       {pagination?.hasMore && (

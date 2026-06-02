@@ -1,9 +1,10 @@
-import React, { CSSProperties, useCallback, useMemo } from 'react';
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react';
 import styles from '../Styles/ResponsiveTable.module.css';
 import IFooterColumnDefinition from '../Data/IFooterColumnDefinition';
 import { useTableContext } from '../Context/TableContext';
 import { TableHeaderCell } from './TableHeaderCell';
 import { TableBodyRow } from './TableBodyRow';
+import { DetailRow } from './DetailRow';
 import { TableSentinel } from './TableSentinel';
 
 interface DesktopViewProps {
@@ -36,7 +37,23 @@ function DesktopView<TData>(props: DesktopViewProps) {
     selectionProps,
     animationProps,
     pagination,
+    expandRowRenderer,
+    getRowId,
   } = useTableContext<TData>();
+
+  const [expandedIds, setExpandedIds] = useState<Set<string | number>>(new Set());
+
+  const toggleExpanded = useCallback((id: string | number) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
 
   const getEffectiveColSpan = useCallback((
     footerCol: IFooterColumnDefinition,
@@ -115,17 +132,30 @@ function DesktopView<TData>(props: DesktopViewProps) {
           </tr>
         </thead>
         <tbody>
-          {currentData.map((row, rowIndex) => (
-            <TableBodyRow
-              key={rowIndex}
-              row={row}
-              rowIndex={rowIndex}
-              columnDefinitions={visibleColumns}
-              onRowClick={onRowClick}
-              selectionProps={selectionProps}
-              animationProps={animationProps}
-            />
-          ))}
+          {currentData.map((row, rowIndex) => {
+            const rowId = getRowId(row, rowIndex);
+            return (
+              <React.Fragment key={rowId}>
+                <TableBodyRow
+                  row={row}
+                  rowIndex={rowIndex}
+                  columnDefinitions={visibleColumns}
+                  onRowClick={onRowClick}
+                  selectionProps={selectionProps}
+                  animationProps={animationProps}
+                />
+                {expandRowRenderer && (
+                  <DetailRow
+                    row={row}
+                    colSpan={visibleColumns.length}
+                    expandRowRenderer={expandRowRenderer}
+                    isExpanded={expandedIds.has(rowId)}
+                    onToggle={() => toggleExpanded(rowId)}
+                  />
+                )}
+              </React.Fragment>
+            );
+          })}
         </tbody>
         {tableFooter}
       </table>
