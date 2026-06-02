@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.12.0-rc.1] - 2026-06-02 — Release Candidate
+
+### Added
+- **`expandRowRenderer`** — new prop `(row: TData, rowIndex: number) => ReactNode` that attaches a collapsible detail panel below any row. Return `null`/`undefined` for rows that should not be expandable; return a `ReactNode` to show a `+`/`−` toggle with smooth CSS height animation (`grid-template-rows` trick). Works in both desktop (table `<tr>`) and mobile (card) layouts.
+- Detail content is lazy-mounted: only rendered on first expand, stays mounted for smooth collapse animation.
+- Expand state is keyed by `selectionProps.rowIdKey` when provided, falling back to array index — survives re-sorts and filter changes when a stable key is set.
+
+---
+
 ## [0.11.1] - 2026-06-02
 
 ### Fixed

@@ -35,6 +35,7 @@ This document contains the exhaustive technical specification for the Responsive
 | `onDataSourceStateChange` | `(state: DataSourceState<TData>) => void` | Callback fired whenever the dataSource state changes (data, page, loading, error). |
 | `onPageChange` | `(page: number) => void` | Callback fired when the current page changes. |
 | `onDataSourceError` | `(error: Error) => void` | Callback fired when a dataSource fetch fails. |
+| `expandRowRenderer` | `(row: TData, rowIndex: number) => ReactNode` | Renders collapsible detail content below a row. Return `null`/`undefined` for no toggle on that row. |
 
 ### IResponsiveTableColumnDefinition
 The primary configuration interface for defining column-level behavior and rendering logic.
@@ -81,6 +82,47 @@ interface IResponsiveTableColumnDefinition<TData> {
   animationProps={{ isLoading: isFetching, animateOnLoad: true }}
 />
 ```
+
+### Expandable Rows (`expandRowRenderer`)
+
+```typescript
+expandRowRenderer?: (row: TData, rowIndex: number) => ReactNode
+```
+
+Attaches a collapsible detail panel below each row. The renderer is called for every row on each render — return `null` or `undefined` to suppress the toggle for that row; return a `ReactNode` to show a `+`/`−` toggle that animates the panel open and closed.
+
+```tsx
+// All rows expandable
+<ResponsiveTable
+  data={orders}
+  columnDefinitions={columns}
+  expandRowRenderer={(order) => <OrderLineItems orderId={order.id} />}
+/>
+
+// Selectively expandable
+<ResponsiveTable
+  data={orders}
+  columnDefinitions={columns}
+  expandRowRenderer={(order) =>
+    order.lineItems.length > 0 ? <OrderLineItems order={order} /> : null
+  }
+/>
+
+// Using rowIndex for position-based logic
+<ResponsiveTable
+  data={rows}
+  columnDefinitions={columns}
+  expandRowRenderer={(row, rowIndex) => (
+    <DetailPanel row={row} position={rowIndex} />
+  )}
+/>
+```
+
+**Behaviour**
+- Detail content is **lazy-mounted**: the component is not rendered until first expand, then stays mounted so the collapse animation plays correctly.
+- Expand state is keyed by row ID (`selectionProps.rowIdKey` when provided, otherwise array index). Providing a stable `rowIdKey` ensures expand state survives re-sorts and filter changes.
+- `rowIndex` is the **display-order** index (post-sort, post-filter). Use the row object's own identifier for stable cross-render data correlation.
+- Works in both desktop (table) and mobile (card) layouts.
 
 ### DataSource Types
 

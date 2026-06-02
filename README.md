@@ -142,6 +142,43 @@ For a deep dive into more complex scenarios, see the **[Handling Interactive Ele
 
 ---
 
+## Expandable Rows
+
+Pass `expandRowRenderer` to reveal arbitrary content below any row. Return `null` or `undefined` for rows that should not be expandable — only those rows get a toggle.
+
+```tsx
+<ResponsiveTable
+  data={orders}
+  columnDefinitions={columns}
+  expandRowRenderer={(order) => (
+    <OrderLineItems orderId={order.id} />
+  )}
+/>
+```
+
+The renderer receives both the row and its display-order index:
+
+```tsx
+expandRowRenderer={(row, rowIndex) => (
+  <div>Row {rowIndex}: <pre>{JSON.stringify(row, null, 2)}</pre></div>
+)}
+```
+
+Selectively expandable — rows where the renderer returns `null` render at zero height with no toggle:
+
+```tsx
+expandRowRenderer={(row) =>
+  row.hasDetails ? <DetailPanel row={row} /> : null
+}
+```
+
+**Recommendations**
+- Provide `selectionProps` with a `rowIdKey` when your data has a stable identifier. The expand state is keyed by row ID, so expand/collapse survives re-sorts and filter changes correctly.
+- `rowIndex` reflects the current **display order** (post-sort, post-filter). Use `row.id` or equivalent for stable cross-render correlation.
+- Detail content is lazy-mounted — the component only renders on first expand, then stays mounted so the collapse animation plays smoothly.
+
+---
+
 ## Loading States & Animations
 
 Control skeleton loaders and entrance animations with `animationProps`:
