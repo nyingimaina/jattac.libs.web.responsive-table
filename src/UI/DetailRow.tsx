@@ -9,9 +9,10 @@ interface DetailRowProps<TData> {
   expandRowRenderer: (row: TData, rowIndex: number) => React.ReactNode;
   isExpanded: boolean;
   onToggle: () => void;
+  expandChevronClassName?: string;
 }
 
-export function DetailRow<TData>({ row, rowIndex, colSpan, expandRowRenderer, isExpanded, onToggle }: DetailRowProps<TData>) {
+export function DetailRow<TData>({ row, rowIndex, colSpan, expandRowRenderer, isExpanded, onToggle, expandChevronClassName }: DetailRowProps<TData>) {
   const content = expandRowRenderer(row, rowIndex);
   const hasContent = content != null;
 
@@ -27,6 +28,7 @@ export function DetailRow<TData>({ row, rowIndex, colSpan, expandRowRenderer, is
   const chevronClass = [
     styles.detailChevron,
     isExpanded ? styles.detailChevronExpanded : '',
+    expandChevronClassName ?? '',
   ].join(' ').trim();
 
   return (

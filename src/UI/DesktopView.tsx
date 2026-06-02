@@ -38,6 +38,7 @@ function DesktopView<TData>(props: DesktopViewProps) {
     animationProps,
     pagination,
     expandRowRenderer,
+    expandChevronClassName,
     getRowId,
   } = useTableContext<TData>();
 
@@ -152,6 +153,7 @@ function DesktopView<TData>(props: DesktopViewProps) {
                     expandRowRenderer={expandRowRenderer}
                     isExpanded={expandedIds.has(rowId)}
                     onToggle={() => toggleExpanded(rowId)}
+                    expandChevronClassName={expandChevronClassName}
                   />
                 )}
               </React.Fragment>

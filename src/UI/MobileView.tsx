@@ -20,9 +20,10 @@ interface MobileDetailSectionProps<TData> {
   expandRowRenderer: (row: TData, rowIndex: number) => React.ReactNode;
   isExpanded: boolean;
   onToggle: () => void;
+  expandChevronClassName?: string;
 }
 
-function MobileDetailSection<TData>({ row, rowIndex, expandRowRenderer, isExpanded, onToggle }: MobileDetailSectionProps<TData>) {
+function MobileDetailSection<TData>({ row, rowIndex, expandRowRenderer, isExpanded, onToggle, expandChevronClassName }: MobileDetailSectionProps<TData>) {
   const content = expandRowRenderer(row, rowIndex);
   const hasContent = content != null;
   const [everExpanded, setEverExpanded] = useState(false);
@@ -33,6 +34,7 @@ function MobileDetailSection<TData>({ row, rowIndex, expandRowRenderer, isExpand
   const chevronClass = [
     styles.detailChevron,
     isExpanded ? styles.detailChevronExpanded : '',
+    expandChevronClassName ?? '',
   ].join(' ').trim();
 
   const outerClass = [
@@ -81,6 +83,7 @@ function MobileView<TData>(props: MobileViewProps) {
     pagination,
     mobileCardClassName,
     expandRowRenderer,
+    expandChevronClassName,
   } = useTableContext<TData>();
 
   const isClickable = onRowClick || selectionProps;
@@ -142,6 +145,7 @@ function MobileView<TData>(props: MobileViewProps) {
           <div
             className={`${styles.card} ${isClickable ? styles.clickableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''} ${mobileCardClassName || ''}`.trim()}
             style={{ animationDelay: `${rowIndex * 0.05}s` }}
+            tabIndex={isClickable ? 0 : undefined}
             aria-selected={rowProps['aria-selected']}
             onClickCapture={(e: React.MouseEvent<HTMLDivElement>) => {
               const target = e.target as HTMLElement;
@@ -207,6 +211,7 @@ function MobileView<TData>(props: MobileViewProps) {
               expandRowRenderer={expandRowRenderer}
               isExpanded={expandedIds.has(getRowId(row, rowIndex))}
               onToggle={() => toggleExpanded(getRowId(row, rowIndex))}
+              expandChevronClassName={expandChevronClassName}
             />
           )}
         </React.Fragment>

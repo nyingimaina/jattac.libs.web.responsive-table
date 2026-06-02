@@ -83,6 +83,8 @@ interface TableContextValue<TData> {
 
   /** Return a ReactNode for expandable content below a row, or null/undefined for no toggle on that row. */
   expandRowRenderer?: (row: TData, rowIndex: number) => React.ReactNode;
+  /** Custom CSS class applied to the chevron icon span. */
+  expandChevronClassName?: string;
 
   // Helper Functions (Logic)
   getRawColumnDefinition: (colDef: ColumnDefinition<TData>) => IResponsiveTableColumnDefinition<TData>;
