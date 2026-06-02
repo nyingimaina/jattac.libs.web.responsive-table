@@ -147,6 +147,7 @@ function DesktopView<TData>(props: DesktopViewProps) {
                 {expandRowRenderer && (
                   <DetailRow
                     row={row}
+                    rowIndex={rowIndex}
                     colSpan={visibleColumns.length}
                     expandRowRenderer={expandRowRenderer}
                     isExpanded={expandedIds.has(rowId)}

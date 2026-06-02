@@ -82,7 +82,7 @@ interface TableContextValue<TData> {
   mobileCardClassName?: string;
 
   /** Return a ReactNode for expandable content below a row, or null/undefined for no toggle on that row. */
-  expandRowRenderer?: (row: TData) => React.ReactNode;
+  expandRowRenderer?: (row: TData, rowIndex: number) => React.ReactNode;
 
   // Helper Functions (Logic)
   getRawColumnDefinition: (colDef: ColumnDefinition<TData>) => IResponsiveTableColumnDefinition<TData>;

@@ -3,14 +3,15 @@ import styles from '../Styles/ResponsiveTable.module.css';
 
 interface DetailRowProps<TData> {
   row: TData;
+  rowIndex: number;
   colSpan: number;
-  expandRowRenderer: (row: TData) => React.ReactNode;
+  expandRowRenderer: (row: TData, rowIndex: number) => React.ReactNode;
   isExpanded: boolean;
   onToggle: () => void;
 }
 
-export function DetailRow<TData>({ row, colSpan, expandRowRenderer, isExpanded, onToggle }: DetailRowProps<TData>) {
-  const content = expandRowRenderer(row);
+export function DetailRow<TData>({ row, rowIndex, colSpan, expandRowRenderer, isExpanded, onToggle }: DetailRowProps<TData>) {
+  const content = expandRowRenderer(row, rowIndex);
   const hasContent = content != null;
 
   // Mount content on first expand; keep mounted so collapse animation plays.

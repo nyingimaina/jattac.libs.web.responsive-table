@@ -116,6 +116,18 @@ describe('ResponsiveTable expand/collapse (desktop)', () => {
     expect(screen.queryByText('Carol-details')).toBeNull();
   });
 
+  it('passes the correct rowIndex to expandRowRenderer for each row', () => {
+    const received = new Set<number>();
+    render(
+      <ResponsiveTable
+        data={data}
+        columnDefinitions={columns}
+        expandRowRenderer={(_row, rowIndex) => { received.add(rowIndex); return <div>x</div>; }}
+      />
+    );
+    expect([...received].sort()).toEqual([0, 1, 2]);
+  });
+
   it('multiple rows can be expanded independently', () => {
     render(
       <ResponsiveTable

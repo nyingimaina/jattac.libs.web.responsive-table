@@ -5,92 +5,61 @@ import { DetailRow } from './DetailRow';
 
 const noop = () => {};
 
+function wrap(ui: React.ReactElement) {
+  return render(<table><tbody>{ui}</tbody></table>);
+}
+
 describe('DetailRow', () => {
   it('renders a <tr> with the correct colSpan', () => {
-    const { container } = render(
-      <table><tbody>
-        <DetailRow row={{}} colSpan={4} expandRowRenderer={() => null} isExpanded={false} onToggle={noop} />
-      </tbody></table>
+    const { container } = wrap(
+      <DetailRow row={{}} rowIndex={0} colSpan={4} expandRowRenderer={() => null} isExpanded={false} onToggle={noop} />
     );
-    const td = container.querySelector('td');
-    expect(td).toHaveAttribute('colspan', '4');
+    expect(container.querySelector('td')).toHaveAttribute('colspan', '4');
   });
 
   it('shows no toggle button when expandRowRenderer returns null', () => {
-    render(
-      <table><tbody>
-        <DetailRow row={{}} colSpan={3} expandRowRenderer={() => null} isExpanded={false} onToggle={noop} />
-      </tbody></table>
-    );
+    wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => null} isExpanded={false} onToggle={noop} />);
     expect(screen.queryByRole('button')).toBeNull();
   });
 
   it('shows no toggle button when expandRowRenderer returns undefined', () => {
-    render(
-      <table><tbody>
-        <DetailRow row={{}} colSpan={3} expandRowRenderer={() => undefined} isExpanded={false} onToggle={noop} />
-      </tbody></table>
-    );
+    wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => undefined} isExpanded={false} onToggle={noop} />);
     expect(screen.queryByRole('button')).toBeNull();
   });
 
   it('shows a toggle button when expandRowRenderer returns content', () => {
-    render(
-      <table><tbody>
-        <DetailRow row={{}} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={false} onToggle={noop} />
-      </tbody></table>
-    );
+    wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={false} onToggle={noop} />);
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
   it('toggle button shows + when collapsed', () => {
-    render(
-      <table><tbody>
-        <DetailRow row={{}} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={false} onToggle={noop} />
-      </tbody></table>
-    );
+    wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={false} onToggle={noop} />);
     expect(screen.getByRole('button')).toHaveTextContent('+');
     expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('toggle button shows − when expanded', () => {
-    render(
-      <table><tbody>
-        <DetailRow row={{}} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={true} onToggle={noop} />
-      </tbody></table>
-    );
+    wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={true} onToggle={noop} />);
     expect(screen.getByRole('button')).toHaveTextContent('−');
     expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'true');
   });
 
   it('calls onToggle when button is clicked', () => {
     const onToggle = jest.fn();
-    render(
-      <table><tbody>
-        <DetailRow row={{}} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={false} onToggle={onToggle} />
-      </tbody></table>
-    );
+    wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={false} onToggle={onToggle} />);
     fireEvent.click(screen.getByRole('button'));
     expect(onToggle).toHaveBeenCalledTimes(1);
   });
 
   it('renders content when isExpanded is true', () => {
-    render(
-      <table><tbody>
-        <DetailRow row={{}} colSpan={3} expandRowRenderer={() => <div>Secret details</div>} isExpanded={true} onToggle={noop} />
-      </tbody></table>
-    );
+    wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Secret details</div>} isExpanded={true} onToggle={noop} />);
     expect(screen.getByText('Secret details')).toBeInTheDocument();
   });
 
-  it('passes the row to expandRowRenderer', () => {
+  it('passes the row and rowIndex to expandRowRenderer', () => {
     const row = { id: 42, name: 'Alice' };
     const renderer = jest.fn(() => <div>ok</div>);
-    render(
-      <table><tbody>
-        <DetailRow row={row} colSpan={2} expandRowRenderer={renderer} isExpanded={false} onToggle={noop} />
-      </tbody></table>
-    );
-    expect(renderer).toHaveBeenCalledWith(row);
+    wrap(<DetailRow row={row} rowIndex={7} colSpan={2} expandRowRenderer={renderer} isExpanded={false} onToggle={noop} />);
+    expect(renderer).toHaveBeenCalledWith(row, 7);
   });
 });

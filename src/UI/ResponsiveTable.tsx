@@ -110,7 +110,7 @@ interface IProps<TData> {
   /** Callback fired when a dataSource fetch fails. */
   onDataSourceError?: (error: Error) => void;
   /** Return a ReactNode to render expandable content below a row, or null/undefined for no expand toggle on that row. */
-  expandRowRenderer?: (row: TData) => React.ReactNode;
+  expandRowRenderer?: (row: TData, rowIndex: number) => React.ReactNode;
 }
 
 /**

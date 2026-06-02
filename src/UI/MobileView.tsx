@@ -15,13 +15,14 @@ interface RTNativeEvent extends Event {
 
 interface MobileDetailSectionProps<TData> {
   row: TData;
-  expandRowRenderer: (row: TData) => React.ReactNode;
+  rowIndex: number;
+  expandRowRenderer: (row: TData, rowIndex: number) => React.ReactNode;
   isExpanded: boolean;
   onToggle: () => void;
 }
 
-function MobileDetailSection<TData>({ row, expandRowRenderer, isExpanded, onToggle }: MobileDetailSectionProps<TData>) {
-  const content = expandRowRenderer(row);
+function MobileDetailSection<TData>({ row, rowIndex, expandRowRenderer, isExpanded, onToggle }: MobileDetailSectionProps<TData>) {
+  const content = expandRowRenderer(row, rowIndex);
   const hasContent = content != null;
   const [everExpanded, setEverExpanded] = useState(false);
   if (isExpanded && !everExpanded) setEverExpanded(true);
@@ -187,6 +188,7 @@ function MobileView<TData>(props: MobileViewProps) {
           {expandRowRenderer && (
             <MobileDetailSection
               row={row}
+              rowIndex={rowIndex}
               expandRowRenderer={expandRowRenderer}
               isExpanded={expandedIds.has(getRowId(row, rowIndex))}
               onToggle={() => toggleExpanded(getRowId(row, rowIndex))}
