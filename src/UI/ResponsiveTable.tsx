@@ -345,11 +345,17 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
     });
   }, [plugins]);
 
+  const isLoading = animationProps?.isLoading || isSourceLoading;
+
+  const resolvedAnimationProps = useMemo(() => ({
+    animateOnLoad: animationProps?.animateOnLoad,
+    isLoading,
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [animationProps?.animateOnLoad, animationProps?.isLoading, isLoading]);
+
   if (infiniteScrollProps) {
     return <InfiniteTable {...props} />;
   }
-
-  const isLoading = animationProps?.isLoading || isSourceLoading;
 
   if (isLoading && !hasData) {
     return <SkeletonView isMobile={isMobile} columnDefinitions={visibleColumns} />;
@@ -399,7 +405,7 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
         activePlugins,
         onRowClick,
         selectionProps,
-        animationProps: { ...animationProps, isLoading },
+        animationProps: resolvedAnimationProps,
         dataSource,
         pagination: dataSource ? {
           currentPage,
