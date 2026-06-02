@@ -67,6 +67,21 @@ interface IResponsiveTableColumnDefinition<TData> {
 | `className` | `string` | — | Custom CSS class for the filter input. |
 | `mode` | `'client' \| 'server'` | `'client'` | When `'client'`, filtering is performed in-memory on loaded data. When `'server'`, filter changes trigger a `dataSource` re-fetch with the `filter` param, enabling REST-powered search. |
 
+### Animation Configuration (`animationProps`)
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `isLoading` | `boolean` | `undefined` | When `true`, renders a skeleton loader in place of the table until data is ready. Merges with the internal `dataSource` loading state — either source sets the skeleton. |
+| `animateOnLoad` | `boolean` | `undefined` | When `true`, rows animate in on initial mount with a staggered entrance effect. |
+
+```tsx
+<ResponsiveTable
+  data={rows}
+  columnDefinitions={columns}
+  animationProps={{ isLoading: isFetching, animateOnLoad: true }}
+/>
+```
+
 ### DataSource Types
 
 ```typescript

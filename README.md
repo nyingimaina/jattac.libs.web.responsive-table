@@ -142,6 +142,25 @@ For a deep dive into more complex scenarios, see the **[Handling Interactive Ele
 
 ---
 
+## Loading States & Animations
+
+Control skeleton loaders and entrance animations with `animationProps`:
+
+```tsx
+<ResponsiveTable
+  data={rows}
+  columnDefinitions={columns}
+  animationProps={{ isLoading: isFetching, animateOnLoad: true }}
+/>
+```
+
+| Prop | Type | Description |
+| :--- | :--- | :--- |
+| `isLoading` | `boolean` | Shows a skeleton loader while `true`. Merges with internal `dataSource` loading state. |
+| `animateOnLoad` | `boolean` | Animates rows in on initial mount with a staggered entrance effect. |
+
+---
+
 ## Documentation Directory
 
 The following technical documentation provides comprehensive implementation guidance:
