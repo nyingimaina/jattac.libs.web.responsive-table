@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 import styles from '../Styles/ResponsiveTable.module.css';
 
 interface DetailRowProps<TData> {
@@ -14,23 +15,38 @@ export function DetailRow<TData>({ row, rowIndex, colSpan, expandRowRenderer, is
   const content = expandRowRenderer(row, rowIndex);
   const hasContent = content != null;
 
-  // Mount content on first expand; keep mounted so collapse animation plays.
   const [everExpanded, setEverExpanded] = useState(false);
   if (isExpanded && !everExpanded) setEverExpanded(true);
 
+  const tdClass = [
+    styles.detailCell,
+    hasContent ? styles.detailCellHasContent : '',
+    isExpanded ? styles.detailCellExpanded : '',
+  ].join(' ').trim();
+
+  const chevronClass = [
+    styles.detailChevron,
+    isExpanded ? styles.detailChevronExpanded : '',
+  ].join(' ').trim();
+
   return (
     <tr>
-      <td colSpan={colSpan} className={styles.detailCell}>
-        <div className={`${styles.detailToggleBar} ${hasContent ? styles.detailToggleBarVisible : ''}`}>
+      <td colSpan={colSpan} className={tdClass}>
+        <div
+          className={`${styles.detailToggleBar} ${hasContent ? styles.detailToggleBarVisible : ''}`}
+          {...(hasContent ? {
+            role: 'button',
+            tabIndex: 0,
+            'aria-expanded': isExpanded,
+            onClick: onToggle,
+            onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); } },
+            'data-rt-ignore-row-click': true,
+          } : {})}
+        >
           {hasContent && (
-            <button
-              className={styles.detailToggleBtn}
-              onClick={onToggle}
-              aria-expanded={isExpanded}
-              data-rt-ignore-row-click
-            >
-              {isExpanded ? '−' : '+'}
-            </button>
+            <span className={chevronClass}>
+              <MdKeyboardArrowDown />
+            </span>
           )}
         </div>
         <div className={`${styles.detailContentWrapper} ${isExpanded ? styles.detailContentWrapperExpanded : ''}`}>

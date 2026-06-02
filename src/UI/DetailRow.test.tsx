@@ -17,37 +17,42 @@ describe('DetailRow', () => {
     expect(container.querySelector('td')).toHaveAttribute('colspan', '4');
   });
 
-  it('shows no toggle button when expandRowRenderer returns null', () => {
+  it('shows no toggle when expandRowRenderer returns null', () => {
     wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => null} isExpanded={false} onToggle={noop} />);
     expect(screen.queryByRole('button')).toBeNull();
   });
 
-  it('shows no toggle button when expandRowRenderer returns undefined', () => {
+  it('shows no toggle when expandRowRenderer returns undefined', () => {
     wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => undefined} isExpanded={false} onToggle={noop} />);
     expect(screen.queryByRole('button')).toBeNull();
   });
 
-  it('shows a toggle button when expandRowRenderer returns content', () => {
+  it('shows a toggle when expandRowRenderer returns content', () => {
     wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={false} onToggle={noop} />);
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
-  it('toggle button shows + when collapsed', () => {
+  it('toggle has aria-expanded=false when collapsed', () => {
     wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={false} onToggle={noop} />);
-    expect(screen.getByRole('button')).toHaveTextContent('+');
     expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('toggle button shows − when expanded', () => {
+  it('toggle has aria-expanded=true when expanded', () => {
     wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={true} onToggle={noop} />);
-    expect(screen.getByRole('button')).toHaveTextContent('−');
     expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'true');
   });
 
-  it('calls onToggle when button is clicked', () => {
+  it('calls onToggle when toggle is clicked', () => {
     const onToggle = jest.fn();
     wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={false} onToggle={onToggle} />);
     fireEvent.click(screen.getByRole('button'));
+    expect(onToggle).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onToggle on Enter key', () => {
+    const onToggle = jest.fn();
+    wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={false} onToggle={onToggle} />);
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
     expect(onToggle).toHaveBeenCalledTimes(1);
   });
 

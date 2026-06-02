@@ -60,7 +60,7 @@ describe('ResponsiveTable expand/collapse (desktop)', () => {
     expect(screen.getAllByRole('button')).toHaveLength(1);
   });
 
-  it('toggle buttons start as + (collapsed)', () => {
+  it('toggles start collapsed (aria-expanded=false)', () => {
     render(
       <ResponsiveTable
         data={data}
@@ -68,10 +68,10 @@ describe('ResponsiveTable expand/collapse (desktop)', () => {
         expandRowRenderer={() => <div>details</div>}
       />
     );
-    screen.getAllByRole('button').forEach(btn => expect(btn).toHaveTextContent('+'));
+    screen.getAllByRole('button').forEach(btn => expect(btn).toHaveAttribute('aria-expanded', 'false'));
   });
 
-  it('clicking + expands the row and shows content', () => {
+  it('clicking toggle expands the row and shows content', () => {
     render(
       <ResponsiveTable
         data={data}
@@ -80,13 +80,13 @@ describe('ResponsiveTable expand/collapse (desktop)', () => {
       />
     );
     const [aliceBtn] = screen.getAllByRole('button');
-    expect(aliceBtn).toHaveTextContent('+');
+    expect(aliceBtn).toHaveAttribute('aria-expanded', 'false');
     fireEvent.click(aliceBtn);
-    expect(aliceBtn).toHaveTextContent('−');
+    expect(aliceBtn).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByText('Alice-details')).toBeInTheDocument();
   });
 
-  it('clicking − collapses the row', () => {
+  it('clicking toggle again collapses the row', () => {
     render(
       <ResponsiveTable
         data={data}
@@ -96,9 +96,9 @@ describe('ResponsiveTable expand/collapse (desktop)', () => {
     );
     const [aliceBtn] = screen.getAllByRole('button');
     fireEvent.click(aliceBtn); // expand
-    expect(aliceBtn).toHaveTextContent('−');
+    expect(aliceBtn).toHaveAttribute('aria-expanded', 'true');
     fireEvent.click(aliceBtn); // collapse
-    expect(aliceBtn).toHaveTextContent('+');
+    expect(aliceBtn).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('expanding one row does not expand others', () => {
@@ -175,7 +175,7 @@ describe('ResponsiveTable expand/collapse (mobile)', () => {
     expect(screen.getAllByRole('button')).toHaveLength(1);
   });
 
-  it('clicking + expands the row and shows content', () => {
+  it('clicking toggle expands the row and shows content', () => {
     render(
       <ResponsiveTable
         data={data}
@@ -185,11 +185,11 @@ describe('ResponsiveTable expand/collapse (mobile)', () => {
     );
     const [aliceBtn] = screen.getAllByRole('button');
     fireEvent.click(aliceBtn);
-    expect(aliceBtn).toHaveTextContent('−');
+    expect(aliceBtn).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByText('Alice-details')).toBeInTheDocument();
   });
 
-  it('clicking − collapses the row', () => {
+  it('clicking toggle again collapses the row', () => {
     render(
       <ResponsiveTable
         data={data}
@@ -200,7 +200,7 @@ describe('ResponsiveTable expand/collapse (mobile)', () => {
     const [aliceBtn] = screen.getAllByRole('button');
     fireEvent.click(aliceBtn);
     fireEvent.click(aliceBtn);
-    expect(aliceBtn).toHaveTextContent('+');
+    expect(aliceBtn).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('expanding one row does not expand others', () => {

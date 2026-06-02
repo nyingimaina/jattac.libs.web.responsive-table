@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 import styles from '../Styles/ResponsiveTable.module.css';
 import { useTableContext } from '../Context/TableContext';
 import { TableBodyCell } from './TableBodyCell';
@@ -29,17 +30,31 @@ function MobileDetailSection<TData>({ row, rowIndex, expandRowRenderer, isExpand
 
   if (!hasContent) return null;
 
+  const chevronClass = [
+    styles.detailChevron,
+    isExpanded ? styles.detailChevronExpanded : '',
+  ].join(' ').trim();
+
+  const outerClass = [
+    styles.mobileDetailOuter,
+    styles.detailCellHasContent,
+    isExpanded ? styles.detailCellExpanded : '',
+  ].join(' ').trim();
+
   return (
-    <div className={styles.mobileDetailOuter}>
-      <div className={`${styles.detailToggleBar} ${styles.detailToggleBarVisible}`}>
-        <button
-          className={styles.detailToggleBtn}
-          onClick={onToggle}
-          aria-expanded={isExpanded}
-          data-rt-ignore-row-click
-        >
-          {isExpanded ? '−' : '+'}
-        </button>
+    <div className={outerClass}>
+      <div
+        className={`${styles.detailToggleBar} ${styles.detailToggleBarVisible}`}
+        role="button"
+        tabIndex={0}
+        aria-expanded={isExpanded}
+        onClick={onToggle}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); } }}
+        data-rt-ignore-row-click
+      >
+        <span className={chevronClass}>
+          <MdKeyboardArrowDown />
+        </span>
       </div>
       <div className={`${styles.detailContentWrapper} ${isExpanded ? styles.detailContentWrapperExpanded : ''}`}>
         <div className={styles.detailContentInner}>
