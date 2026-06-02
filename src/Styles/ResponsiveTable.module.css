@@ -401,7 +401,7 @@
 }
 
 .detailCellHasContent {
-  padding-bottom: 8px;
+  padding-bottom: 0.5rem;
 }
 
 .detailCellExpanded {
@@ -415,10 +415,10 @@
 }
 
 .detailToggleBarVisible {
-  height: 32px;
+  height: 2rem;
   display: flex;
   align-items: center;
-  padding: 0 12px;
+  padding: 0 0.75rem;
   cursor: pointer;
   box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.04);
   user-select: none;
@@ -430,14 +430,15 @@
 
 .detailChevron {
   color: var(--primary-color, #3b82f6);
-  font-size: 20px;
+  font-size: 1.5rem;
   display: flex;
   align-items: center;
+  transform: rotate(-90deg);
   transition: transform 0.25s ease;
 }
 
 .detailChevronExpanded {
-  transform: rotate(180deg);
+  transform: rotate(0deg);
 }
 
 .detailContentWrapper {
@@ -452,7 +453,7 @@
 
 .detailContentInner {
   overflow: hidden;
-  padding-left: 24px;
+  padding-left: 1.5rem;
 }
 
 .mobileDetailOuter {

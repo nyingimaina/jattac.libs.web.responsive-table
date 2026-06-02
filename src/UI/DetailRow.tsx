@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MdKeyboardArrowDown } from 'react-icons/md';
+import { MdArrowDropDown } from 'react-icons/md';
 import styles from '../Styles/ResponsiveTable.module.css';
 
 interface DetailRowProps<TData> {
@@ -45,7 +45,7 @@ export function DetailRow<TData>({ row, rowIndex, colSpan, expandRowRenderer, is
         >
           {hasContent && (
             <span className={chevronClass}>
-              <MdKeyboardArrowDown />
+              <MdArrowDropDown />
             </span>
           )}
         </div>

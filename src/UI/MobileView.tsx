@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { MdKeyboardArrowDown } from 'react-icons/md';
+import { MdArrowDropDown } from 'react-icons/md';
 import styles from '../Styles/ResponsiveTable.module.css';
 import { useTableContext } from '../Context/TableContext';
 import { TableBodyCell } from './TableBodyCell';
@@ -53,7 +53,7 @@ function MobileDetailSection<TData>({ row, rowIndex, expandRowRenderer, isExpand
         data-rt-ignore-row-click
       >
         <span className={chevronClass}>
-          <MdKeyboardArrowDown />
+          <MdArrowDropDown />
         </span>
       </div>
       <div className={`${styles.detailContentWrapper} ${isExpanded ? styles.detailContentWrapperExpanded : ''}`}>
