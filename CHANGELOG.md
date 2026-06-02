@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.12.0-rc.2] - 2026-06-03 — Release Candidate
+
+### Changed
+- Polish expand/collapse toggle: replaced `+`/`−` text with a rotating `MdKeyboardArrowDown` chevron (primary-color blue, 20px); full toggle bar (32px) is now the click target; keyboard accessible (Enter/Space)
+- Removed hard `border-top` separator; replaced with inset box-shadow + subtle background tint on the detail zone
+- Left accent stripe (`border-left: 2px solid primary-color`) appears on expand
+- Detail content indented 24px; bottom padding signals ownership to the preceding row
+
+---
+
 ## [0.12.0-rc.1] - 2026-06-02 — Release Candidate
 
 ### Added
