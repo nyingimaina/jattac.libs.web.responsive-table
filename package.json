@@ -30,12 +30,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://nyingi.visualstudio.com/DefaultCollection/Jattac.Libs.Web.ResponsiveTable/_git/Jattac.Libs.Web.ResponsiveTable"
+    "url": "https://github.com/nyingimaina/jattac.libs.web.responsive-table.git"
   },
   "bugs": {
-    "url": "https://nyingi.visualstudio.com/DefaultCollection/Jattac.Libs.Web.ResponsiveTable/_workitems"
+    "url": "https://github.com/nyingimaina/jattac.libs.web.responsive-table/issues"
   },
-  "homepage": "https://nyingi.visualstudio.com/DefaultCollection/Jattac.Libs.Web.ResponsiveTable/_git/Jattac.Libs.Web.ResponsiveTable#readme",
+  "homepage": "https://github.com/nyingimaina/jattac.libs.web.responsive-table#readme",
   "engines": {
     "node": ">=18.0.0"
   },
