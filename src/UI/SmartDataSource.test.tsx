@@ -242,7 +242,7 @@ describe('ResponsiveTable Smart Data Source', () => {
           data={[]}
           dataSource={dataSource}
           pageSize={10}
-          filterProps={{ showFilter: true }}
+          filterProps={{ showFilter: true, mode: 'client' }}
         />
       );
     });

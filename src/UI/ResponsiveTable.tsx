@@ -173,7 +173,6 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
       className: filterProps.className,
       mode: isServerFilter ? 'server' as const : (filterProps.mode ?? 'client' as const),
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterProps?.showFilter, filterProps?.filterPlaceholder, filterProps?.className, filterProps?.mode, isServerFilter]);
 
   const {
@@ -350,7 +349,6 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
   const resolvedAnimationProps = useMemo(() => ({
     animateOnLoad: animationProps?.animateOnLoad,
     isLoading,
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [animationProps?.animateOnLoad, animationProps?.isLoading, isLoading]);
 
   if (infiniteScrollProps) {
