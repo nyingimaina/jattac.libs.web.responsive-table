@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.12.0-rc.4] - 2026-06-03 — Release Candidate
+
+### Added
+- `expandChevronClassName` prop — custom CSS class applied to the chevron icon span for color/size overrides
+
+### Changed
+- Chevron: `2.2rem` (was `1.5rem`); toggle bar height `2.5rem`
+- Toggle bar: muted blue background `rgba(59,130,246,0.08)`, deepens to `0.14` on hover
+
+### Added (onRowClick feedback)
+- Desktop rows: `background-color` transition `0.12s`; `:active` press state (`#dde3ea`, `0.08s`)
+- Mobile cards: `:active` compresses (`translateY(-1px)`, reduced shadow)
+- `:focus-visible` ring on clickable rows and cards (2px primary-color)
+- `tabIndex=0` on all clickable rows/cards for keyboard accessibility
+- Selection `background-color` transition `0.15s` — smooth sweep instead of instant snap
+- Mobile selected rows now match desktop with background tint
+
+---
+
 ## [0.12.0-rc.3] - 2026-06-03 — Release Candidate
 
 ### Changed
