@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.12.0-rc.3] - 2026-06-03 — Release Candidate
+
+### Changed
+- Chevron: replaced `MdKeyboardArrowDown` with solid `MdArrowDropDown` (filled triangle, more visual mass)
+- Rotation: collapsed points right (`rotate(-90deg)`), expanded points down (`rotate(0deg)`) — universal accordion convention
+- Size: `1.5rem` (was `1.25rem`) for faster eye-catch
+- All detail row sizes converted to `rem`: bar height `2rem`, padding `0.75rem`, content indent `1.5rem`, bottom gap `0.5rem`
+
+---
+
 ## [0.12.0-rc.2] - 2026-06-03 — Release Candidate
 
 ### Changed
