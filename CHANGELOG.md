@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.12.0] - 2026-06-03
+
+### Added
+- **Expandable rows** — new `expandRowRenderer?: (row: TData, rowIndex: number) => ReactNode` prop. Returns `null`/`undefined` for no toggle; returns a `ReactNode` to show a rotating solid chevron (▶/▾) on a muted blue bar that animates open/closed. Works in both desktop and mobile layouts.
+- **`expandChevronClassName`** — custom CSS class for the chevron icon span; override color, size, or any style without forking the component.
+- **`rowIndex` parameter** on `expandRowRenderer` — consistent with the `ColumnDefinition` function form `(data, rowIndex?)` pattern.
+- **Row click feedback** — full interaction state machine on clickable rows/cards: hover, `:active` press state (80ms), selection transition (150ms), `:focus-visible` keyboard ring, `tabIndex=0` for full keyboard navigation.
+- **Mobile selected state** — card selection now shows background tint matching desktop, in addition to the existing left border.
+
+### Changed
+- Expand toggle: solid filled `MdArrowDropDown` chevron replaces `+`/`−` text; `2.2rem` default size; `2.5rem` bar height; muted blue bar `rgba(59,130,246,0.08)`; collapsed points right, expanded points down.
+- All expand/collapse sizes converted to `rem`.
+
+---
+
 ## [0.12.0-rc.4] - 2026-06-03 — Release Candidate
 
 ### Added
