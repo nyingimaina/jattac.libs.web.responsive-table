@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
+import { MdArrowDropDown } from 'react-icons/md';
 import styles from '../Styles/ResponsiveTable.module.css';
 import { useTableContext } from '../Context/TableContext';
 import { TableBodyCell } from './TableBodyCell';
@@ -11,6 +12,59 @@ interface MobileViewProps {
 
 interface RTNativeEvent extends Event {
   _rtIgnoreRowClick?: boolean;
+}
+
+interface MobileDetailSectionProps<TData> {
+  row: TData;
+  rowIndex: number;
+  expandRowRenderer: (row: TData, rowIndex: number) => React.ReactNode;
+  isExpanded: boolean;
+  onToggle: () => void;
+  expandChevronClassName?: string;
+}
+
+function MobileDetailSection<TData>({ row, rowIndex, expandRowRenderer, isExpanded, onToggle, expandChevronClassName }: MobileDetailSectionProps<TData>) {
+  const content = expandRowRenderer(row, rowIndex);
+  const hasContent = content != null;
+  const [everExpanded, setEverExpanded] = useState(false);
+  if (isExpanded && !everExpanded) setEverExpanded(true);
+
+  if (!hasContent) return null;
+
+  const chevronClass = [
+    styles.detailChevron,
+    isExpanded ? styles.detailChevronExpanded : '',
+    expandChevronClassName ?? '',
+  ].join(' ').trim();
+
+  const outerClass = [
+    styles.mobileDetailOuter,
+    styles.detailCellHasContent,
+    isExpanded ? styles.detailCellExpanded : '',
+  ].join(' ').trim();
+
+  return (
+    <div className={outerClass}>
+      <div
+        className={`${styles.detailToggleBar} ${styles.detailToggleBarVisible}`}
+        role="button"
+        tabIndex={0}
+        aria-expanded={isExpanded}
+        onClick={onToggle}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); } }}
+        data-rt-ignore-row-click
+      >
+        <span className={chevronClass}>
+          <MdArrowDropDown />
+        </span>
+      </div>
+      <div className={`${styles.detailContentWrapper} ${isExpanded ? styles.detailContentWrapperExpanded : ''}`}>
+        <div className={styles.detailContentInner}>
+          {everExpanded && content}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function MobileView<TData>(props: MobileViewProps) {
@@ -28,9 +82,25 @@ function MobileView<TData>(props: MobileViewProps) {
     getClickableHeaderClassName,
     pagination,
     mobileCardClassName,
+    expandRowRenderer,
+    expandChevronClassName,
   } = useTableContext<TData>();
 
   const isClickable = onRowClick || selectionProps;
+
+  const [expandedIds, setExpandedIds] = useState<Set<string | number>>(new Set());
+
+  const toggleExpanded = useCallback((id: string | number) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
 
   const inferDataType = (colDef: IResponsiveTableColumnDefinition<TData>, value: React.ReactNode): string => {
     if (colDef.dataType) return colDef.dataType;
@@ -71,10 +141,11 @@ function MobileView<TData>(props: MobileViewProps) {
         const pluginOnClick = rowProps.onClick;
 
         return (
+          <React.Fragment key={getRowId(row, rowIndex)}>
           <div
-            key={getRowId(row, rowIndex)}
             className={`${styles.card} ${isClickable ? styles.clickableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''} ${mobileCardClassName || ''}`.trim()}
             style={{ animationDelay: `${rowIndex * 0.05}s` }}
+            tabIndex={isClickable ? 0 : undefined}
             aria-selected={rowProps['aria-selected']}
             onClickCapture={(e: React.MouseEvent<HTMLDivElement>) => {
               const target = e.target as HTMLElement;
@@ -133,6 +204,17 @@ function MobileView<TData>(props: MobileViewProps) {
               })}
             </div>
           </div>
+          {expandRowRenderer && (
+            <MobileDetailSection
+              row={row}
+              rowIndex={rowIndex}
+              expandRowRenderer={expandRowRenderer}
+              isExpanded={expandedIds.has(getRowId(row, rowIndex))}
+              onToggle={() => toggleExpanded(getRowId(row, rowIndex))}
+              expandChevronClassName={expandChevronClassName}
+            />
+          )}
+        </React.Fragment>
         );
       })}
       {pagination?.hasMore && (

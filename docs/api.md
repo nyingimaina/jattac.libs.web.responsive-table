@@ -35,6 +35,53 @@ This document contains the exhaustive technical specification for the Responsive
 | `onDataSourceStateChange` | `(state: DataSourceState<TData>) => void` | Callback fired whenever the dataSource state changes (data, page, loading, error). |
 | `onPageChange` | `(page: number) => void` | Callback fired when the current page changes. |
 | `onDataSourceError` | `(error: Error) => void` | Callback fired when a dataSource fetch fails. |
+| `expandRowRenderer` | `(row: TData, rowIndex: number) => ReactNode` | Renders collapsible detail content below a row. Return `null`/`undefined` for no toggle on that row. |
+| `expandChevronClassName` | `string` | Custom CSS class applied to the chevron icon `<span>`. Use to override color, size, or any other style. |
+
+### Row Interaction & Visual Feedback (`onRowClick`)
+
+When `onRowClick` or `selectionProps` is provided, the table applies a full interaction state machine to every clickable row — no additional configuration required.
+
+| State | Desktop (`<tr>`) | Mobile (card) |
+| :--- | :--- | :--- |
+| **Default** | Stripe / base background | Card with subtle shadow |
+| **Hover** | Background lightens (`--table-row-hover-bg`) | Card lifts 4px, shadow deepens |
+| **Active (press)** | Background deepens to `#dde3ea` (80ms) | Card compresses to 1px lift, shadow reduces |
+| **Selected** | Background sweeps to `#e7f1ff` (150ms transition) | Same tint + 4px primary-color left border |
+| **Focus (keyboard)** | 2px primary-color `outline` (`:focus-visible` only) | Same |
+
+All clickable rows and cards receive `tabIndex=0`, making the table fully keyboard-navigable. Press **Tab** to move between rows, **Enter** or **Space** to trigger `onRowClick`.
+
+**Use cases**
+- Navigation: `onRowClick={(row) => navigate(`/detail/${row.id}`)}`
+- Inline drawer or modal trigger
+- Combined with `selectionProps` for multi-select workflows
+
+```tsx
+// Navigation on click
+<ResponsiveTable
+  data={invoices}
+  columnDefinitions={columns}
+  onRowClick={(invoice) => router.push(`/invoices/${invoice.id}`)}
+/>
+
+// Selection + click
+<ResponsiveTable
+  data={employees}
+  columnDefinitions={columns}
+  selectionProps={{
+    rowIdKey: 'id',
+    mode: 'multiple',
+    onSelectionChange: (selected) => setSelected(selected),
+  }}
+  onRowClick={(employee) => setPreview(employee)}
+/>
+```
+
+**Best practices**
+- Use `data-rt-ignore-row-click` on buttons and links inside cells so inner interactions do not also fire the row handler — see [Handling Interactive Elements](./handling-interactive-elements.md).
+- Always provide `selectionProps.rowIdKey` pointing to a stable unique field when using selection — prevents state drift when rows are sorted or filtered.
+- The `:active` feedback is immediate by design (80ms transition-in). Do not suppress it via CSS — it is the primary signal that the press registered before any async work begins.
 
 ### IResponsiveTableColumnDefinition
 The primary configuration interface for defining column-level behavior and rendering logic.
@@ -81,6 +128,85 @@ interface IResponsiveTableColumnDefinition<TData> {
   animationProps={{ isLoading: isFetching, animateOnLoad: true }}
 />
 ```
+
+### Expandable Rows (`expandRowRenderer`, `expandChevronClassName`)
+
+#### `expandRowRenderer`
+
+```typescript
+expandRowRenderer?: (row: TData, rowIndex: number) => ReactNode
+```
+
+Attaches a collapsible detail panel below each row. A solid chevron indicator (▶ collapsed, ▾ expanded) sits on a muted blue bar below the row. The renderer is called for every row — return `null` or `undefined` to suppress the toggle entirely for that row.
+
+```tsx
+// All rows expandable
+<ResponsiveTable
+  data={orders}
+  columnDefinitions={columns}
+  expandRowRenderer={(order) => <OrderLineItems orderId={order.id} />}
+/>
+
+// Selectively expandable — only rows with line items get a toggle
+<ResponsiveTable
+  data={orders}
+  columnDefinitions={columns}
+  expandRowRenderer={(order) =>
+    order.lineItems.length > 0 ? <OrderLineItems order={order} /> : null
+  }
+/>
+
+// rowIndex for position-based logic (zebra detail panels, animation offsets)
+<ResponsiveTable
+  data={employees}
+  columnDefinitions={columns}
+  expandRowRenderer={(row, rowIndex) => (
+    <EmployeeDetail employee={row} zebra={rowIndex % 2 === 0} />
+  )}
+/>
+```
+
+**Use cases**
+- Master–detail layouts (orders → line items, users → permissions, assets → history)
+- Inline editing panels without navigating away
+- Progressive disclosure of verbose data fields that would clutter the main row
+- Nested tables or charts scoped to a single row
+
+**Behaviour**
+- Detail content is **lazy-mounted**: the panel component is not created until first expand, then stays mounted so the collapse animation plays correctly. Heavy components are instantiated on demand.
+- Expand state is keyed by `selectionProps.rowIdKey` when provided, otherwise falls back to array index. A stable key survives re-sorts and filter changes.
+- `rowIndex` is the **display-order** index (post-sort, post-filter) — not a stable identifier. Use the row object's own field for cross-render correlation.
+- The chevron bar carries `data-rt-ignore-row-click` — tapping the toggle never fires `onRowClick`.
+- Works identically in desktop (table `<tr>`) and mobile (card) layouts.
+
+#### `expandChevronClassName`
+
+```typescript
+expandChevronClassName?: string
+```
+
+Custom CSS class applied to the chevron icon `<span>`. The chevron defaults to `2.2rem` in the primary color. Use this prop to override any style without forking the component.
+
+```tsx
+// Brand color override
+<ResponsiveTable
+  expandChevronClassName={styles.brandChevron}
+  expandRowRenderer={(row) => <Detail row={row} />}
+  ...
+/>
+```
+
+```css
+.brandChevron {
+  color: #7c3aed;    /* your design-system accent */
+  font-size: 1.8rem; /* smaller if the default is too prominent */
+}
+```
+
+**Best practices**
+- Override `color` to match your design token rather than using hardcoded hex — keeps theming consistent.
+- Avoid overriding `transform` or `transition` — these drive the collapse animation.
+- Pair with `--primary-color` CSS variable if your app uses it; the default chevron already respects it.
 
 ### DataSource Types
 

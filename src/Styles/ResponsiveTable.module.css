@@ -178,6 +178,30 @@
   cursor: pointer;
 }
 
+/* Desktop row — smooth hover + active press feedback */
+.responsiveTable tbody tr {
+  transition: background-color 0.12s ease;
+}
+.responsiveTable tbody tr.clickableRow:active {
+  background-color: var(--table-row-active-bg, #dde3ea);
+  transition: background-color 0.08s ease;
+}
+.responsiveTable tbody tr.clickableRow:focus-visible {
+  outline: 2px solid var(--primary-color, #3b82f6);
+  outline-offset: -2px;
+}
+
+/* Mobile card — press-down on active, focus ring */
+.card.clickableRow:active {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.card.clickableRow:focus-visible {
+  outline: 2px solid var(--primary-color, #3b82f6);
+  outline-offset: -2px;
+}
+
 .clickableHeader {
   cursor: pointer;
   transition: color 0.2s;
@@ -282,10 +306,12 @@
 /* Selection Styles */
 .selectedRow {
   background-color: #e7f1ff !important;
+  transition: background-color 0.15s ease;
 }
 
 .card.selectedRow {
   border-left: 4px solid var(--primary-color);
+  background-color: #e7f1ff;
 }
 
 /* Animations */
@@ -390,4 +416,74 @@
 .internalStickyHeader th {
   position: sticky;
   top: 0;
+}
+
+/* Expand/collapse detail rows */
+.detailCell {
+  padding: 0;
+  border-top: none;
+  background: rgba(0, 0, 0, 0.012);
+  transition: border-left 0.2s ease;
+}
+
+.detailCellHasContent {
+  padding-bottom: 0.5rem;
+}
+
+.detailCellExpanded {
+  border-left: 2px solid var(--primary-color, #3b82f6);
+}
+
+.detailToggleBar {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.2s ease;
+}
+
+.detailToggleBarVisible {
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  padding: 0 0.75rem;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.04);
+  user-select: none;
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.detailToggleBarVisible:hover {
+  background: rgba(59, 130, 246, 0.14);
+}
+
+.detailChevron {
+  color: var(--primary-color, #3b82f6);
+  font-size: 2.2rem;
+  display: flex;
+  align-items: center;
+  transform: rotate(-90deg);
+  transition: transform 0.25s ease;
+}
+
+.detailChevronExpanded {
+  transform: rotate(0deg);
+}
+
+.detailContentWrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+
+.detailContentWrapperExpanded {
+  grid-template-rows: 1fr;
+}
+
+.detailContentInner {
+  overflow: hidden;
+  padding-left: 1.5rem;
+}
+
+.mobileDetailOuter {
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.012);
 }

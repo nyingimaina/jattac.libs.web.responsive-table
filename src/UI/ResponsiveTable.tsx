@@ -109,6 +109,10 @@ interface IProps<TData> {
   onPageChange?: (page: number) => void;
   /** Callback fired when a dataSource fetch fails. */
   onDataSourceError?: (error: Error) => void;
+  /** Return a ReactNode to render expandable content below a row, or null/undefined for no expand toggle on that row. */
+  expandRowRenderer?: (row: TData, rowIndex: number) => React.ReactNode;
+  /** Custom CSS class applied to the expand/collapse chevron icon span. Use to override color, size, or add custom styling. */
+  expandChevronClassName?: string;
 }
 
 /**
@@ -137,6 +141,8 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
     onDataSourceStateChange,
     onPageChange,
     onDataSourceError,
+    expandRowRenderer,
+    expandChevronClassName,
   } = props;
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -416,6 +422,8 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
           error,
         } : undefined,
         mobileCardClassName,
+        expandRowRenderer,
+        expandChevronClassName,
       }}
     >
       <div>

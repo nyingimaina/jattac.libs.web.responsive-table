@@ -61,6 +61,7 @@ export function TableBodyRow<TData>(props: TableBodyRowProps<TData>) {
     <tr
       className={`${isClickable ? styles.clickableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''}`.trim()}
       style={{ animationDelay: `${rowIndex * 0.05}s` }}
+      tabIndex={isClickable ? 0 : undefined}
       aria-selected={rowProps['aria-selected']}
     onClickCapture={(e: React.MouseEvent<HTMLTableRowElement>) => {
         // Capture Phase: Check for the ignore attribute BEFORE child handlers run.

@@ -142,6 +142,102 @@ For a deep dive into more complex scenarios, see the **[Handling Interactive Ele
 
 ---
 
+## Expandable Rows
+
+Pass `expandRowRenderer` to reveal arbitrary content below any row. Each expandable row gets a solid chevron toggle (▶ collapsed, ▾ expanded) on a muted blue bar. Returning `null` or `undefined` for a row suppresses its toggle entirely — that row renders flat with no visual affordance.
+
+```tsx
+<ResponsiveTable
+  data={orders}
+  columnDefinitions={columns}
+  expandRowRenderer={(order) => <OrderLineItems orderId={order.id} />}
+/>
+```
+
+**Selectively expandable** — only rows where the renderer returns content get a toggle:
+
+```tsx
+expandRowRenderer={(order) =>
+  order.lineItems.length > 0
+    ? <OrderLineItems order={order} />
+    : null
+}
+```
+
+**Using `rowIndex`** — the renderer receives both the row object and its current display-order index. Useful for position-based formatting, alternating detail styles, or correlating with a parallel index-aligned array:
+
+```tsx
+expandRowRenderer={(row, rowIndex) => (
+  <DetailPanel row={row} zebra={rowIndex % 2 === 0} />
+)}
+```
+
+> `rowIndex` is the **display-order** index (post-sort, post-filter) — it changes when the user re-sorts. For stable data correlation across renders, use the row's own identifier field (`row.id`, etc.).
+
+**Customising the chevron** — override color, size, or any other style via `expandChevronClassName`:
+
+```tsx
+// Accent color from your design system
+<ResponsiveTable
+  expandChevronClassName="my-brand-chevron"
+  expandRowRenderer={(row) => <Detail row={row} />}
+  ...
+/>
+```
+
+```css
+/* your stylesheet */
+.my-brand-chevron {
+  color: #7c3aed;   /* purple accent */
+  font-size: 2rem;
+}
+```
+
+**Recommendations**
+- Provide `selectionProps` with a `rowIdKey` when your data has a stable identifier. Expand state is keyed by row ID, so open panels survive re-sorts and filter changes.
+- Detail content is **lazy-mounted** — the panel component is not created until first expand, then stays mounted so the collapse animation plays correctly. Heavy components are therefore only instantiated on demand.
+- Expand and `onRowClick` coexist safely — the chevron bar carries `data-rt-ignore-row-click` so tapping the toggle never fires the row click handler.
+- Works identically in both desktop (table row) and mobile (card) layouts.
+
+---
+
+## Row Interaction & Feedback
+
+When `onRowClick` or `selectionProps` is provided, the table delivers tactile interaction feedback at every phase of the click:
+
+| Phase | Desktop | Mobile |
+| :--- | :--- | :--- |
+| **Hover** | Subtle background lightening | Card lifts 4px with enhanced shadow |
+| **Press (`:active`)** | Background deepens — confirms the press registered | Card compresses back to 1px lift |
+| **Release / Selected** | Background sweeps to the selection tint (150ms transition) | Same tint + primary-color left border |
+| **Keyboard focus** | 2px primary-color outline (`:focus-visible` only — not shown on mouse click) | Same |
+
+**Rationale** — each phase is distinct so users receive unambiguous confirmation that their input was received, without animations that feel slow or decorative. The `:active` state is the most critical: it fires in the 80–150ms window of the press itself, before any state change, so even users on slow networks feel an immediate response.
+
+**Keyboard navigation** — all clickable rows and cards have `tabIndex=0` and a `:focus-visible` ring. Tab through rows; press Enter or Space to trigger `onRowClick`.
+
+**Combining with `onRowClick` and selection:**
+
+```tsx
+<ResponsiveTable
+  data={employees}
+  columnDefinitions={columns}
+  onRowClick={(employee) => navigate(`/employees/${employee.id}`)}
+  selectionProps={{
+    rowIdKey: 'id',
+    mode: 'multiple',
+    onSelectionChange: (selected) => setSelected(selected),
+  }}
+/>
+```
+
+**Best practices**
+- Always pair `onRowClick` with a visible hover state cue (the default cursor change handles this automatically).
+- If rows contain buttons or links, use `data-rt-ignore-row-click` on those elements so inner interactions don't also trigger the row handler.
+- For selection, always provide `rowIdKey` pointing to a stable unique field — this ensures expand state and selection state both survive sort/filter changes.
+
+---
+
 ## Loading States & Animations
 
 Control skeleton loaders and entrance animations with `animationProps`:
