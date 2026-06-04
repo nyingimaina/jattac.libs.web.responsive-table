@@ -18,6 +18,19 @@ npm install jattac.libs.web.responsive-table jattac.libs.web.zest-textbox react-
 
 ---
 
+## Table of Contents
+
+*   [Built-in Filter](#built-in-filter)
+*   [Delightful Data Fetching: Smart Data Source](#delightful-data-fetching-smart-data-source)
+*   [Basic Implementation](#basic-implementation)
+*   [Handling Interactive Elements](#handling-interactive-elements)
+*   [Expandable Rows](#expandable-rows)
+*   [Row Interaction & Feedback](#row-interaction--feedback)
+*   [Loading States & Animations](#loading-states--animations)
+*   [Documentation Directory](#documentation-directory)
+
+---
+
 ## Built-in Filter
 
 Enable the search box with one prop. A clear (×) button appears automatically when the field has text.
