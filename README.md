@@ -199,6 +199,8 @@ expandRowRenderer={(row, rowIndex) => (
 - Expand and `onRowClick` coexist safely — the chevron bar carries `data-rt-ignore-row-click` so tapping the toggle never fires the row click handler.
 - Works identically in both desktop (table row) and mobile (card) layouts.
 
+For the full feature reference — expansion state keying, lazy mounting, keyboard accessibility, `dataSource` compatibility, common patterns, CSS customization, and pitfalls — see the **[Row Expansion and Collapse Guide](./docs/expand-collapse.md)**.
+
 ---
 
 ## Row Interaction & Feedback
@@ -267,6 +269,7 @@ The following technical documentation provides comprehensive implementation guid
 4.  **[Configuration Specification](./docs/configuration.md)** - Detailed guidance on performance tuning and UI customization.
 5.  **[Architecture and Contribution Guide](./docs/development.md)** - Internal system design and development environment setup.
 6.  **[Handling Interactive Elements](./docs/handling-interactive-elements.md)** - Guide on preventing row click bubbling for buttons and custom components.
+7.  **[Row Expansion and Collapse](./docs/expand-collapse.md)** - Comprehensive guide for expandable row detail panels.
 
 ---
 **Next Step:** [Review the Technical Implementation Guide](./docs/examples.md)

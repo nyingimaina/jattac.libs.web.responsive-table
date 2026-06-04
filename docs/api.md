@@ -208,6 +208,8 @@ Custom CSS class applied to the chevron icon `<span>`. The chevron defaults to `
 - Avoid overriding `transform` or `transition` — these drive the collapse animation.
 - Pair with `--primary-color` CSS variable if your app uses it; the default chevron already respects it.
 
+For the complete feature reference — including expansion state keying, lazy mounting, accessibility, common patterns, and pitfalls — see the **[Row Expansion and Collapse Guide](./expand-collapse.md)**.
+
 ### DataSource Types
 
 ```typescript

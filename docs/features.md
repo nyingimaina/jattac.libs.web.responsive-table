@@ -6,6 +6,7 @@ This document provides a high-level overview of the technical capabilities and a
 ## Table of Contents
 *   [Automated Layout Orchestration](#automated-layout-orchestration)
 *   [Asynchronous Data Stream Support](#asynchronous-data-stream-support)
+*   [Progressive Row Disclosure](#progressive-row-disclosure)
 *   [Persistent Plugin Lifecycle](#persistent-plugin-lifecycle)
 *   [Structural Alignment Management](#structural-alignment-management)
 
@@ -26,6 +27,11 @@ Native integration for high-volume data sets via an infinite scrolling orchestra
 ### Error Resilience
 Automatic error detection and recovery for `dataSource` operations. When a fetch fails, the component surfaces the error with a retry mechanism, accessible both through the UI and programmatically.
 *   [Implementation Example: Error Handling and Retry](./examples.md#13-error-handling-and-retry)
+
+### Progressive Row Disclosure
+The component supports collapsible detail panels attached below any row. A chevron toggle bar is rendered automatically when `expandRowRenderer` returns content for a row; returning `null` suppresses the toggle entirely for that row. Detail components are lazy-mounted — not instantiated until first expand — and stay mounted thereafter so the collapse animation plays correctly and component state is preserved across open/close cycles. Expand state is keyed by a stable row identifier when `selectionProps.rowIdKey` is provided, ensuring open panels survive re-sorts and filter changes. The feature operates identically in desktop table and mobile card layouts and composes transparently with selection, `onRowClick`, and `dataSource`.
+*   [Full Implementation Guide: Row Expansion and Collapse](./expand-collapse.md)
+*   [Implementation Example: Expandable Rows](./examples.md#14-expandable-rows)
 
 ### Persistent Plugin Lifecycle
 The component features a robust internal lifecycle management system for plugins. State for sorting, filtering, and selection is persisted across re-renders and data updates using non-reactive references, optimizing performance and ensuring data consistency.

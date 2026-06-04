@@ -17,6 +17,7 @@ This guide details standard implementation patterns for the ResponsiveTable comp
    *   [Observing dataSource State: Callbacks](#11-observing-datasource-state-callbacks)
    *   [Imperative Control via Ref](#12-imperative-control-via-ref)
    *   [Error Handling and Retry](#13-error-handling-and-retry)
+   *   [Expandable Rows](#14-expandable-rows)
 
 ---
 
@@ -348,6 +349,61 @@ export const ResilientTable = () => (
   />
 );
 ```
+
+### 14. Expandable Rows
+Attach collapsible detail panels below any row using `expandRowRenderer`. Return `null` for rows that should not be expandable. Provide `selectionProps.rowIdKey` to ensure expanded panels survive re-sorts and filter changes.
+
+```tsx
+import ResponsiveTable from 'jattac.libs.web.responsive-table';
+
+type Order = {
+  id: string;
+  reference: string;
+  customer: string;
+  total: number;
+  lineItems: { sku: string; qty: number; price: number }[];
+};
+
+const columns: ColumnDefinition<Order>[] = [
+  { displayLabel: 'Reference', cellRenderer: (o) => o.reference },
+  { displayLabel: 'Customer',  cellRenderer: (o) => o.customer },
+  { displayLabel: 'Total',     cellRenderer: (o) => `$${o.total.toFixed(2)}` },
+];
+
+export const ExpandableOrderTable = () => (
+  <ResponsiveTable
+    data={orders}
+    columnDefinitions={columns}
+    // Stable expand state: survives sort and filter
+    selectionProps={{ rowIdKey: 'id', onSelectionChange: () => {} }}
+    // Return null for orders with no line items — no toggle rendered for those rows
+    expandRowRenderer={(order) =>
+      order.lineItems.length === 0 ? null : (
+        <table style={{ width: '100%', padding: '0.75rem 1.5rem', fontSize: '0.875rem' }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left' }}>SKU</th>
+              <th style={{ textAlign: 'center' }}>Qty</th>
+              <th style={{ textAlign: 'right' }}>Unit Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {order.lineItems.map((item) => (
+              <tr key={item.sku}>
+                <td>{item.sku}</td>
+                <td style={{ textAlign: 'center' }}>{item.qty}</td>
+                <td style={{ textAlign: 'right' }}>${item.price.toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )
+    }
+  />
+);
+```
+
+For the complete feature reference including lazy mounting, keyboard accessibility, combining with `dataSource`, and CSS customization, see the **[Row Expansion and Collapse Guide](./expand-collapse.md)**.
 
 ---
 **Previous:** [Overview](../README.md) | **Next:** [Functional Capabilities](./features.md)
