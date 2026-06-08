@@ -157,7 +157,7 @@ For a deep dive into more complex scenarios, see the **[Handling Interactive Ele
 
 ## Expandable Rows
 
-Pass `expandRowRenderer` to reveal arbitrary content below any row. Each expandable row gets a solid chevron toggle (▶ collapsed, ▾ expanded) on a muted blue bar. Returning `null` or `undefined` for a row suppresses its toggle entirely — that row renders flat with no visual affordance.
+Pass `expandRowRenderer` to reveal arbitrary content below any row. Each expandable row gets a chevron in a dedicated left column (▶ collapsed, ▾ expanded). Returning `null` or `undefined` for a row suppresses its toggle entirely — that row renders flat with no visual affordance.
 
 ```tsx
 <ResponsiveTable
@@ -187,7 +187,7 @@ expandRowRenderer={(row, rowIndex) => (
 
 > `rowIndex` is the **display-order** index (post-sort, post-filter) — it changes when the user re-sorts. For stable data correlation across renders, use the row's own identifier field (`row.id`, etc.).
 
-**Customising the chevron** — override color, size, or any other style via `expandChevronClassName`:
+**Customising the chevron** — override color, size, or any other style via `expandChevronClassName`. Do not override `transform` or `transition` — these drive the rotation animation.
 
 ```tsx
 // Accent color from your design system
@@ -206,10 +206,13 @@ expandRowRenderer={(row, rowIndex) => (
 }
 ```
 
-**Recommendations**
-- Provide `selectionProps` with a `rowIdKey` when your data has a stable identifier. Expand state is keyed by row ID, so open panels survive re-sorts and filter changes.
-- Detail content is **lazy-mounted** — the panel component is not created until first expand, then stays mounted so the collapse animation plays correctly. Heavy components are therefore only instantiated on demand.
-- Expand and `onRowClick` coexist safely — the chevron bar carries `data-rt-ignore-row-click` so tapping the toggle never fires the row click handler.
+**Behaviour**
+- Chevron sits in a dedicated 2rem left column — not as an overlay or pseudo-element — keeping the data columns aligned.
+- **Idle:** chevron at 25% opacity, rotates right (`-90deg`). Quiet, non-intrusive.
+- **Hover:** chevron smooths to 60% opacity, faint border accent on the row.
+- **Expanded:** chevron rotates down (`0deg`), full opacity. A toggle bar slides in (0→2rem) at the top of the detail pane.
+- **Greeting animation:** on mount, chevrons pop in with a staggered multi-pulse wave (2.2s), then settle to idle. Plays once per component lifecycle.
+- Expand and `onRowClick` coexist safely — the chevron carries `data-rt-ignore-row-click`.
 - Works identically in both desktop (table row) and mobile (card) layouts.
 
 For the full feature reference — expansion state keying, lazy mounting, keyboard accessibility, `dataSource` compatibility, common patterns, CSS customization, and pitfalls — see the **[Row Expansion and Collapse Guide](./docs/expand-collapse.md)**.
@@ -283,6 +286,7 @@ The following technical documentation provides comprehensive implementation guid
 5.  **[Architecture and Contribution Guide](./docs/development.md)** - Internal system design and development environment setup.
 6.  **[Handling Interactive Elements](./docs/handling-interactive-elements.md)** - Guide on preventing row click bubbling for buttons and custom components.
 7.  **[Row Expansion and Collapse](./docs/expand-collapse.md)** - Comprehensive guide for expandable row detail panels.
+8.  **[Recommendations and Pitfalls](./docs/recommendations.md)** - Best practices, anti-patterns, and ESM/CJS module compatibility guide.
 
 ---
 **Next Step:** [Review the Technical Implementation Guide](./docs/examples.md)

@@ -41,14 +41,6 @@ export interface IPluginAPI<TData> {
   // Function to get the scrollable element of the table
   getScrollableElement?: () => HTMLElement | null;
 
-  // Optional: Infinite scroll props from the ResponsiveTable component
-  infiniteScrollProps?: {
-    onLoadMore: (currentData: TData[]) => Promise<TData[] | null>;
-    hasMore?: boolean;
-    loadingMoreComponent?: ReactNode;
-    noMoreDataComponent?: ReactNode;
-  };
-
   // Optional: Filter props from the ResponsiveTable component
   filterProps?: {
     showFilter?: boolean;

@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.13.0] - 2026-06-08
+
+### Added
+- **Dedicated left chevron column** — expand/collapse chevron now lives in a `2rem` fixed-width column as the first table column, not as an overlay or below-row bar. Keeps data cells structurally aligned.
+- **Greeting animation** — on mount, chevrons perform a staggered multi-pulse wave (2.2s, `rowIndex × 60ms` stagger) to draw attention to the expandable rows feature, then settle to quiet idle (25% opacity). Plays once per component lifecycle.
+- **Idle/hover/expanded chevron states** — idle: 25% opacity, `-90deg`; hover: 60% opacity; expanded: 100% opacity, `0deg`. All CSS-driven transitions.
+- **Toggle bar inside detail pane** — slides in from `0→2rem` only when the panel is expanded. Left-aligned chevron, muted blue background. Hidden when collapsed.
+- **`docs/recommendations.md`** — new documentation covering ESM/CJS module compatibility with zest-textbox (root cause + consumer workarounds), comprehensive best practices, and anti-patterns to avoid.
+
+### Changed
+- **Expand UI architecture** — chevron moved from a `2.5rem` below-row toggle bar to a dedicated `2rem` left column within the row itself. The toggle bar now lives inside the detail pane and only appears on expand.
+- **Chevron size** — reduced from `2.2rem` to `1.125rem` to match the compact column width.
+- **docs/expand-collapse.md** — rewritten to reflect new left-column design, updated Visual Anatomy, Animation System, and CSS Customization Reference sections.
+- **docs/api.md** — updated Behaviour and Best practices for the new chevron design.
+
+### Removed
+- **InfiniteTable.tsx and InfiniteScrollPlugin.tsx** — unused code paths from an earlier scroll architecture. The `dataSource`-based pagination is the supported approach.
+- **`infiniteScrollProps`** — removed from `IProps`, `useTablePlugins`, and `IPluginAPI`.
+
+---
+
 ## [0.12.0] - 2026-06-03
 
 ### Added

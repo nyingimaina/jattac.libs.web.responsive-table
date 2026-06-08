@@ -1,16 +1,9 @@
-import { ReactNode, useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { IResponsiveTablePlugin, IPluginAPI } from '../Plugins/IResponsiveTablePlugin';
 import { FilterPlugin } from '../Plugins/FilterPlugin';
 import { SelectionPlugin } from '../Plugins/SelectionPlugin';
 import { SortPlugin } from '../Plugins/SortPlugin';
 import { IResponsiveTableColumnDefinition, SortDirection } from '../Data/IResponsiveTableColumnDefinition';
-
-interface IInfiniteScrollProps<TData> {
-  onLoadMore: (currentData: TData[]) => Promise<TData[] | null>;
-  hasMore?: boolean;
-  loadingMoreComponent?: ReactNode;
-  noMoreDataComponent?: ReactNode;
-}
 
 interface UseTablePluginsProps<TData> {
   data: TData[];
@@ -33,7 +26,6 @@ interface UseTablePluginsProps<TData> {
   };
   columnDefinitions: (IResponsiveTableColumnDefinition<TData> | ((data: TData, rowIndex?: number) => IResponsiveTableColumnDefinition<TData>))[];
   getScrollableElement: () => HTMLElement | null;
-  infiniteScrollProps?: IInfiniteScrollProps<TData>;
   onFilterChange?: (filterText: string) => void;
 }
 
@@ -53,7 +45,6 @@ export const useTablePlugins = <TData>(props: UseTablePluginsProps<TData>): UseT
     sortProps,
     columnDefinitions,
     getScrollableElement,
-    infiniteScrollProps,
     onFilterChange,
   } = props;
 
@@ -134,7 +125,6 @@ export const useTablePlugins = <TData>(props: UseTablePluginsProps<TData>): UseT
         getData: () => data,
         forceUpdate: forceUpdatePlugins,
         getScrollableElement: getScrollableElement,
-        infiniteScrollProps: infiniteScrollProps,
         filterProps: filterProps,
         selectionProps: selectionProps,
         columnDefinitions: columnDefinitions,
@@ -165,7 +155,6 @@ export const useTablePlugins = <TData>(props: UseTablePluginsProps<TData>): UseT
     sortProps,
     columnDefinitions,
     getScrollableElement,
-    infiniteScrollProps,
     getRawColumnDefinition,
     onFilterChange,
   ]);

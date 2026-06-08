@@ -5,7 +5,6 @@ import ResponsiveTable, { ResponsiveTableHandle } from './UI/ResponsiveTable';
 import { ColumnDefinition, DataSource, IDataSourceParams, DataSourceResult, useTableContext } from './Context/TableContext';
 import { DataSourceState } from './Hooks/useTableDataSource';
 import { FilterPlugin } from './Plugins/FilterPlugin';
-import { InfiniteScrollPlugin } from './Plugins/InfiniteScrollPlugin';
 import { IResponsiveTablePlugin } from './Plugins/IResponsiveTablePlugin';
 import { SortPlugin } from './Plugins/SortPlugin';
 import { SelectionPlugin } from './Plugins/SelectionPlugin';
@@ -20,7 +19,6 @@ export {
   IFooterColumnDefinition,
   IFooterRowDefinition,
   FilterPlugin,
-  InfiniteScrollPlugin,
   IResponsiveTablePlugin,
   SortPlugin,
   SelectionPlugin,

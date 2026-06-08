@@ -7,7 +7,6 @@ import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
 import DesktopView from './DesktopView';
 import MobileView from './MobileView';
 import SkeletonView from './SkeletonView';
-import InfiniteTable from './InfiniteTable';
 import { useResponsiveTable } from '../Hooks/useResponsiveTable';
 import { useTablePlugins } from '../Hooks/useTablePlugins';
 import { TableProvider, ColumnDefinition, DataSource } from '../Context/TableContext';
@@ -19,13 +18,6 @@ export interface ResponsiveTableHandle<TData> {
   resetAndFetch: () => Promise<void>;
   getState: () => DataSourceState<TData>;
 }
-interface IInfiniteScrollProps<TData> {
-  onLoadMore: (currentData: TData[]) => Promise<TData[] | null>;
-  hasMore?: boolean;
-  loadingMoreComponent?: ReactNode;
-  noMoreDataComponent?: ReactNode;
-}
-
 interface ISortProps {
     initialSortColumn?: string;
     initialSortDirection?: SortDirection;
@@ -73,11 +65,6 @@ interface IProps<TData> {
   plugins?: IResponsiveTablePlugin<TData>[];
   /** If true, the header will stick to the top of the page when scrolling. */
   enablePageLevelStickyHeader?: boolean;
-  /** 
-   * Props for manual infinite scroll handling. 
-   * NOTE: Prefer using `dataSource` for a more seamless experience.
-   */
-  infiniteScrollProps?: IInfiniteScrollProps<TData>;
   /** Configuration for the built-in filter plugin. */
   filterProps?: {
     showFilter?: boolean;
@@ -132,7 +119,6 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
     mobileBreakpoint,
     plugins,
     enablePageLevelStickyHeader,
-    infiniteScrollProps,
     filterProps,
     selectionProps,
     animationProps,
@@ -224,7 +210,6 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
     sortProps,
     columnDefinitions,
     getScrollableElement,
-    infiniteScrollProps,
   });
 
   // Fire onDataSourceStateChange when dataSource state changes
@@ -356,10 +341,6 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
     animateOnLoad: animationProps?.animateOnLoad,
     isLoading,
   }), [animationProps?.animateOnLoad, animationProps?.isLoading, isLoading]);
-
-  if (infiniteScrollProps) {
-    return <InfiniteTable {...props} />;
-  }
 
   if (isLoading && !hasData) {
     return <SkeletonView isMobile={isMobile} columnDefinitions={visibleColumns} />;

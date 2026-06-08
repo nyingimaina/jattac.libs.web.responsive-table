@@ -1,4 +1,5 @@
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react';
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react';
+import { MdArrowDropDown } from 'react-icons/md';
 import styles from '../Styles/ResponsiveTable.module.css';
 import IFooterColumnDefinition from '../Data/IFooterColumnDefinition';
 import { useTableContext } from '../Context/TableContext';
@@ -43,6 +44,13 @@ function DesktopView<TData>(props: DesktopViewProps) {
   } = useTableContext<TData>();
 
   const [expandedIds, setExpandedIds] = useState<Set<string | number>>(new Set());
+  const [hoveredRowId, setHoveredRowId] = useState<string | number | null>(null);
+  const [greetingActive, setGreetingActive] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setGreetingActive(false), 3200);
+    return () => clearTimeout(t);
+  }, []);
 
   const toggleExpanded = useCallback((id: string | number) => {
     setExpandedIds(prev => {
@@ -84,6 +92,7 @@ function DesktopView<TData>(props: DesktopViewProps) {
           let currentOriginalIndex = 0;
           return (
             <tr key={rowIndex}>
+              {expandRowRenderer && <td className={styles.expandColumn} />}
               {row.columns.map((col: IFooterColumnDefinition, colIndex: number) => {
                 const effectiveColSpan = getEffectiveColSpan(col, currentOriginalIndex);
                 currentOriginalIndex += (col.colSpan || 1);
@@ -106,7 +115,7 @@ function DesktopView<TData>(props: DesktopViewProps) {
         })}
       </tfoot>
     );
-  }, [footerRows, getEffectiveColSpan]);
+  }, [footerRows, getEffectiveColSpan, expandRowRenderer]);
 
   const useFixedHeaders = !!maxHeight;
 
@@ -123,6 +132,7 @@ function DesktopView<TData>(props: DesktopViewProps) {
       <table className={styles['responsiveTable']}>
         <thead ref={headerRef} className={headerClassName}>
           <tr>
+            {expandRowRenderer && <th className={styles.expandColumn} />}
             {visibleColumns.map((columnDefinition, colIndex) => (
               <TableHeaderCell
                 key={colIndex}
@@ -135,6 +145,19 @@ function DesktopView<TData>(props: DesktopViewProps) {
         <tbody>
           {currentData.map((row, rowIndex) => {
             const rowId = getRowId(row, rowIndex);
+            const isExpanded = expandedIds.has(rowId);
+            const isHovered = hoveredRowId === rowId;
+            const rowContent = expandRowRenderer?.(row, rowIndex);
+            const rowHasContent = rowContent != null;
+
+            const chevronClasses = [
+              styles.expandChevron,
+              greetingActive && rowHasContent ? styles.expandChevronGreeting : '',
+              isExpanded ? styles.expandChevronExpanded : '',
+              isHovered && !isExpanded ? styles.expandChevronHovered : '',
+              expandChevronClassName ?? '',
+            ].filter(Boolean).join(' ').trim();
+
             return (
               <React.Fragment key={rowId}>
                 <TableBodyRow
@@ -144,16 +167,37 @@ function DesktopView<TData>(props: DesktopViewProps) {
                   onRowClick={onRowClick}
                   selectionProps={selectionProps}
                   animationProps={animationProps}
+                  expandCell={expandRowRenderer ? (
+                    <td
+                      className={styles.expandColumn}
+                      style={{ '--row-idx': rowIndex } as React.CSSProperties}
+                    >
+                      {rowHasContent && (
+                        <span
+                          className={chevronClasses}
+                          role="button"
+                          tabIndex={0}
+                          aria-expanded={isExpanded}
+                          onClick={(e) => { e.stopPropagation(); toggleExpanded(rowId); }}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpanded(rowId); } }}
+                          data-rt-ignore-row-click
+                        >
+                          <MdArrowDropDown />
+                        </span>
+                      )}
+                    </td>
+                  ) : undefined}
+                  onMouseEnter={() => expandRowRenderer && setHoveredRowId(rowId)}
+                  onMouseLeave={() => expandRowRenderer && setHoveredRowId(null)}
                 />
-                {expandRowRenderer && (
+                {expandRowRenderer && rowHasContent && (
                   <DetailRow
                     row={row}
                     rowIndex={rowIndex}
-                    colSpan={visibleColumns.length}
+                    colSpan={visibleColumns.length + 1}
                     expandRowRenderer={expandRowRenderer}
-                    isExpanded={expandedIds.has(rowId)}
+                    isExpanded={isExpanded}
                     onToggle={() => toggleExpanded(rowId)}
-                    expandChevronClassName={expandChevronClassName}
                   />
                 )}
               </React.Fragment>

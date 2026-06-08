@@ -6,7 +6,6 @@ This document contains the exhaustive technical specification for the Responsive
 ## Table of Contents
 *   [Component Properties (ResponsiveTable)](#responsivetable-properties)
 *   [IResponsiveTableColumnDefinition Specification](#columndefinition)
-*   [Infinite Scroll Configuration](#infinitescrollprops)
 *   [Selection Management Configuration](#selectionprops)
 *   [Filtering Implementation Details](#filterprops)
 
@@ -26,7 +25,6 @@ This document contains the exhaustive technical specification for the Responsive
 | `mobileBreakpoint` | `number` | The viewport width (in pixels) at which the component transitions to the mobile interface. Default: `600`. |
 | `onRowClick` | `(item: TData) => void` | Callback function executed upon a row click event. |
 | `footerRows` | `IFooterRowDefinition[]` | Configuration for table footers with support for automated scaling. |
-| `infiniteScrollProps`| `IInfiniteScrollProps` | Interface for enabling asynchronous data loading (legacy; prefer `dataSource`). |
 | `selectionProps` | `ISelectionProps` | Interface for managing row selection state. |
 | `filterProps` | `IFilterProps` | Interface for configuring data filtering mechanisms. Supports client and server-side modes. |
 | `sortProps` | `ISortProps` | Initial sort configuration for the table. |
@@ -137,7 +135,7 @@ interface IResponsiveTableColumnDefinition<TData> {
 expandRowRenderer?: (row: TData, rowIndex: number) => ReactNode
 ```
 
-Attaches a collapsible detail panel below each row. A solid chevron indicator (▶ collapsed, ▾ expanded) sits on a muted blue bar below the row. The renderer is called for every row — return `null` or `undefined` to suppress the toggle entirely for that row.
+Attaches a collapsible detail panel below each row. A chevron in a dedicated 2rem left column indicates state (▶ collapsed, ▾ expanded). The renderer is called for every row — return `null` or `undefined` to suppress the toggle entirely for that row.
 
 ```tsx
 // All rows expandable
@@ -173,10 +171,15 @@ Attaches a collapsible detail panel below each row. A solid chevron indicator (�
 - Nested tables or charts scoped to a single row
 
 **Behaviour**
+- Chevron sits in a dedicated 2rem left column — not as an overlay or pseudo-element — keeping data columns structurally aligned.
+- **Idle:** chevron at 25% opacity, rotated right (`-90deg`). Quiet and non-intrusive.
+- **Hover:** chevron smooths to 60% opacity, subtle border accent on the row.
+- **Expanded:** chevron rotates down (`0deg`), full opacity. A toggle bar slides in (0→2rem) at the top of the detail pane.
+- **Greeting animation:** on mount, chevrons pop in with a staggered multi-pulse wave (2.2s), then settle to idle. Plays once per component lifecycle.
 - Detail content is **lazy-mounted**: the panel component is not created until first expand, then stays mounted so the collapse animation plays correctly. Heavy components are instantiated on demand.
 - Expand state is keyed by `selectionProps.rowIdKey` when provided, otherwise falls back to array index. A stable key survives re-sorts and filter changes.
 - `rowIndex` is the **display-order** index (post-sort, post-filter) — not a stable identifier. Use the row object's own field for cross-render correlation.
-- The chevron bar carries `data-rt-ignore-row-click` — tapping the toggle never fires `onRowClick`.
+- The chevron carries `data-rt-ignore-row-click` — tapping the toggle never fires `onRowClick`.
 - Works identically in desktop (table `<tr>`) and mobile (card) layouts.
 
 #### `expandChevronClassName`
@@ -185,7 +188,7 @@ Attaches a collapsible detail panel below each row. A solid chevron indicator (�
 expandChevronClassName?: string
 ```
 
-Custom CSS class applied to the chevron icon `<span>`. The chevron defaults to `2.2rem` in the primary color. Use this prop to override any style without forking the component.
+Custom CSS class applied to the chevron icon `<span>`. The chevron defaults to `1.125rem` in the primary color (`--primary-color`). Use this prop to override any style without forking the component. Do not override `transform` or `transition` — these drive the rotation animation.
 
 ```tsx
 // Brand color override
@@ -205,8 +208,9 @@ Custom CSS class applied to the chevron icon `<span>`. The chevron defaults to `
 
 **Best practices**
 - Override `color` to match your design token rather than using hardcoded hex — keeps theming consistent.
-- Avoid overriding `transform` or `transition` — these drive the collapse animation.
-- Pair with `--primary-color` CSS variable if your app uses it; the default chevron already respects it.
+- Never override `transform` or `transition` — these drive the rotation animation.
+- Override `--primary-color` at the `:root` level to theme the chevron, expanded left-border indicator, selection highlights, and focus rings simultaneously.
+- See the **[Recommendations and Pitfalls guide](./recommendations.md)** for comprehensive best practices and anti-patterns.
 
 For the complete feature reference — including expansion state keying, lazy mounting, accessibility, common patterns, and pitfalls — see the **[Row Expansion and Collapse Guide](./expand-collapse.md)**.
 
@@ -252,16 +256,6 @@ The `useTableContext` hook provides access to the internal table state, includin
 ```typescript
 import { useTableContext } from 'jattac.libs.web.responsive-table';
 ```
-
-### Infinite Scroll Configuration (Legacy)
-Defines the parameters for the asynchronous data orchestration.
-
-| Property | Type | Description |
-| :--- | :--- | :--- |
-| `onLoadMore` | `(data: TData[]) => Promise<TData[]>` | **Required.** Asynchronous function to retrieve data increments. |
-| `hasMore` | `boolean` | Indicates if additional data is available for retrieval. |
-| `loadingMoreComponent`| `ReactNode` | Component rendered during asynchronous fetch operations. |
-| `noMoreDataComponent` | `ReactNode` | Component rendered upon exhaustion of the data stream. |
 
 ---
 **Previous:** [Functional Capabilities](./features.md) | **Next:** [Configuration Specification](./configuration.md)

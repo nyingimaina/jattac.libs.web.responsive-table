@@ -35,6 +35,12 @@ interface TableBodyRowProps<TData> {
     isLoading?: boolean;
     animateOnLoad?: boolean;
   };
+  /** Optional expand chevron cell rendered as the first column */
+  expandCell?: React.ReactNode;
+  /** Mouse enter handler for hover tracking */
+  onMouseEnter?: () => void;
+  /** Mouse leave handler for hover tracking */
+  onMouseLeave?: () => void;
 }
 
 interface RTNativeEvent extends Event {
@@ -49,6 +55,9 @@ export function TableBodyRow<TData>(props: TableBodyRowProps<TData>) {
     onRowClick,
     selectionProps,
     animationProps,
+    expandCell,
+    onMouseEnter,
+    onMouseLeave,
   } = props;
 
   const { getRowProps } = useTableContext<TData>();
@@ -63,6 +72,8 @@ export function TableBodyRow<TData>(props: TableBodyRowProps<TData>) {
       style={{ animationDelay: `${rowIndex * 0.05}s` }}
       tabIndex={isClickable ? 0 : undefined}
       aria-selected={rowProps['aria-selected']}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     onClickCapture={(e: React.MouseEvent<HTMLTableRowElement>) => {
         // Capture Phase: Check for the ignore attribute BEFORE child handlers run.
         // This prevents issues where child handlers trigger a re-render/unmount
@@ -86,6 +97,7 @@ export function TableBodyRow<TData>(props: TableBodyRowProps<TData>) {
         }
       }}
     >
+      {expandCell}
       {columnDefinitions.map((columnDefinition, colIndex) => (
         <td key={colIndex}>
           <TableBodyCell

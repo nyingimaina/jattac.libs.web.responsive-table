@@ -20,8 +20,7 @@ The system is partitioned into three distinct functional layers:
     *   `MobileView`: Manages card-based interface generation.
     *   `SkeletonView`: Unified structural placeholder logic.
 3.  **Shell Orchestrators**:
-    *   `ResponsiveTable`: The primary entry point for synchronous datasets.
-    *   `InfiniteTable`: A specialized orchestrator for asynchronous data streams and scroll event interception.
+    *   `ResponsiveTable`: The primary entry point for all datasets, including async via `dataSource`.
 
 ### Development Environment Initialization
 To initialize the development environment, execute the following procedures:

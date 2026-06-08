@@ -27,14 +27,9 @@ describe('DetailRow', () => {
     expect(screen.queryByRole('button')).toBeNull();
   });
 
-  it('shows a toggle when expandRowRenderer returns content', () => {
+  it('renders no toggle when collapsed', () => {
     wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={false} onToggle={noop} />);
-    expect(screen.getByRole('button')).toBeInTheDocument();
-  });
-
-  it('toggle has aria-expanded=false when collapsed', () => {
-    wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={false} onToggle={noop} />);
-    expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('button')).toBeNull();
   });
 
   it('toggle has aria-expanded=true when expanded', () => {
@@ -44,14 +39,14 @@ describe('DetailRow', () => {
 
   it('calls onToggle when toggle is clicked', () => {
     const onToggle = jest.fn();
-    wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={false} onToggle={onToggle} />);
+    wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={true} onToggle={onToggle} />);
     fireEvent.click(screen.getByRole('button'));
     expect(onToggle).toHaveBeenCalledTimes(1);
   });
 
   it('calls onToggle on Enter key', () => {
     const onToggle = jest.fn();
-    wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={false} onToggle={onToggle} />);
+    wrap(<DetailRow row={{}} rowIndex={0} colSpan={3} expandRowRenderer={() => <div>Details</div>} isExpanded={true} onToggle={onToggle} />);
     fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
     expect(onToggle).toHaveBeenCalledTimes(1);
   });
