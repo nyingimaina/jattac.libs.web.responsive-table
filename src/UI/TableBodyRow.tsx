@@ -35,6 +35,8 @@ interface TableBodyRowProps<TData> {
     isLoading?: boolean;
     animateOnLoad?: boolean;
   };
+  /** If true, row has expandable content (adds visual affordance) */
+  isExpandable?: boolean;
   /** Optional expand chevron cell rendered as the first column */
   expandCell?: React.ReactNode;
   /** Mouse enter handler for hover tracking */
@@ -55,6 +57,7 @@ export function TableBodyRow<TData>(props: TableBodyRowProps<TData>) {
     onRowClick,
     selectionProps,
     animationProps,
+    isExpandable,
     expandCell,
     onMouseEnter,
     onMouseLeave,
@@ -68,7 +71,7 @@ export function TableBodyRow<TData>(props: TableBodyRowProps<TData>) {
 
   return (
     <tr
-      className={`${isClickable ? styles.clickableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''}`.trim()}
+      className={`${isClickable ? styles.clickableRow : ''} ${isExpandable ? styles.expandableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''}`.trim()}
       style={{ animationDelay: `${rowIndex * 0.05}s` }}
       tabIndex={isClickable ? 0 : undefined}
       aria-selected={rowProps['aria-selected']}

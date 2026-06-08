@@ -19,10 +19,9 @@ interface MobileDetailSectionProps<TData> {
   rowIndex: number;
   expandRowRenderer: (row: TData, rowIndex: number) => React.ReactNode;
   isExpanded: boolean;
-  onToggle: () => void;
 }
 
-function MobileDetailSection<TData>({ row, rowIndex, expandRowRenderer, isExpanded, onToggle }: MobileDetailSectionProps<TData>) {
+function MobileDetailSection<TData>({ row, rowIndex, expandRowRenderer, isExpanded }: MobileDetailSectionProps<TData>) {
   const content = expandRowRenderer(row, rowIndex);
   const hasContent = content != null;
   const [everExpanded, setEverExpanded] = useState(false);
@@ -36,29 +35,8 @@ function MobileDetailSection<TData>({ row, rowIndex, expandRowRenderer, isExpand
     isExpanded ? styles.detailCellExpanded : '',
   ].join(' ').trim();
 
-  const toggleBarClass = [
-    styles.detailToggleBar,
-    isExpanded ? styles.detailToggleBarExpanded : '',
-  ].join(' ').trim();
-
-  const toggleAttrs = {
-    role: 'button' as const,
-    tabIndex: 0,
-    'aria-expanded': isExpanded,
-    onClick: onToggle,
-    onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); } },
-    'data-rt-ignore-row-click': true as const,
-  };
-
   return (
     <div className={outerClass}>
-      {isExpanded && (
-        <div className={toggleBarClass} {...toggleAttrs}>
-          <span className={styles.detailToggleChevron}>
-            <MdArrowDropDown />
-          </span>
-        </div>
-      )}
       <div className={`${styles.detailContentWrapper} ${isExpanded ? styles.detailContentWrapperExpanded : ''}`}>
         <div className={styles.detailContentInner}>
           {everExpanded && content}
@@ -250,7 +228,6 @@ function MobileView<TData>(props: MobileViewProps) {
               rowIndex={rowIndex}
               expandRowRenderer={expandRowRenderer}
               isExpanded={isExpanded}
-              onToggle={() => toggleExpanded(rowId)}
             />
           )}
         </React.Fragment>

@@ -167,6 +167,7 @@ function DesktopView<TData>(props: DesktopViewProps) {
                   onRowClick={onRowClick}
                   selectionProps={selectionProps}
                   animationProps={animationProps}
+                  isExpandable={!!(expandRowRenderer && rowHasContent)}
                   expandCell={expandRowRenderer ? (
                     <td
                       className={styles.expandColumn}
@@ -197,7 +198,6 @@ function DesktopView<TData>(props: DesktopViewProps) {
                     colSpan={visibleColumns.length + 1}
                     expandRowRenderer={expandRowRenderer}
                     isExpanded={isExpanded}
-                    onToggle={() => toggleExpanded(rowId)}
                   />
                 )}
               </React.Fragment>
