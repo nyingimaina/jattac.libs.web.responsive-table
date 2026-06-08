@@ -32,7 +32,7 @@ function MobileDetailSection<TData>({ row, rowIndex, expandRowRenderer, isExpand
 
   const outerClass = [
     styles.mobileDetailOuter,
-    styles.detailCellHasContent,
+    isExpanded ? styles.detailCellHasContent : '',
     isExpanded ? styles.detailCellExpanded : '',
   ].join(' ').trim();
 

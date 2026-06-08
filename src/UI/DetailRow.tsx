@@ -20,7 +20,7 @@ export function DetailRow<TData>({ row, rowIndex, colSpan, expandRowRenderer, is
 
   const tdClass = [
     styles.detailCell,
-    hasContent ? styles.detailCellHasContent : '',
+    isExpanded && hasContent ? styles.detailCellHasContent : '',
     isExpanded ? styles.detailCellExpanded : '',
   ].join(' ').trim();
 
