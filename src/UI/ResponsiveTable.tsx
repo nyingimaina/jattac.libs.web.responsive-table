@@ -17,6 +17,9 @@ export interface ResponsiveTableHandle<TData> {
   loadNextPage: () => Promise<void>;
   resetAndFetch: () => Promise<void>;
   getState: () => DataSourceState<TData>;
+  expandRows(...ids: (string | number)[]): void;
+  collapseRows(...ids: (string | number)[]): void;
+  toggleRows(...ids: (string | number)[]): void;
 }
 interface ISortProps {
     initialSortColumn?: string;
@@ -100,6 +103,8 @@ interface IProps<TData> {
   expandRowRenderer?: (row: TData, rowIndex: number) => React.ReactNode;
   /** Custom CSS class applied to the expand/collapse chevron icon span. Use to override color, size, or add custom styling. */
   expandChevronClassName?: string;
+  /** Row IDs to expand on initial render. Passed once at mount; does not sync after mount. */
+  defaultExpandedIds?: (string | number)[];
 }
 
 /**
@@ -129,6 +134,7 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
     onDataSourceError,
     expandRowRenderer,
     expandChevronClassName,
+    defaultExpandedIds,
   } = props;
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -153,6 +159,17 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
   const [activeFilter, setActiveFilter] = useState<string>('');
   const handleFilterChange = useCallback((text: string) => {
     setActiveFilter(text);
+  }, []);
+
+  const [expandedIds, setExpandedIds] = useState<Set<string | number>>(
+    () => new Set(defaultExpandedIds ?? [])
+  );
+  const toggleExpanded = useCallback((id: string | number) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
   }, []);
 
   const isServerFilter = !!dataSource && !!filterProps?.showFilter && filterProps?.mode !== 'client';
@@ -197,6 +214,12 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
       isFetchingMore,
       error,
     }),
+    expandRows: (...ids: (string | number)[]) =>
+      setExpandedIds(prev => new Set([...prev, ...ids])),
+    collapseRows: (...ids: (string | number)[]) =>
+      setExpandedIds(prev => { const n = new Set(prev); ids.forEach(id => n.delete(id)); return n; }),
+    toggleRows: (...ids: (string | number)[]) =>
+      setExpandedIds(prev => { const n = new Set(prev); ids.forEach(id => n.has(id) ? n.delete(id) : n.add(id)); return n; }),
   }), [loadNextPage, resetAndFetch, sourceData, currentPage, hasMore, totalCount, isSourceLoading, isFetchingMore, error]);
 
   const currentDataToProcess = dataSource ? sourceData : initialData;
@@ -413,7 +436,7 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
         </div>
         {!hasData && !isLoading && noDataComponentNode}
         {(hasData || isLoading) && isMobile && (
-          <MobileView mobileFooter={mobileFooter} />
+          <MobileView mobileFooter={mobileFooter} expandedIds={expandedIds} toggleExpanded={toggleExpanded} />
         )}
         {(hasData || isLoading) && !isMobile && (
           <DesktopView
@@ -423,6 +446,8 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
             headerRef={headerRef}
             footerRows={footerRows}
             renderPluginFooters={renderPluginFooters}
+            expandedIds={expandedIds}
+            toggleExpanded={toggleExpanded}
           />
         )}
       </div>

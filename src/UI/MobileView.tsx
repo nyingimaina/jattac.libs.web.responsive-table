@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MdArrowDropDown } from 'react-icons/md';
 import styles from '../Styles/ResponsiveTable.module.css';
 import { useTableContext } from '../Context/TableContext';
@@ -8,6 +8,8 @@ import { IResponsiveTableColumnDefinition } from '../Data/IResponsiveTableColumn
 
 interface MobileViewProps {
   mobileFooter: React.ReactNode;
+  expandedIds: Set<string | number>;
+  toggleExpanded: (id: string | number) => void;
 }
 
 interface RTNativeEvent extends Event {
@@ -47,7 +49,7 @@ function MobileDetailSection<TData>({ row, rowIndex, expandRowRenderer, isExpand
 }
 
 function MobileView<TData>(props: MobileViewProps) {
-  const { mobileFooter } = props;
+  const { mobileFooter, expandedIds, toggleExpanded } = props;
   const {
     currentData,
     visibleColumns,
@@ -67,25 +69,12 @@ function MobileView<TData>(props: MobileViewProps) {
 
   const isClickable = onRowClick || selectionProps;
 
-  const [expandedIds, setExpandedIds] = useState<Set<string | number>>(new Set());
   const [hoveredRowId, setHoveredRowId] = useState<string | number | null>(null);
   const [greetingActive, setGreetingActive] = useState(true);
 
   useEffect(() => {
     const t = setTimeout(() => setGreetingActive(false), 3200);
     return () => clearTimeout(t);
-  }, []);
-
-  const toggleExpanded = useCallback((id: string | number) => {
-    setExpandedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
   }, []);
 
   const inferDataType = (colDef: IResponsiveTableColumnDefinition<TData>, value: React.ReactNode): string => {

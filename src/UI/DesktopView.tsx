@@ -16,6 +16,8 @@ interface DesktopViewProps {
   footerRows?: { columns: IFooterColumnDefinition[] }[];
   renderPluginFooters: () => React.ReactNode;
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
+  expandedIds: Set<string | number>;
+  toggleExpanded: (id: string | number) => void;
 }
 
 function DesktopView<TData>(props: DesktopViewProps) {
@@ -27,6 +29,8 @@ function DesktopView<TData>(props: DesktopViewProps) {
     footerRows,
     renderPluginFooters,
     onScroll,
+    expandedIds,
+    toggleExpanded,
   } = props;
 
   const {
@@ -43,25 +47,12 @@ function DesktopView<TData>(props: DesktopViewProps) {
     getRowId,
   } = useTableContext<TData>();
 
-  const [expandedIds, setExpandedIds] = useState<Set<string | number>>(new Set());
   const [hoveredRowId, setHoveredRowId] = useState<string | number | null>(null);
   const [greetingActive, setGreetingActive] = useState(true);
 
   useEffect(() => {
     const t = setTimeout(() => setGreetingActive(false), 3200);
     return () => clearTimeout(t);
-  }, []);
-
-  const toggleExpanded = useCallback((id: string | number) => {
-    setExpandedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
   }, []);
 
   const getEffectiveColSpan = useCallback((
