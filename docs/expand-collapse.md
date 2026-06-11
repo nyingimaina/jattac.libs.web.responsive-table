@@ -33,6 +33,14 @@ Expandable rows reveal arbitrary content below any row on demand. A chevron in a
   - [Inline Editing Panel](#inline-editing-panel)
   - [Nested Table](#nested-table)
   - [Charts and Rich Media](#charts-and-rich-media)
+- [Programmatic Control (Ref API)](#programmatic-control-ref-api)
+  - [Rationale](#rationale)
+  - [Setting up the Ref](#setting-up-the-ref)
+  - [expandRows / collapseRows / toggleRows](#expandrows--collapserows--togglerows)
+  - [defaultExpandedIds](#defaultexpandedids)
+  - [Common Patterns](#common-ref-patterns)
+  - [Best Practices](#best-practices-ref-api)
+  - [Pitfalls and Edge Cases](#pitfalls-and-edge-cases)
 - [Visual Anatomy](#visual-anatomy)
 - [Animation System](#animation-system)
 - [CSS Customization Reference](#css-customization-reference)
@@ -45,6 +53,15 @@ Expandable rows reveal arbitrary content below any row on demand. A chevron in a
 | :--- | :--- | :--- | :--- |
 | `expandRowRenderer` | `(row: TData, rowIndex: number) => ReactNode` | — | Renderer for the detail panel. Return `null` or `undefined` to suppress the toggle on that row. |
 | `expandChevronClassName` | `string` | — | CSS class applied to the chevron `<span>`. Use to override color, size, or other styles. Do not override `transform` or `transition`. |
+| `defaultExpandedIds` | `(string \| number)[]` | — | Row IDs to expand on initial render. Read once at mount; changes after mount have no effect. |
+
+**Imperative handle methods** (via `ref` — see [Programmatic Control](#programmatic-control-ref-api)):
+
+| Method | Description |
+| :--- | :--- |
+| `expandRows(...ids)` | Expands one or more rows by ID. |
+| `collapseRows(...ids)` | Collapses one or more rows by ID. |
+| `toggleRows(...ids)` | Toggles one or more rows by ID — mirrors a chevron click. |
 
 ---
 
@@ -529,6 +546,295 @@ import { LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts';
     </div>
   )}
 />
+```
+
+---
+
+## Programmatic Control (Ref API)
+
+### Rationale
+
+By default, expansion state is entirely user-driven — a user clicks the chevron, a panel opens. That covers most cases. But some UX flows need to drive expansion from outside the table:
+
+- An **onboarding tour** that walks the user to a specific row and opens its panel automatically
+- A **"Expand all / Collapse all"** button in a toolbar
+- A **wizard or multi-step flow** that pre-opens the row the user is expected to act on next
+- **Deep-linked navigation** — a URL like `/orders?expanded=1042` should open order 1042's detail pane on load
+- **Programmatic workflows** — a side panel or search result that says "show me this row's details"
+
+The ref API provides this without requiring the consumer to take ownership of expansion state. The table still manages its own `Set` internally; the ref just gives you a handle into it. A ref call acts exactly as if the user had clicked the chevron — same state path, same CSS animation, same lazy-mount behaviour.
+
+---
+
+### Setting up the Ref
+
+Import the handle type and create a typed ref:
+
+```tsx
+import ResponsiveTable, { ResponsiveTableHandle } from 'jattac.libs.web.responsive-table';
+import { useRef } from 'react';
+
+type Order = { id: string; reference: string; customer: string; total: number };
+
+function OrdersPage() {
+  const tableRef = useRef<ResponsiveTableHandle<Order>>(null);
+
+  return (
+    <ResponsiveTable<Order>
+      ref={tableRef}
+      data={orders}
+      columnDefinitions={columns}
+      selectionProps={{ rowIdKey: 'id', onSelectionChange: () => {} }}
+      expandRowRenderer={(order) => <OrderDetail order={order} />}
+    />
+  );
+}
+```
+
+> **Always pair `ref` with `selectionProps.rowIdKey`** when using the programmatic API. Without a stable key, the IDs in the ref calls are array indices — they shift when the user sorts or filters, causing the wrong rows to expand. See [Expansion State and Row Identity](#expansion-state-and-row-identity).
+
+---
+
+### `expandRows` / `collapseRows` / `toggleRows`
+
+All three methods accept **rest parameters** — one call handles any number of IDs.
+
+```typescript
+tableRef.current?.expandRows(...ids: (string | number)[]): void
+tableRef.current?.collapseRows(...ids: (string | number)[]): void
+tableRef.current?.toggleRows(...ids: (string | number)[]): void
+```
+
+```tsx
+// Expand a single row
+tableRef.current?.expandRows('order-42');
+
+// Expand multiple rows in one call
+tableRef.current?.expandRows('order-1', 'order-2', 'order-3');
+
+// Spread an array
+tableRef.current?.expandRows(...selectedOrderIds);
+
+// Collapse specific rows
+tableRef.current?.collapseRows('order-1', 'order-2');
+
+// Toggle — mirrors clicking the chevron: open→close, closed→open
+tableRef.current?.toggleRows('order-42');
+
+// Toggle multiple rows simultaneously
+tableRef.current?.toggleRows('order-1', 'order-2', 'order-3');
+```
+
+**Behaviour contract:**
+
+| Method | Already expanded | Already collapsed |
+| :--- | :--- | :--- |
+| `expandRows` | No-op (safe to call) | Opens the panel |
+| `collapseRows` | Closes the panel | No-op (safe to call) |
+| `toggleRows` | Closes the panel | Opens the panel |
+
+All methods are synchronous state updates — the React re-render and CSS animation begin immediately after the call.
+
+---
+
+### `defaultExpandedIds`
+
+Pre-open specific rows on initial render without any runtime ref calls:
+
+```tsx
+<ResponsiveTable
+  data={orders}
+  columnDefinitions={columns}
+  selectionProps={{ rowIdKey: 'id', onSelectionChange: () => {} }}
+  expandRowRenderer={(order) => <OrderDetail order={order} />}
+  defaultExpandedIds={['order-1042']}
+/>
+```
+
+The value is read **once at mount** and used to initialise the internal `Set`. Changes to `defaultExpandedIds` after mount are ignored — it is not a controlled prop.
+
+For dynamic initial expansion (e.g., from a URL parameter), derive the value before rendering:
+
+```tsx
+const initialExpanded = useMemo(() => {
+  const param = new URLSearchParams(window.location.search).get('expanded');
+  return param ? [param] : [];
+}, []);  // empty deps — only read once
+
+<ResponsiveTable
+  defaultExpandedIds={initialExpanded}
+  ...
+/>
+```
+
+---
+
+### Common Ref Patterns
+
+#### Expand All / Collapse All
+
+```tsx
+function OrdersPage() {
+  const tableRef = useRef<ResponsiveTableHandle<Order>>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+
+  const expandAll = () => {
+    const ids = orders.map((o) => o.id);
+    tableRef.current?.expandRows(...ids);
+  };
+
+  const collapseAll = () => {
+    const ids = orders.map((o) => o.id);
+    tableRef.current?.collapseRows(...ids);
+  };
+
+  return (
+    <>
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+        <button onClick={expandAll}>Expand all</button>
+        <button onClick={collapseAll}>Collapse all</button>
+      </div>
+      <ResponsiveTable
+        ref={tableRef}
+        data={orders}
+        columnDefinitions={columns}
+        selectionProps={{ rowIdKey: 'id', onSelectionChange: () => {} }}
+        expandRowRenderer={(o) => <OrderDetail order={o} />}
+      />
+    </>
+  );
+}
+```
+
+#### Deep-Linked Expansion (URL Param)
+
+```tsx
+function OrdersPage() {
+  const tableRef = useRef<ResponsiveTableHandle<Order>>(null);
+  const searchParams = new URLSearchParams(window.location.search);
+  const targetId = searchParams.get('expanded');
+
+  return (
+    <ResponsiveTable
+      ref={tableRef}
+      data={orders}
+      columnDefinitions={columns}
+      selectionProps={{ rowIdKey: 'id', onSelectionChange: () => {} }}
+      expandRowRenderer={(o) => <OrderDetail order={o} />}
+      defaultExpandedIds={targetId ? [targetId] : []}
+    />
+  );
+}
+```
+
+#### Expand on External Search Result Click
+
+```tsx
+function OrdersPage() {
+  const tableRef = useRef<ResponsiveTableHandle<Order>>(null);
+
+  const handleSearchResultClick = (orderId: string) => {
+    tableRef.current?.expandRows(orderId);
+    // optionally scroll the row into view separately
+  };
+
+  return (
+    <>
+      <SearchBar onResultClick={handleSearchResultClick} />
+      <ResponsiveTable
+        ref={tableRef}
+        data={orders}
+        columnDefinitions={columns}
+        selectionProps={{ rowIdKey: 'id', onSelectionChange: () => {} }}
+        expandRowRenderer={(o) => <OrderDetail order={o} />}
+      />
+    </>
+  );
+}
+```
+
+#### Onboarding Tour (auto-open a specific row)
+
+```tsx
+useEffect(() => {
+  if (tourStep === 'show-order-detail') {
+    tableRef.current?.expandRows(featuredOrderId);
+  }
+}, [tourStep]);
+```
+
+---
+
+### Best Practices (Ref API)
+
+**Always provide `selectionProps.rowIdKey`.**
+The ref methods target rows by the same ID the table uses internally. Without `rowIdKey`, that ID is the array index — which shifts whenever the user sorts or filters. Any ref call after a sort will expand the wrong row. If you don't need selection UI, pass a no-op `onSelectionChange`:
+
+```tsx
+selectionProps={{ rowIdKey: 'id', onSelectionChange: () => {} }}
+```
+
+**Guard against null.**
+The ref is `null` until the component mounts. Always use optional chaining:
+
+```tsx
+tableRef.current?.expandRows('id-1');  // safe
+tableRef.current.expandRows('id-1');   // throws if called before mount
+```
+
+**Prefer `defaultExpandedIds` over a `useEffect` + ref for initial state.**
+A `useEffect` that calls `expandRows` on mount introduces a flash: the table renders collapsed, then the effect fires and rows pop open. `defaultExpandedIds` initialises the internal Set before the first render — no flash.
+
+```tsx
+// Preferred — no flash
+<ResponsiveTable defaultExpandedIds={['order-42']} ... />
+
+// Avoid — causes a visible collapsed→expanded flash
+useEffect(() => { tableRef.current?.expandRows('order-42'); }, []);
+```
+
+**All methods are idempotent.**
+`expandRows` on an already-expanded row is a no-op. `collapseRows` on an already-collapsed row is a no-op. Safe to call without pre-checking state.
+
+**The ref API and chevron clicks share the same state.**
+They are not separate channels — both write to the same internal `Set`. A user can click the chevron on a row you expanded programmatically, and it will collapse normally.
+
+---
+
+### Pitfalls and Edge Cases
+
+**Passing an ID that doesn't correspond to any visible row.**
+The ID is added to the `Set` but nothing is visually expanded because no row matches. This is silent — no error, no warning. If you later load data that includes a row with that ID (e.g., via `dataSource` pagination), it will expand automatically when it arrives.
+
+**`defaultExpandedIds` is not reactive.**
+It is passed to `useState(() => new Set(...))` — the initialiser runs once. If `defaultExpandedIds` changes after mount (e.g., derived from prop that updates), the change is ignored. For post-mount control, use the ref API.
+
+**Passing a row ID when `expandRowRenderer` returns `null` for that row.**
+The row is added to the expanded Set, but since there is no detail content, nothing is visually displayed. If `expandRowRenderer` later returns content for that row (after a state change in the parent), the panel will be visible immediately on the next render — because the row is already in the expanded Set. This can be surprising: a row that had no toggle is suddenly expanded. Avoid keeping rows without content in the expanded Set.
+
+**Index-based IDs with sort or filter.**
+Without `selectionProps.rowIdKey`, row keys are array indices (`0`, `1`, `2`, …). After the user sorts the table, `expandRows(0)` expands whatever row is now first — not necessarily the row you intended. Always use data-derived stable IDs with the ref API.
+
+**The ref is typed — mismatched generic.**
+`ResponsiveTableHandle<Order>` is generic. If you use `ResponsiveTableHandle` without a type argument, TypeScript infers `unknown` and the ref will typecheck but may not match the table instance. Always provide the same generic as the table component:
+
+```tsx
+// Correct — types match
+const tableRef = useRef<ResponsiveTableHandle<Order>>(null);
+<ResponsiveTable<Order> ref={tableRef} ... />
+
+// Risky — mismatched generic silences type errors
+const tableRef = useRef<ResponsiveTableHandle<unknown>>(null);
+```
+
+**Do not rely on `expandRows` returning a promise.**
+The methods return `void` and update state synchronously. If you need to act after the panel is visually open (e.g., focus an element inside), use a `setTimeout` or `requestAnimationFrame` to yield after the CSS transition:
+
+```tsx
+tableRef.current?.expandRows('order-42');
+setTimeout(() => {
+  document.querySelector('#order-42-form input')?.focus();
+}, 350); // matches the 300ms panel open transition + margin
 ```
 
 ---

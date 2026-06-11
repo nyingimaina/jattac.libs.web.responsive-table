@@ -35,6 +35,7 @@ This document contains the exhaustive technical specification for the Responsive
 | `onDataSourceError` | `(error: Error) => void` | Callback fired when a dataSource fetch fails. |
 | `expandRowRenderer` | `(row: TData, rowIndex: number) => ReactNode` | Renders collapsible detail content below a row. Return `null`/`undefined` for no toggle on that row. |
 | `expandChevronClassName` | `string` | Custom CSS class applied to the chevron icon `<span>`. Use to override color, size, or any other style. |
+| `defaultExpandedIds` | `(string \| number)[]` | Row IDs to expand on initial render. Read once at mount — not reactive after mount. Use `ref.expandRows()` for post-mount control. |
 
 ### Row Interaction & Visual Feedback (`onRowClick`)
 
@@ -181,6 +182,7 @@ Attaches a collapsible detail panel below each row. A chevron in a dedicated 2re
 - `rowIndex` is the **display-order** index (post-sort, post-filter) — not a stable identifier. Use the row object's own field for cross-render correlation.
 - The chevron carries `data-rt-ignore-row-click` — tapping the toggle never fires `onRowClick`.
 - Works identically in desktop (table `<tr>`) and mobile (card) layouts.
+- Expansion can be driven programmatically via the ref API (`expandRows`, `collapseRows`, `toggleRows`) — see [Imperative Handle](#imperative-handle-responsivettablehandle) and the [Programmatic Control guide](./expand-collapse.md#programmatic-control-ref-api).
 
 #### `expandChevronClassName`
 
@@ -243,11 +245,40 @@ interface DataSourceState<TData> {
 
 When using a `ref` on `ResponsiveTable`, the following methods are exposed:
 
+```tsx
+import ResponsiveTable, { ResponsiveTableHandle } from 'jattac.libs.web.responsive-table';
+
+const tableRef = useRef<ResponsiveTableHandle<MyData>>(null);
+<ResponsiveTable ref={tableRef} ... />
+```
+
+**Pagination methods:**
+
 | Method | Return Type | Description |
 | :--- | :--- | :--- |
 | `loadNextPage()` | `Promise<void>` | Triggers the next page fetch. |
 | `resetAndFetch()` | `Promise<void>` | Resets to page 1 and re-fetches. |
 | `getState()` | `DataSourceState<TData>` | Returns the current pagination state (data, page, loading, error). |
+
+**Expand/collapse methods:**
+
+| Method | Signature | Description |
+| :--- | :--- | :--- |
+| `expandRows` | `(...ids: (string \| number)[]) => void` | Expands one or more rows by ID. Idempotent — calling with an already-expanded ID is safe. |
+| `collapseRows` | `(...ids: (string \| number)[]) => void` | Collapses one or more rows by ID. Idempotent — calling with an already-collapsed ID is safe. |
+| `toggleRows` | `(...ids: (string \| number)[]) => void` | Toggles one or more rows by ID. Mirrors a chevron click: open→close, closed→open. |
+
+All three methods accept rest parameters — one call handles any number of IDs:
+
+```tsx
+tableRef.current?.expandRows('order-42');                          // single
+tableRef.current?.expandRows('order-1', 'order-2', 'order-3');    // multiple
+tableRef.current?.expandRows(...myOrderIds);                       // spread array
+tableRef.current?.collapseRows('order-1', 'order-2');
+tableRef.current?.toggleRows('order-42');
+```
+
+> **Requires `selectionProps.rowIdKey`** for stable targeting. Without it, IDs are array indices that shift on sort/filter. See the [Programmatic Control guide](./expand-collapse.md#programmatic-control-ref-api).
 
 ### Context API
 
