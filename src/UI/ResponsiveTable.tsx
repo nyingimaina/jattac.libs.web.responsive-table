@@ -20,6 +20,8 @@ export interface ResponsiveTableHandle<TData> {
   expandRows(...ids: (string | number)[]): void;
   collapseRows(...ids: (string | number)[]): void;
   toggleRows(...ids: (string | number)[]): void;
+  /** Scroll the table container (or the page, if no maxHeight) to the given pixel offset. */
+  scrollTo(position: number): void;
 }
 interface ISortProps {
     initialSortColumn?: string;
@@ -105,6 +107,12 @@ interface IProps<TData> {
   expandChevronClassName?: string;
   /** Row IDs to expand on initial render. Passed once at mount; does not sync after mount. */
   defaultExpandedIds?: (string | number)[];
+  /**
+   * Fired on scroll with the current vertical pixel offset of the table's scroll container.
+   * When `maxHeight` is set this reflects the internal container's `scrollTop`; otherwise it
+   * reflects `window.scrollY`. Use with `ref.scrollTo()` to save and restore position.
+   */
+  onScrollPositionChange?: (scrollTop: number) => void;
 }
 
 /**
@@ -135,6 +143,7 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
     expandRowRenderer,
     expandChevronClassName,
     defaultExpandedIds,
+    onScrollPositionChange,
   } = props;
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -149,6 +158,18 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
   });
 
   const getScrollableElement = useCallback(() => tableContainerRef.current, []);
+
+  const handleContainerScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    onScrollPositionChange?.(e.currentTarget.scrollTop);
+  }, [onScrollPositionChange]);
+
+  // Page-level scroll reporting (when no internal maxHeight container)
+  useEffect(() => {
+    if (maxHeight || !onScrollPositionChange) return;
+    const handler = () => onScrollPositionChange(window.scrollY);
+    window.addEventListener('scroll', handler, { passive: true });
+    return () => window.removeEventListener('scroll', handler);
+  }, [maxHeight, onScrollPositionChange]);
 
   // Track active sort state for dataSource
   const [activeSort /*, setActiveSort*/] = useState<{ columnId: string, direction: 'asc' | 'desc' } | undefined>(
@@ -220,7 +241,14 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
       setExpandedIds(prev => { const n = new Set(prev); ids.forEach(id => n.delete(id)); return n; }),
     toggleRows: (...ids: (string | number)[]) =>
       setExpandedIds(prev => { const n = new Set(prev); ids.forEach(id => n.has(id) ? n.delete(id) : n.add(id)); return n; }),
-  }), [loadNextPage, resetAndFetch, sourceData, currentPage, hasMore, totalCount, isSourceLoading, isFetchingMore, error]);
+    scrollTo: (position: number) => {
+      if (maxHeight) {
+        tableContainerRef.current?.scrollTo({ top: position });
+      } else {
+        window.scrollTo({ top: position });
+      }
+    },
+  }), [loadNextPage, resetAndFetch, sourceData, currentPage, hasMore, totalCount, isSourceLoading, isFetchingMore, error, maxHeight]);
 
   const currentDataToProcess = dataSource ? sourceData : initialData;
 
@@ -446,6 +474,7 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
             headerRef={headerRef}
             footerRows={footerRows}
             renderPluginFooters={renderPluginFooters}
+            onScroll={onScrollPositionChange ? handleContainerScroll : undefined}
             expandedIds={expandedIds}
             toggleExpanded={toggleExpanded}
           />

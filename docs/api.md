@@ -36,6 +36,7 @@ This document contains the exhaustive technical specification for the Responsive
 | `expandRowRenderer` | `(row: TData, rowIndex: number) => ReactNode` | Renders collapsible detail content below a row. Return `null`/`undefined` for no toggle on that row. |
 | `expandChevronClassName` | `string` | Custom CSS class applied to the chevron icon `<span>`. Use to override color, size, or any other style. |
 | `defaultExpandedIds` | `(string \| number)[]` | Row IDs to expand on initial render. Read once at mount — not reactive after mount. Use `ref.expandRows()` for post-mount control. |
+| `onScrollPositionChange` | `(scrollTop: number) => void` | Fired on each scroll event with the current pixel offset. Reports `scrollTop` of the internal container when `maxHeight` is set, or `window.scrollY` otherwise. Pair with `ref.scrollTo()` to save and restore position. |
 
 ### Row Interaction & Visual Feedback (`onRowClick`)
 
@@ -267,6 +268,27 @@ const tableRef = useRef<ResponsiveTableHandle<MyData>>(null);
 | `expandRows` | `(...ids: (string \| number)[]) => void` | Expands one or more rows by ID. Idempotent — calling with an already-expanded ID is safe. |
 | `collapseRows` | `(...ids: (string \| number)[]) => void` | Collapses one or more rows by ID. Idempotent — calling with an already-collapsed ID is safe. |
 | `toggleRows` | `(...ids: (string \| number)[]) => void` | Toggles one or more rows by ID. Mirrors a chevron click: open→close, closed→open. |
+
+**Scroll position method:**
+
+| Method | Signature | Description |
+| :--- | :--- | :--- |
+| `scrollTo` | `(position: number) => void` | Scrolls to the given pixel offset. Targets the internal container when `maxHeight` is set, or `window` otherwise — matching the values reported by `onScrollPositionChange`. |
+
+```tsx
+// Save position while scrolling
+const savedPos = useRef(0);
+<ResponsiveTable
+  ref={tableRef}
+  onScrollPositionChange={(pos) => { savedPos.current = pos; }}
+  ...
+/>
+
+// Restore — e.g. on tab switch or data subset swap
+requestAnimationFrame(() => tableRef.current?.scrollTo(savedPos.current));
+```
+
+> See the **[Scroll Position Control guide](./scroll-position.md)** for patterns, best practices, and pitfalls.
 
 All three methods accept rest parameters — one call handles any number of IDs:
 
