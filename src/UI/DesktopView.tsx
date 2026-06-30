@@ -198,9 +198,10 @@ function DesktopView<TData>(props: DesktopViewProps) {
         {tableFooter}
       </table>
       {pagination?.hasMore && (
-        <TableSentinel 
-          onIntersect={() => pagination.loadNextPage()} 
+        <TableSentinel
+          onIntersect={() => pagination.loadNextPage()}
           isLoading={pagination.isFetchingMore}
+          scrollableRootRef={maxHeight ? tableContainerRef : undefined}
         />
       )}
       {pagination?.isFetchingMore && (

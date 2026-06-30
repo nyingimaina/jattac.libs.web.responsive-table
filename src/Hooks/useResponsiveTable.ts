@@ -47,21 +47,32 @@ export const useResponsiveTable = (props: UseResponsiveTableProps): UseResponsiv
     }
   }, [enablePageLevelStickyHeader, maxHeight, headerRef, isHeaderSticky]);
 
-  const debouncedScrollHandler = useRef(debounce(handleScroll, 200)).current;
+  // Fix Bug B: keep a ref to the latest handleScroll so the frozen debounced wrapper always
+  // delegates to the current closure (avoids stale isHeaderSticky captured at mount time).
+  const handleScrollRef = useRef(handleScroll);
+  useEffect(() => { handleScrollRef.current = handleScroll; });
+
+  const debouncedScrollHandler = useRef(
+    debounce((...args: Parameters<typeof handleScroll>) => handleScrollRef.current(...args), 200)
+  ).current;
 
   useEffect(() => {
     handleResize(); // Initial check
     window.addEventListener('resize', handleResize);
 
     const scrollTarget = scrollableRef?.current || window;
+    // Fix Bug A: extract named const so addEventListener and removeEventListener share the same reference.
+    const scrollListener = (e: Event) =>
+      debouncedScrollHandler(e.currentTarget as HTMLElement | Window);
+
     if (enablePageLevelStickyHeader || maxHeight) { // Only add scroll listener if sticky header or internal scroll is enabled
-      scrollTarget.addEventListener('scroll', (e) => debouncedScrollHandler(e.currentTarget as HTMLElement | Window));
+      scrollTarget.addEventListener('scroll', scrollListener);
     }
 
     return () => {
       window.removeEventListener('resize', handleResize);
       if (enablePageLevelStickyHeader || maxHeight) {
-        scrollTarget.removeEventListener('scroll', (e) => debouncedScrollHandler(e.currentTarget as HTMLElement | Window));
+        scrollTarget.removeEventListener('scroll', scrollListener);
       }
     };
   }, [handleResize, debouncedScrollHandler, enablePageLevelStickyHeader, maxHeight, scrollableRef]);

@@ -1,5 +1,5 @@
 import React, { createRef } from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, screen, act, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ResponsiveTable, { ResponsiveTableHandle } from './ResponsiveTable';
 
@@ -174,6 +174,88 @@ describe('scroll position — page-level scroll (no maxHeight)', () => {
     ref.current!.scrollTo(500);
 
     expect(scrollToMock).toHaveBeenCalledWith({ top: 500 });
+    window.scrollTo = originalScrollTo;
+  });
+});
+
+describe('scroll reset on server filter change (Bug D)', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (global as any).IntersectionObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(), unobserve: jest.fn(), disconnect: jest.fn(),
+    }));
+    forceDesktop();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  it('scrolls internal container to top when server filter changes', async () => {
+    type Row = { name: string };
+    const dataSource = jest.fn()
+      .mockResolvedValueOnce([{ name: 'Alice' }, { name: 'Bob' }])
+      .mockResolvedValueOnce([{ name: 'Alice' }]);
+
+    const { container } = render(
+      <ResponsiveTable
+        columnDefinitions={[{ displayLabel: 'Name', cellRenderer: (r: Row) => r.name }]}
+        data={[]}
+        dataSource={dataSource}
+        pageSize={20}
+        maxHeight="400px"
+        filterProps={{ showFilter: true, mode: 'server' }}
+      />
+    );
+
+    // Flush initial load — mount useEffect fires with scrollTo not yet defined on container
+    await act(async () => { await Promise.resolve(); });
+
+    const tableContainer = container.querySelector(tableContainerSelector) as HTMLElement;
+    const scrollToMock = jest.fn();
+    // Define mock AFTER initial flush so only the filter-change call is captured
+    Object.defineProperty(tableContainer, 'scrollTo', { value: scrollToMock, configurable: true });
+
+    const filterInput = screen.getByPlaceholderText('Search...');
+    fireEvent.change(filterInput, { target: { value: 'Alice' } });
+    act(() => jest.advanceTimersByTime(300)); // flush FilterPlugin debounce
+    await act(async () => { await Promise.resolve(); }); // flush resetAndFetch promise
+
+    // BUG D: scroll position is never reset — this fails before the fix
+    expect(scrollToMock).toHaveBeenCalledWith({ top: 0 });
+  });
+
+  it('scrolls window to top when no maxHeight and server filter changes', async () => {
+    type Row = { name: string };
+    const dataSource = jest.fn().mockResolvedValue([{ name: 'Alice' }]);
+
+    render(
+      <ResponsiveTable
+        columnDefinitions={[{ displayLabel: 'Name', cellRenderer: (r: Row) => r.name }]}
+        data={[]}
+        dataSource={dataSource}
+        pageSize={20}
+        filterProps={{ showFilter: true, mode: 'server' }}
+      />
+    );
+
+    // Flush initial load before installing the mock
+    await act(async () => { await Promise.resolve(); });
+
+    const windowScrollTo = jest.fn();
+    const originalScrollTo = window.scrollTo;
+    window.scrollTo = windowScrollTo as unknown as typeof window.scrollTo;
+
+    const filterInput = screen.getByPlaceholderText('Search...');
+    fireEvent.change(filterInput, { target: { value: 'Alice' } });
+    act(() => jest.advanceTimersByTime(300));
+    await act(async () => { await Promise.resolve(); });
+
+    // BUG D: window.scrollTo is never called — this fails before the fix
+    expect(windowScrollTo).toHaveBeenCalledWith({ top: 0 });
+
     window.scrollTo = originalScrollTo;
   });
 });

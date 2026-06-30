@@ -195,6 +195,17 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
 
   const isServerFilter = !!dataSource && !!filterProps?.showFilter && filterProps?.mode !== 'client';
 
+  // Fix Bug D: scroll to top when a server-side filter change resets data to page 1.
+  // Without this, the viewport stays at the old scroll position while only one page of results is loaded.
+  useEffect(() => {
+    if (!dataSource || !isServerFilter) return;
+    if (maxHeight) {
+      tableContainerRef.current?.scrollTo({ top: 0 });
+    } else {
+      window.scrollTo({ top: 0 });
+    }
+  }, [activeFilter, dataSource, isServerFilter, maxHeight]);
+
   const resolvedFilterProps = useMemo(() => {
     if (!filterProps) return undefined;
     return {
@@ -464,7 +475,13 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
         </div>
         {!hasData && !isLoading && noDataComponentNode}
         {(hasData || isLoading) && isMobile && (
-          <MobileView mobileFooter={mobileFooter} expandedIds={expandedIds} toggleExpanded={toggleExpanded} />
+          <MobileView
+            mobileFooter={mobileFooter}
+            expandedIds={expandedIds}
+            toggleExpanded={toggleExpanded}
+            maxHeight={maxHeight}
+            tableContainerRef={tableContainerRef}
+          />
         )}
         {(hasData || isLoading) && !isMobile && (
           <DesktopView

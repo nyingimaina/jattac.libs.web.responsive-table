@@ -10,6 +10,8 @@ interface MobileViewProps {
   mobileFooter: React.ReactNode;
   expandedIds: Set<string | number>;
   toggleExpanded: (id: string | number) => void;
+  maxHeight?: string;
+  tableContainerRef: React.RefObject<HTMLDivElement>;
 }
 
 interface RTNativeEvent extends Event {
@@ -49,7 +51,7 @@ function MobileDetailSection<TData>({ row, rowIndex, expandRowRenderer, isExpand
 }
 
 function MobileView<TData>(props: MobileViewProps) {
-  const { mobileFooter, expandedIds, toggleExpanded } = props;
+  const { mobileFooter, expandedIds, toggleExpanded, maxHeight, tableContainerRef } = props;
   const {
     currentData,
     visibleColumns,
@@ -223,9 +225,10 @@ function MobileView<TData>(props: MobileViewProps) {
         );
       })}
       {pagination?.hasMore && (
-        <TableSentinel 
-          onIntersect={() => pagination.loadNextPage()} 
+        <TableSentinel
+          onIntersect={() => pagination.loadNextPage()}
           isLoading={pagination.isFetchingMore}
+          scrollableRootRef={maxHeight ? tableContainerRef : undefined}
         />
       )}
       {pagination?.isFetchingMore && (
