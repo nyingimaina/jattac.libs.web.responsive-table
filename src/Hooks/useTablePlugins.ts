@@ -5,6 +5,23 @@ import { SelectionPlugin } from '../Plugins/SelectionPlugin';
 import { SortPlugin } from '../Plugins/SortPlugin';
 import { IResponsiveTableColumnDefinition, SortDirection } from '../Data/IResponsiveTableColumnDefinition';
 
+// initializePlugins() below rebuilds its output arrays from scratch on every
+// call, so a plain setState there hands React a new reference even when
+// nothing actually changed. Any caller that doesn't memoize
+// columnDefinitions/selectionProps/sortProps (columnDefinitions and
+// selectionProps aren't memoized by ResponsiveTable.tsx either) recreates
+// those props on every render, which reruns this hook's effect, which calls
+// setState again — an infinite loop. Bailing out when the content is
+// unchanged breaks that cycle without requiring every caller to memoize.
+function isShallowArrayEqual<T>(a: T[], b: T[]): boolean {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
 interface UseTablePluginsProps<TData> {
   data: TData[];
   plugins?: IResponsiveTablePlugin<TData>[];
@@ -119,7 +136,7 @@ export const useTablePlugins = <TData>(props: UseTablePluginsProps<TData>): UseT
       sortPluginRef.current = null;
     }
 
-    setActivePlugins(newActivePlugins);
+    setActivePlugins((prev) => (isShallowArrayEqual(prev, newActivePlugins) ? prev : newActivePlugins));
 
     const api: IPluginAPI<TData> = {
         getData: () => data,
@@ -160,12 +177,14 @@ export const useTablePlugins = <TData>(props: UseTablePluginsProps<TData>): UseT
   ]);
 
   const forceUpdatePlugins = useCallback(() => {
-    setProcessedData(initializePlugins());
+    const next = initializePlugins();
+    setProcessedData((prev) => (isShallowArrayEqual(prev, next) ? prev : next));
   }, [initializePlugins]);
 
   // Handle re-initialization when props change
   useEffect(() => {
-    setProcessedData(initializePlugins());
+    const next = initializePlugins();
+    setProcessedData((prev) => (isShallowArrayEqual(prev, next) ? prev : next));
   }, [initializePlugins]);
 
   return { processedData, activePlugins, visibleColumns, forceUpdatePlugins };

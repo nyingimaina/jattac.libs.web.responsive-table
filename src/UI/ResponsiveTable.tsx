@@ -274,10 +274,26 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
     getScrollableElement,
   });
 
+  // Callers (e.g. ExpenseList.tsx) commonly pass these as fresh inline
+  // arrow functions every render, and their handlers often trigger a
+  // rerender unconditionally (module-state-manager's updateObject() does,
+  // for every *Logic.ts class in the app). Putting the raw callback in a
+  // dependency array below would then re-fire that effect every time the
+  // caller rerenders, which recreates the callback, which re-fires the
+  // effect again — an infinite loop. Reading the latest callback through a
+  // ref (updated every render) keeps behaviour identical while dropping the
+  // callback's *identity* out of each effect's dependencies.
+  const onDataSourceStateChangeRef = useRef(onDataSourceStateChange);
+  onDataSourceStateChangeRef.current = onDataSourceStateChange;
+  const onPageChangeRef = useRef(onPageChange);
+  onPageChangeRef.current = onPageChange;
+  const onDataSourceErrorRef = useRef(onDataSourceError);
+  onDataSourceErrorRef.current = onDataSourceError;
+
   // Fire onDataSourceStateChange when dataSource state changes
   useEffect(() => {
-    if (dataSource && onDataSourceStateChange) {
-      onDataSourceStateChange({
+    if (dataSource && onDataSourceStateChangeRef.current) {
+      onDataSourceStateChangeRef.current({
         data: sourceData,
         currentPage,
         hasMore,
@@ -287,21 +303,21 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
         error,
       });
     }
-  }, [dataSource, sourceData, currentPage, hasMore, totalCount, isSourceLoading, isFetchingMore, error, onDataSourceStateChange]);
+  }, [dataSource, sourceData, currentPage, hasMore, totalCount, isSourceLoading, isFetchingMore, error]);
 
   // Fire onPageChange when page changes
   useEffect(() => {
-    if (dataSource && onPageChange) {
-      onPageChange(currentPage);
+    if (dataSource && onPageChangeRef.current) {
+      onPageChangeRef.current(currentPage);
     }
-  }, [dataSource, currentPage, onPageChange]);
+  }, [dataSource, currentPage]);
 
   // Fire onDataSourceError when error occurs
   useEffect(() => {
-    if (dataSource && error && onDataSourceError) {
-      onDataSourceError(error);
+    if (dataSource && error && onDataSourceErrorRef.current) {
+      onDataSourceErrorRef.current(error);
     }
-  }, [dataSource, error, onDataSourceError]);
+  }, [dataSource, error]);
 
   const hasData = useMemo(() => processedData.length > 0, [processedData]);
 
