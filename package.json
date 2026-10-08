@@ -1,6 +1,6 @@
 {
   "name": "jattac.libs.web.responsive-table",
-  "version": "0.18.2",
+  "version": "0.19.0",
   "description": "A fully responsive, customizable, and lightweight React table component with a modern, mobile-first design and a powerful plugin system.",
   "author": {
     "name": "Nyingi Maina",
@@ -8,12 +8,12 @@
   },
   "license": "MIT",
   "main": "./dist/index.js",
-  "module": "./dist/index.es.js",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.es.js",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
     "./dist/*.css": "./dist/*.css"
@@ -49,8 +49,9 @@
     "test:coverage": "jest --coverage",
     "size": "size-limit",
     "type-check": "tsc --noEmit",
+    "validate-package": "attw --pack . && publint",
     "prepare": "npm run build",
-    "prepublishOnly": "npm run type-check && npm run lint && npm test"
+    "prepublishOnly": "npm run type-check && npm run lint && npm test && npm run validate-package"
   },
   "keywords": [
     "react",
@@ -63,22 +64,24 @@
     "plugin-system"
   ],
   "peerDependencies": {
+    "jattac.libs.web.zest-textbox": ">=0.5.5",
     "react": ">=18.2.0",
     "react-dom": ">=18.2.0",
-    "jattac.libs.web.zest-textbox": ">=0.5.5",
     "react-icons": ">=4.0.0"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.5",
     "@size-limit/preset-small-lib": "^10.0.1",
+    "@testing-library/dom": "^10.0.0",
     "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^14.0.0",
+    "@testing-library/react": "^16.3.3",
     "@types/jest": "^30.0.0",
-    "@types/react": "^18.2.33",
-    "@types/react-dom": "^18.2.14",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@types/react-window": "^1.8.8",
     "@typescript-eslint/eslint-plugin": "^6.9.1",
     "@typescript-eslint/parser": "^6.9.1",
@@ -92,8 +95,9 @@
     "jest-environment-jsdom": "^30.2.0",
     "postcss": "^8.4.31",
     "prettier": "^3.0.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "publint": "^0.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-icons": "^5.6.0",
     "rollup": "^4.2.0",
     "rollup-plugin-copy": "^3.5.0",

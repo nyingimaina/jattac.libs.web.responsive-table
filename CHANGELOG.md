@@ -1,6 +1,15 @@
 # Changelog
 
-## [0.13.0] - 2026-06-08
+## [0.19.0] - 2026-09-24
+
+### Added
+- **React 19 support** — `react`/`react-dom` peers remain `>=18.2.0` (React 18 and React 19 both supported), and the development toolchain (React, `@types/react`, `@testing-library/react`) is now validated against React 19. Component ref prop types were updated for `@types/react` 19 (`RefObject<T | null>`).
+- **`npm run validate-package`** — release-time package validation using `attw` (`@arethetypeswrong/cli`) and `publint`, wired into `prepublishOnly`. Verifies the published `exports`/ESM/CJS/type resolution that bundlers (including Vite) and Node consumers rely on.
+
+### Changed
+- **Genuine ESM entry** — the ESM bundle is now emitted as `dist/index.mjs` (previously `dist/index.es.js`). A `.js`-suffixed ESM file in a non-`"type": "module"` package is parsed as CommonJS by Node and could break strict ESM consumers; the `.mjs` extension fixes that while keeping the CommonJS `dist/index.js` entry untouched.
+
+---
 
 ### Added
 - **Dedicated left chevron column** — expand/collapse chevron now lives in a `2rem` fixed-width column as the first table column, not as an overlay or below-row bar. Keeps data cells structurally aligned.

@@ -10,12 +10,18 @@ function debounce<T extends (...args: unknown[]) => unknown>(func: T, delay: num
   };
 }
 
+/**
+ * A React 19 compatible ref object. React 19's `useRef<T>(null)` returns
+ * `RefObject<T | null>`, so `current` may be null until the element is mounted.
+ */
+type ElementRef = { readonly current: HTMLElement | null };
+
 interface UseResponsiveTableProps {
   mobileBreakpoint?: number;
   enablePageLevelStickyHeader?: boolean;
   maxHeight?: string; // Indicates if internal sticky header is used
-  headerRef?: React.RefObject<HTMLElement>;
-  scrollableRef?: React.RefObject<HTMLElement>;
+  headerRef?: ElementRef;
+  scrollableRef?: ElementRef;
 }
 
 interface UseResponsiveTableReturn {

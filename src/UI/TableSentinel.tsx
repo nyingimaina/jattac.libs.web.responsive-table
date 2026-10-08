@@ -6,7 +6,7 @@ interface TableSentinelProps {
   /** Fix Bug C: pass the scroll container ref so IntersectionObserver reads it inside the
    *  effect (post-commit) rather than at render time when the ref is still null.
    *  Required when maxHeight is set (internal-scroll mode); omit for page-level scroll. */
-  scrollableRootRef?: React.RefObject<HTMLDivElement>;
+  scrollableRootRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export const TableSentinel: React.FC<TableSentinelProps> = ({ onIntersect, isLoading, scrollableRootRef }) => {

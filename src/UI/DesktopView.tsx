@@ -11,8 +11,8 @@ import { TableSentinel } from './TableSentinel';
 interface DesktopViewProps {
   maxHeight?: string;
   isHeaderSticky: boolean;
-  tableContainerRef: React.RefObject<HTMLDivElement>;
-  headerRef: React.RefObject<HTMLTableSectionElement>;
+  tableContainerRef: React.RefObject<HTMLDivElement | null>;
+  headerRef: React.RefObject<HTMLTableSectionElement | null>;
   footerRows?: { columns: IFooterColumnDefinition[] }[];
   renderPluginFooters: () => React.ReactNode;
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;

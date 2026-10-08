@@ -98,6 +98,8 @@ module.exports = {
 
 #### Vite
 
+Because the ResponsiveTable package ships a genuine ESM entry (`dist/index.mjs`) with a correct `exports` map, Vite and other modern bundlers (Rollup, webpack 5) resolve it with **no configuration**. The workaround below is only needed if the `jattac.libs.web.zest-textbox` package is imported directly in your app:
+
 ```js
 // vite.config.js
 export default {
@@ -106,6 +108,8 @@ export default {
   },
 };
 ```
+
+The published entry points are verified at release time with `npm run validate-package` (`attw` + `publint`), so the ESM/CJS/type resolution a Vite consumer relies on is checked before every publish. Both React 18 and React 19 are supported (`react`/`react-dom` `>=18.2.0`).
 
 ### Planned Fix
 

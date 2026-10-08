@@ -16,6 +16,11 @@ ResponsiveTable is a high-performance, type-safe React component designed for co
 npm install jattac.libs.web.responsive-table jattac.libs.web.zest-textbox react-icons
 ```
 
+## Compatibility
+
+*   **React 18 and React 19** — `peerDependencies` accept `react`/`react-dom` `>=18.2.0`; the test suite and type declarations are validated against React 19.
+*   **Bundlers including Vite** — the published package ships dual modules: CommonJS (`dist/index.js`) and genuine ESM (`dist/index.mjs`) with a correct `exports` map, so Vite, webpack, Rollup, and Node ESM/CJS all resolve cleanly. Run `npm run validate-package` (`attw` + `publint`) to verify the published entry points.
+
 ---
 
 ## Table of Contents

@@ -15,7 +15,7 @@ module.exports = {
       exports: 'named',
     },
     {
-      file: 'dist/index.es.js',
+      file: 'dist/index.mjs',
       format: 'esm',
       sourcemap: true,
       exports: 'named',

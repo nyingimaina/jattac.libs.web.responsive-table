@@ -11,7 +11,7 @@ interface MobileViewProps {
   expandedIds: Set<string | number>;
   toggleExpanded: (id: string | number) => void;
   maxHeight?: string;
-  tableContainerRef: React.RefObject<HTMLDivElement>;
+  tableContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 interface RTNativeEvent extends Event {
