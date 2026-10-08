@@ -1,0 +1,38 @@
+{
+  "overall": 3,
+  "headline": "Not ready: something is still broken.",
+  "items": [
+    {
+      "id": "boot",
+      "title": "The packed library installs and imports",
+      "status": 2,
+      "evidence": "The installed-library check could not run here (it is not set up in this project yet, or there is no internet connection to install into a scratch project), so the library has not been proven to work for the people who install it."
+    },
+    {
+      "id": "tests",
+      "title": "Automated tests and checks pass",
+      "status": 3,
+      "evidence": "These failed: no-debug-leftovers, lib-validate-package."
+    },
+    {
+      "id": "coverage-library",
+      "title": "The tests run the code (Library)",
+      "status": 0,
+      "evidence": "82% of lines run by the tests; up 0 points since the last build."
+    },
+    {
+      "id": "skipped",
+      "title": "Nothing was skipped",
+      "status": 0,
+      "evidence": "Every check that applies was run."
+    }
+  ],
+  "notes": [
+    {
+      "id": "browser",
+      "title": "Real browser journeys",
+      "status": 2,
+      "evidence": "Not run: you chose not to run them for this run. Not counted for or against the verdict."
+    }
+  ]
+}
