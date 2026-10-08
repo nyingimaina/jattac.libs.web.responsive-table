@@ -1,0 +1,83 @@
+{
+  "rules": [
+    {
+      "ruleId": "USR-001",
+      "ruleHash": "0CFA78785D959B3C",
+      "checks": [
+        {
+          "id": "check-1",
+          "name": "No native button (use zest-button)",
+          "kind": "pattern",
+          "command": "",
+          "workingDir": ".",
+          "timeoutSeconds": 600,
+          "rules": [],
+          "files": [
+            "src/**/*.tsx"
+          ],
+          "forbid": "\u003Cbutton[\\s\u003E]",
+          "tier": "fast",
+          "requiresEnv": [],
+          "requiresTools": [],
+          "dependsOn": []
+        },
+        {
+          "id": "check-2",
+          "name": "No native textarea (use zest-textbox)",
+          "kind": "pattern",
+          "command": "",
+          "workingDir": ".",
+          "timeoutSeconds": 600,
+          "rules": [],
+          "files": [
+            "src/**/*.tsx"
+          ],
+          "forbid": "\u003Ctextarea[\\s\u003E/]",
+          "tier": "fast",
+          "requiresEnv": [],
+          "requiresTools": [],
+          "dependsOn": []
+        },
+        {
+          "id": "check-3",
+          "name": "No native text input (use zest-textbox)",
+          "kind": "pattern",
+          "command": "",
+          "workingDir": ".",
+          "timeoutSeconds": 600,
+          "rules": [],
+          "files": [
+            "src/**/*.tsx"
+          ],
+          "forbid": "\u003Cinput\\b(?![^\u003E]*type=[\u0022\u0027](?:checkbox|radio|range|color|hidden|file)[\u0022\u0027])",
+          "tier": "fast",
+          "requiresEnv": [],
+          "requiresTools": [],
+          "dependsOn": []
+        },
+        {
+          "id": "check-4",
+          "name": "No native file input (use zest-file-upload)",
+          "kind": "pattern",
+          "command": "",
+          "workingDir": ".",
+          "timeoutSeconds": 600,
+          "rules": [],
+          "files": [
+            "src/**/*.tsx"
+          ],
+          "forbid": "\u003Cinput\\b[^\u003E]*type=[\u0022\u0027]file[\u0022\u0027]",
+          "tier": "fast",
+          "requiresEnv": [],
+          "requiresTools": [],
+          "dependsOn": []
+        }
+      ],
+      "good": "import { ZestButton } from \u0027jattac.libs.web.zest-button\u0027;\nimport { ZestTextbox } from \u0027jattac.libs.web.zest-textbox\u0027;\n\nexport const Form = () =\u003E (\n  \u003Cdiv\u003E\n    \u003CZestTextbox label=\u0022Name\u0022 /\u003E\n    \u003CZestButton\u003ESave\u003C/ZestButton\u003E\n  \u003C/div\u003E\n);",
+      "bad": "export const Form = () =\u003E (\n  \u003Cdiv\u003E\n    \u003Cinput type=\u0022text\u0022 /\u003E\n    \u003Cbutton onClick={save}\u003ESave\u003C/button\u003E\n  \u003C/div\u003E\n);",
+      "notes": "Whether the other listed libraries (responsive-layout, tabs, responsive-table, sidekick-menu, overflow-menu, jattac-web-poller) are used in preference to hand-built equivalents (custom tab bars, dropdown menus, setInterval polling, side navigation, layout grids, or a hand-written table) cannot be decided by a pattern, so a reviewer must judge it. Native \u003Ctable\u003E was deliberately not forbidden because this repository is itself the responsive-table library. Existing uses of native elements in this library\u0027s own source, if any, will be flagged by the checks and need review.",
+      "at": "2026-10-08T13:55:57.0765532+00:00",
+      "by": "claude-code"
+    }
+  ]
+}

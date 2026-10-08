@@ -1,0 +1,63 @@
+{
+  "summary": "The builder reported that `npm run build` fails and pointed at an npm debug log. That log file does not exist on this machine, and on the current working tree `npm run build` (rollup -c) and `npm run type-check` (tsc --noEmit) both complete without errors, producing dist/index.js and dist/index.mjs. The requirement is therefore that the library's build must finish successfully from a clean state, including with the light/dark/system theme work already decided, so that a developer can publish the package. No new product behaviour is requested.",
+  "roles": ["Library maintainer: runs npm run build to produce the package that is published to npm", "Library consumer (developer who installs the package): receives the built output"],
+  "requirements": [
+    {
+      "id": "R1",
+      "text": "Running `npm run build` in the library root finishes with exit code 0 and produces dist/index.js, dist/index.mjs and the type declarations, with no errors.",
+      "rationale": "The builder reported a failing build. A library that cannot be built cannot be published, so every other change (including the approved theme feature) is blocked until the build is green.",
+      "acceptance": [
+        "From a clean checkout (dist removed, dependencies installed), `npm run build` exits with code 0",
+        "dist/index.js and dist/index.mjs exist after the build",
+        "`npm run type-check` exits with code 0",
+        "`npm test` still passes after any change made to fix the build"
+      ],
+      "edgeCases": [
+        "The build must pass from a clean state (dist deleted), not only when an old dist folder is already present",
+        "If a build error can only be reproduced under conditions other than the current tree (for example a different Node version), the error message and cause must be recorded rather than the build declared fixed without evidence",
+        "The theme feature's CSS and TypeScript changes must not introduce build or type errors"
+      ],
+      "pitfalls": [
+        "Fixing the build must not remove or change any exported component, prop or type",
+        "The build must not be made to pass by disabling checks, type-checking or tests"
+      ],
+      "rules": ["LIB-001"]
+    }
+  ],
+  "outOfScope": [
+    "Any new feature or visual change",
+    "Creating missing scaffolding such as .size-limit.json, scripts/check-docs.mjs or scripts/consumer-smoke.mjs",
+    "Upgrading dependencies beyond what is needed to make the build pass"
+  ],
+  "nonFunctional": [
+    {
+      "area": "reliability",
+      "statement": "The build gives the same result on repeated runs from a clean state.",
+      "acceptance": "Running `npm run build` twice in a row from a clean state exits with code 0 both times."
+    }
+  ],
+  "risks": [
+    "The reported log file is missing, so the original failure cannot be read; it may have been caused by work in progress that has since been changed, or by a different environment.",
+    "The working tree has uncommitted changes, so a failure could return if they are reverted or altered."
+  ],
+  "glossary": [
+    "Build: `rollup -c`, which bundles src/index.tsx into dist/index.js and dist/index.mjs."
+  ],
+  "questions": [],
+  "coverage": [
+    { "topic": "users", "status": "answered", "note": "Library maintainer and consumers; the request comes from the builder." },
+    { "topic": "data", "status": "not-applicable", "note": "No data is stored; this is a build fix." },
+    { "topic": "permissions", "status": "not-applicable", "note": "No records or access control involved." },
+    { "topic": "validation", "status": "not-applicable", "note": "No user input involved." },
+    { "topic": "states", "status": "assumed", "note": "The only states are build succeeds or fails with a readable error." },
+    { "topic": "duplicates", "status": "not-applicable", "note": "No submissions or shared records." },
+    { "topic": "volume", "status": "not-applicable", "note": "No data volume involved." },
+    { "topic": "deletion", "status": "not-applicable", "note": "Nothing is deleted by users." },
+    { "topic": "privacy", "status": "not-applicable", "note": "No personal data involved." },
+    { "topic": "quality", "status": "assumed", "note": "Reliability only: build is repeatable from a clean state." }
+  ],
+  "assumptions": [
+    "The failure was caused by earlier in-progress work and does not reproduce on the current tree, since `npm run build` and `npm run type-check` pass today; the developer re-verifies from a clean state and fixes anything that still fails.",
+    "Success means exit code 0 for build, type-check and tests, not a size budget or docs check, since the project has no scripts for those."
+  ]
+}

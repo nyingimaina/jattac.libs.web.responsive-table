@@ -1,0 +1,41 @@
+{
+  "summary": "No new feature. The build (rollup -c, with the typescript, postcss, peer-deps-external plugins) and type-check already pass on the current tree, and the reported npm log is missing, so the original failure came from earlier in-progress theme work. The developer re-verifies from a clean state (delete dist, run npm run build twice, then type-check, lint and tests) and fixes only what still fails, with the smallest edit in the file that causes it. Any fix to existing behaviour gets a test first. The public surface (src/index.tsx exports), dist layout, exports map, peer dependencies and dependency versions stay unchanged. No size budget or docs check exists in this project and none is created. If no failure reproduces, no source file changes and the result is recorded as verified.",
+  "impact": {
+    "touches": [
+      "rollup.config.js (only if the clean build fails because of it)",
+      "tsconfig.json (only if the clean build or type-check fails because of it)",
+      "src/** files that break the build, such as the theme files: src/UI/ThemeRoot.tsx, src/Hooks/useResolvedTheme.ts, src/Data/ResponsiveTableTheme.ts, src/Styles/Theme.module.css (only if they fail)"
+    ],
+    "reuses": [
+      "Existing Rollup pipeline and npm scripts: build, type-check, lint, test",
+      "Existing theme tests: src/Hooks/useResolvedTheme.test.ts, src/UI/ResponsiveTable.theme.test.tsx",
+      "Existing package.json exports map and peer dependency setup, unchanged"
+    ],
+    "adds": [
+      "A regression test only if a real defect is found and fixed, placed beside the code it covers as *.test.ts(x)"
+    ]
+  },
+  "scope": [
+    "src/**",
+    "rollup.config.js",
+    "tsconfig.json",
+    "jest-setup.ts"
+  ],
+  "components": [
+    {
+      "name": "Clean-state build verification and repair",
+      "path": "rollup.config.js",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "Type and module sources compiled by the build (fix only if broken)",
+      "path": "src/index.tsx",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "Theme sources compiled by the build (fix only if broken)",
+      "path": "src/UI/ThemeRoot.tsx",
+      "requirements": ["R1"]
+    }
+  ]
+}

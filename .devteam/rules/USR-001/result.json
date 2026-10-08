@@ -4,22 +4,28 @@
       "name": "No native button (use zest-button)",
       "kind": "pattern",
       "files": ["src/**/*.tsx"],
-      "forbid": "<button[\\s>/]"
+      "forbid": "<button[\\s>]"
     },
     {
-      "name": "No native text input or textarea (use zest-textbox, zest-file-upload)",
+      "name": "No native textarea (use zest-textbox)",
       "kind": "pattern",
       "files": ["src/**/*.tsx"],
-      "forbid": "<(input|textarea)[\\s>/]"
+      "forbid": "<textarea[\\s>/]"
     },
     {
-      "name": "No competing table, tabs, upload or UI-kit imports",
+      "name": "No native text input (use zest-textbox)",
       "kind": "pattern",
-      "files": ["src/**/*.ts", "src/**/*.tsx"],
-      "forbid": "from\\s+['\"](react-table|@tanstack/react-table|ag-grid-react|react-dropzone|react-tabs|@mui/material|@mui/x-data-grid|antd|react-bootstrap)(/[^'\"]*)?['\"]"
+      "files": ["src/**/*.tsx"],
+      "forbid": "<input\\b(?![^>]*type=[\"'](?:checkbox|radio|range|color|hidden|file)[\"'])"
+    },
+    {
+      "name": "No native file input (use zest-file-upload)",
+      "kind": "pattern",
+      "files": ["src/**/*.tsx"],
+      "forbid": "<input\\b[^>]*type=[\"']file[\"']"
     }
   ],
-  "good": "import { ZestButton } from 'jattac.libs.web.zest-button';\n\nexport const Save = () => <ZestButton onClick={save}>Save</ZestButton>;",
-  "bad": "import { useTable } from 'react-table';\n\nexport const Save = () => <button onClick={save}>Save</button>;\nexport const Name = () => <input type=\"text\" />;",
-  "cannotTest": "Whether a custom-built component (e.g. a div acting as a tabs bar, side menu, overflow menu, responsive layout, or hand-written polling with setInterval) duplicates one of the listed libraries needs a reviewer. Also cannot be checked: that the listed packages are actually installed, and that a native element is used only where no listed library covers its function. Note this repo is itself the responsive-table library, so the table's own internals are a reviewer judgment."
+  "good": "import { ZestButton } from 'jattac.libs.web.zest-button';\nimport { ZestTextbox } from 'jattac.libs.web.zest-textbox';\n\nexport const Form = () => (\n  <div>\n    <ZestTextbox label=\"Name\" />\n    <ZestButton>Save</ZestButton>\n  </div>\n);",
+  "bad": "export const Form = () => (\n  <div>\n    <input type=\"text\" />\n    <button onClick={save}>Save</button>\n  </div>\n);",
+  "cannotTest": "Whether the other listed libraries (responsive-layout, tabs, responsive-table, sidekick-menu, overflow-menu, jattac-web-poller) are used in preference to hand-built equivalents (custom tab bars, dropdown menus, setInterval polling, side navigation, layout grids, or a hand-written table) cannot be decided by a pattern, so a reviewer must judge it. Native <table> was deliberately not forbidden because this repository is itself the responsive-table library. Existing uses of native elements in this library's own source, if any, will be flagged by the checks and need review."
 }

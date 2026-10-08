@@ -1,0 +1,35 @@
+{
+  "findings": [
+    {
+      "cites": "R1",
+      "severity": "advisory",
+      "file": "src/Build.test.ts",
+      "line": 16,
+      "evidence": "The clean-state edge case is now covered: Build.test.ts deletes dist, runs rollup via `npm run build`, and asserts dist/index.js and dist/index.mjs exist (would throw/fail if the build broke). The acceptance line 'npm run type-check exits with code 0' still has no automated test of its own; it was only run by hand. Rollup's typescript plugin compiles the theme .ts/.tsx, so most type errors would also fail the build test, but the dedicated `tsc --noEmit` script is not exercised by any test.",
+      "description": "Add or explicitly note an automated type-check step (or record that it stays manual) so the 'type-check exits 0' acceptance line has proof of its own."
+    },
+    {
+      "cites": "R1",
+      "severity": "advisory",
+      "file": ".devteam/runs/20261008-135629/artifacts/03-build/developer-r2.json",
+      "line": 2,
+      "evidence": "Edge case: 'If a build error can only be reproduced under conditions other than the current tree ... the error message and cause must be recorded'. The report states only that no production/config file changed; it records no Node/npm version and no error message, and the referenced npm log is missing. The failure is treated as fixed without a recorded original cause.",
+      "description": "Record the Node and npm versions used for the clean-state runs and state plainly that the original failure was not reproduced on the current tree."
+    },
+    {
+      "cites": "LIB-003",
+      "severity": "advisory",
+      "file": "package.json",
+      "line": 19,
+      "evidence": "No scripts/consumer-smoke.mjs exists and the build report does not pack the library or import dist/index.js / dist/index.mjs under CommonJS and ES modules. The project note marks this check as not set up, and the analyst scoped scaffolding out, so nothing proves the packed output imports. A manual `npm pack` + CJS/ESM import of the two dist entry files would give some evidence.",
+      "description": "The packed-library install-and-import check did not run, so the build output is proven to exist but not to be consumable."
+    }
+  ],
+  "verifications": [
+    {
+      "id": "QA-1",
+      "status": "fixed",
+      "evidence": "src/Build.test.ts was added (only changed file). Test 1 removes dist, runs `npm run build` via execSync (which throws on a non-zero exit) and asserts dist/index.js and dist/index.mjs exist; test 2 repeats the build and asserts the same, covering the twice-in-a-row reliability check. Both name R1. I ran `npx jest src/Build.test.ts --verbose`: 2 passed, 2 total, ~27s. This fails if rollup errors or if either output is not produced, so it would notice the build breaking."
+    }
+  ]
+}

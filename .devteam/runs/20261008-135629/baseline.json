@@ -1,0 +1,571 @@
+{
+  "stamps": {
+    ".eslintrc.json": [
+      212,
+      638701247275604359
+    ],
+    ".gitignore": [
+      42,
+      638894467296810138
+    ],
+    ".prettierrc": [
+      68,
+      638701247275604359
+    ],
+    "CHANGELOG.md": [
+      8752,
+      639270642419524417
+    ],
+    "jest-setup.ts": [
+      577,
+      639155869057334664
+    ],
+    "LICENSE": [
+      1090,
+      638701247275604359
+    ],
+    "package-lock.json": [
+      469590,
+      639258313938294521
+    ],
+    "package.json": [
+      3748,
+      639270642420184218
+    ],
+    "README.md": [
+      12915,
+      639270642419534440
+    ],
+    "rollup.config.js": [
+      1003,
+      639258299616545433
+    ],
+    "set-origin-urls.sh": [
+      1110,
+      638753962131702923
+    ],
+    "tsconfig.json": [
+      587,
+      639088061344763286
+    ],
+    "update-dependancies.sh": [
+      54,
+      638701247275604359
+    ],
+    ".claude/settings.local.json": [
+      192,
+      639161603082315203
+    ],
+    "bug-reports/responsive-table-infinite-loop-report.md": [
+      4102,
+      639159967659750281
+    ],
+    "conductor/avoidance.md": [
+      1426,
+      639088085981694794
+    ],
+    "conductor/index.md": [
+      370,
+      639088061344156045
+    ],
+    "conductor/product-guidelines.md": [
+      2031,
+      639088061344156045
+    ],
+    "conductor/product.md": [
+      2735,
+      639143376833698822
+    ],
+    "conductor/setup_state.json": [
+      55,
+      639088061344156045
+    ],
+    "conductor/tech-stack.md": [
+      750,
+      639088061344156045
+    ],
+    "conductor/tracks.md": [
+      523,
+      639143377357603111
+    ],
+    "conductor/workflow.md": [
+      13529,
+      639088061344361694
+    ],
+    "docs/api.md": [
+      16322,
+      639270642420124255
+    ],
+    "docs/breaking-changes.md": [
+      2415,
+      639270642420134230
+    ],
+    "docs/configuration.md": [
+      4411,
+      639270642420144252
+    ],
+    "docs/custom-plugin-example.md": [
+      4755,
+      639037109682911487
+    ],
+    "docs/development.md": [
+      2448,
+      639270642420154282
+    ],
+    "docs/examples.md": [
+      14376,
+      639270642420164247
+    ],
+    "docs/expand-collapse.md": [
+      34619,
+      639167731883458920
+    ],
+    "docs/features.md": [
+      4467,
+      639270642420174248
+    ],
+    "docs/handling-interactive-elements.md": [
+      2869,
+      639088061344575136
+    ],
+    "docs/recommendations.md": [
+      15035,
+      639258308559896706
+    ],
+    "docs/scroll-position.md": [
+      17160,
+      639171810915949117
+    ],
+    "gemini/index.md": [
+      389,
+      638884314004044699
+    ],
+    "gemini/project_analysis.md": [
+      4107,
+      638871078619597756
+    ],
+    "gemini/project_memos.md": [
+      1116,
+      639088254900812651
+    ],
+    "gemini/release_git_steps.md": [
+      2904,
+      638937199720482722
+    ],
+    "src/index.tsx": [
+      1233,
+      639270642420294214
+    ],
+    "src/typings.d.ts": [
+      435,
+      639088061344763286
+    ],
+    "conductor/code_styleguides/html-css.md": [
+      2796,
+      639088061344156045
+    ],
+    "conductor/code_styleguides/javascript.md": [
+      2788,
+      639088061344156045
+    ],
+    "conductor/code_styleguides/typescript.md": [
+      3094,
+      639088061344156045
+    ],
+    "gemini/context/1.md": [
+      765,
+      639020681546010659
+    ],
+    "gemini/context/2.md": [
+      2246,
+      639088061344680615
+    ],
+    "gemini/inferences/1.md": [
+      4948,
+      638894520449232993
+    ],
+    "gemini/inferences/2.md": [
+      3946,
+      638894535795128712
+    ],
+    "gemini/inferences/3.md": [
+      2653,
+      638894535795139254
+    ],
+    "gemini/inferences/4.md": [
+      3138,
+      638894535795144632
+    ],
+    "gemini/inferences/5.md": [
+      2627,
+      638894520449236578
+    ],
+    "gemini/inferences/6.md": [
+      3619,
+      638894535795149890
+    ],
+    "gemini/inferences/7.md": [
+      1643,
+      638894535795155197
+    ],
+    "src/Context/TableContext.tsx": [
+      9489,
+      639160425450770352
+    ],
+    "src/Data/IFooterColumnDefinition.ts": [
+      561,
+      638871078619634112
+    ],
+    "src/Data/IFooterRowDefinition.ts": [
+      159,
+      638866575562944123
+    ],
+    "src/Data/IResponsiveTableColumnDefinition.tsx": [
+      3148,
+      639143362256730490
+    ],
+    "src/Data/ResponsiveTableTheme.ts": [
+      151,
+      639270642420194218
+    ],
+    "src/Hooks/useResolvedTheme.test.ts": [
+      3811,
+      639270642420194218
+    ],
+    "src/Hooks/useResolvedTheme.ts": [
+      1630,
+      639270642420204208
+    ],
+    "src/Hooks/useResponsiveTable.test.ts": [
+      2964,
+      639184288767120849
+    ],
+    "src/Hooks/useResponsiveTable.ts": [
+      3601,
+      639258262417633807
+    ],
+    "src/Hooks/useTableDataSource.ts": [
+      4121,
+      639155816978833755
+    ],
+    "src/Hooks/useTablePlugins.test.ts": [
+      2261,
+      639222535935260103
+    ],
+    "src/Hooks/useTablePlugins.ts": [
+      6898,
+      639222537385613123
+    ],
+    "src/Plugins/FilterPlugin.tsx": [
+      4548,
+      639270642420214215
+    ],
+    "src/Plugins/IResponsiveTablePlugin.ts": [
+      2338,
+      639164977254668200
+    ],
+    "src/Plugins/SelectionPlugin.ts": [
+      3275,
+      639057043084589341
+    ],
+    "src/Plugins/SortPlugin.ts": [
+      5733,
+      639057043084661381
+    ],
+    "src/Styles/LoadingSpinner.module.css": [
+      435,
+      639270642420224212
+    ],
+    "src/Styles/NoMoreDataMessage.module.css": [
+      442,
+      639088061344763286
+    ],
+    "src/Styles/ResponsiveTable.module.css": [
+      13263,
+      639270642420234198
+    ],
+    "src/Styles/Theme.module.css": [
+      2931,
+      639270642420244194
+    ],
+    "src/UI/DesktopView.tsx": [
+      7899,
+      639258263546228954
+    ],
+    "src/UI/DetailRow.test.tsx": [
+      1707,
+      639165016628172632
+    ],
+    "src/UI/DetailRow.tsx": [
+      1166,
+      639165015876273054
+    ],
+    "src/UI/ExpandCollapse.test.tsx": [
+      7191,
+      639160425450813192
+    ],
+    "src/UI/LoadingSpinner.tsx": [
+      399,
+      638913832801004357
+    ],
+    "src/UI/MobileView.test.tsx": [
+      5781,
+      639143385194911303
+    ],
+    "src/UI/MobileView.tsx": [
+      9795,
+      639258263547039429
+    ],
+    "src/UI/NoMoreDataMessage.tsx": [
+      314,
+      638913693478010422
+    ],
+    "src/UI/ResponsiveTable.onDataSourceStateChange.test.tsx": [
+      2231,
+      639222545961815815
+    ],
+    "src/UI/ResponsiveTable.test.tsx": [
+      9660,
+      639088080086339579
+    ],
+    "src/UI/ResponsiveTable.theme.test.tsx": [
+      12009,
+      639270642420254244
+    ],
+    "src/UI/ResponsiveTable.tsx": [
+      19552,
+      639270642420284216
+    ],
+    "src/UI/ScrollPosition.test.tsx": [
+      8975,
+      639184297392741598
+    ],
+    "src/UI/SkeletonView.tsx": [
+      1574,
+      639088061344763286
+    ],
+    "src/UI/SmartDataSource.test.tsx": [
+      9219,
+      639159989535943820
+    ],
+    "src/UI/TableBodyCell.tsx": [
+      725,
+      639143359181869779
+    ],
+    "src/UI/TableBodyRow.tsx": [
+      3919,
+      639165083321766852
+    ],
+    "src/UI/TableHeaderCell.tsx": [
+      1741,
+      639143359123576392
+    ],
+    "src/UI/TableSentinel.test.tsx": [
+      2814,
+      639184297426458245
+    ],
+    "src/UI/TableSentinel.tsx": [
+      1505,
+      639258263646309449
+    ],
+    "src/UI/ThemeRoot.tsx": [
+      586,
+      639270642420294214
+    ],
+    "conductor/archive/mobile-styling-20260514/index.md": [
+      140,
+      639143351855401282
+    ],
+    "conductor/archive/mobile-styling-20260514/metadata.json": [
+      622,
+      639143351855401282
+    ],
+    "conductor/archive/mobile-styling-20260514/plan.md": [
+      2568,
+      639143374387464249
+    ],
+    "conductor/archive/mobile-styling-20260514/spec.md": [
+      2673,
+      639143351855401282
+    ],
+    "conductor/tracks/column-visibility/plan.md": [
+      587,
+      639088061344245485
+    ],
+    "conductor/tracks/column-visibility/spec.md": [
+      2698,
+      639088061344245485
+    ],
+    "conductor/tracks/documentation/guidelines.md": [
+      10499,
+      639088061344245485
+    ],
+    "conductor/tracks/fix-lint-issues/plan.md": [
+      455,
+      639088061344245485
+    ],
+    "conductor/tracks/fix-lint-issues/spec.md": [
+      1137,
+      639088061344245485
+    ],
+    "conductor/tracks/fix-resolution-issue/plan.md": [
+      547,
+      639088061344245485
+    ],
+    "conductor/tracks/fix-resolution-issue/spec.md": [
+      1333,
+      639088061344245485
+    ],
+    "conductor/tracks/fix-row-click-bubbling/index.md": [
+      148,
+      639088061344299217
+    ],
+    "conductor/tracks/fix-row-click-bubbling/metadata.json": [
+      352,
+      639088080498851980
+    ],
+    "conductor/tracks/fix-row-click-bubbling/plan.md": [
+      1683,
+      639088080490799235
+    ],
+    "conductor/tracks/fix-row-click-bubbling/spec.md": [
+      1531,
+      639088061344299217
+    ],
+    "conductor/tracks/refactor-atomize/plan.md": [
+      2082,
+      639088061344341618
+    ],
+    "conductor/tracks/refactor-atomize-v2/plan.md": [
+      1232,
+      639088061344299217
+    ],
+    "conductor/tracks/refactor-atomize-v2/spec.md": [
+      1690,
+      639088061344299217
+    ],
+    "conductor/tracks/smart-datasource/plan.md": [
+      1209,
+      639088061344341618
+    ],
+    "conductor/tracks/smart-datasource/spec.md": [
+      2420,
+      639088061344341618
+    ]
+  },
+  "hashes": {
+    ".eslintrc.json": "1E2DFD8D9FD6196C2467A0D40F16698A45C45153645E005503989D6647512C98",
+    ".gitignore": "44C8CB22D93232CD85593CDE5F755F6A2575843771ADF353CC7970C2286EAF35",
+    ".prettierrc": "6ED80E103740FE9B97DC834B183D471C86C49CA4AC90BDF42DCAC89A7A98A910",
+    "CHANGELOG.md": "50B6BBB67A085E6C3A98C77C691AB13EDBF63391FEA37962A41037548B04B5B0",
+    "jest-setup.ts": "F9F9A8172E5CB89BEF772B28CB03FF4CC2D2C5AA18CEA95338AB4366080D5439",
+    "LICENSE": "F02E1FF1CE7D2D99D4C6FF8F711BB1B57245F75B2EC739C205BE2EA1AFE30F2D",
+    "package-lock.json": "4458F791506106482B80D3ECF5B756032D2641270DA0C4322F013A897FFAD290",
+    "package.json": "EEA2C3C60F34BD437B8EF06090623105DD0E1577EAE51A57ABE70254CA83A6BC",
+    "README.md": "FD135ED992EC659826F67224420EF6EEF3946836CFDFD715E34D83CCB7E5C224",
+    "rollup.config.js": "946007930EB212FA88E55B2C288A15E18A7678F37B8735F74F0570B2ED1CE4BC",
+    "set-origin-urls.sh": "097C4B838B660D84D999CB8E5D561EDA20CB5A7273FDE7B21E505F4DE025204D",
+    "tsconfig.json": "7C868E23E300A73C34D75F4FF619BA9586B6BCA78CFE4A610ABFA453DE658693",
+    "update-dependancies.sh": "513DB2AB77494587FDB19C08E2012FD83C6B3E5E90CCCDEA13FCFD8A34F19082",
+    ".claude/settings.local.json": "216DDE8D4EDD66DDA61B166AD22E6DE9CABBCBD33FBF2C01BE77FC5D59DC804C",
+    "bug-reports/responsive-table-infinite-loop-report.md": "1BD7CF861EACA21CF7A9B56699AA1FEF4ED53822F4232AFD88E4A3028FAB115C",
+    "conductor/avoidance.md": "2B392D2441FD98C17976288EBB5AEDE8633E8D1D64B653A9AA76F115BE37E9F1",
+    "conductor/index.md": "FBD0BEC520DB6A4FAA5E01B7E8E1CB91812CF47B4C11589DE7760022476EB24E",
+    "conductor/product-guidelines.md": "F0A6EE27E2618B8F3F17A688DCE9E3CA2C086EEFC1649AC4FB8FBECAE704186F",
+    "conductor/product.md": "DBF49A8E92BB28307CCB2673E1EB441F069E838AB9E3ECDB7B7B3AA50435097F",
+    "conductor/setup_state.json": "70FD27A31BE791F9500F479A6741368BBB1505CE72B9F0CD34441BDDC86DD090",
+    "conductor/tech-stack.md": "9B02821D5BEBC9EA8117ADA2FF68CF32713E44C25D5608B182F19F6E8163927A",
+    "conductor/tracks.md": "F4F6E5E81974DF2D030DED9A06CC77093EB71E0B60259CD04E7C0076C2E06C8E",
+    "conductor/workflow.md": "2A6169406B7411225F598F942EE3A41C9362A15A613AA305C1576D67DAA472DB",
+    "docs/api.md": "4596ECFC5EBF9A1F4FD437216E8DF95C901A3A26DC2A2CFD1C621550456EB479",
+    "docs/breaking-changes.md": "C2C68477AEC73A6D6CCEB41BC56BAF67ADA6A0C5F763EB03AE9493747A22951C",
+    "docs/configuration.md": "DE43850E5D765E593F960C90B8649CA1CF57B12F80F9F3CA937F348E0900AF7F",
+    "docs/custom-plugin-example.md": "931140FFB636A5394A5842C91EE471642E127B576D1BAE326C3561F6B6160EC7",
+    "docs/development.md": "6CCDCBB5D860FA594AE2B5AA18E7D536FF2B16BEE7F10E0CDDF0B296644B7AC2",
+    "docs/examples.md": "1AC4F998F2A2D91A3570272960B1C0E716CD26D34395A3D07654341A79F0F4FD",
+    "docs/expand-collapse.md": "5C0B312207CEDDE6CEF751308F806F257B06B4C7B26C73911921E92F525B2560",
+    "docs/features.md": "2B14500BC4329499A7696D5FB3E132A7B0069205ECDF41F0215F7891039FEECC",
+    "docs/handling-interactive-elements.md": "8EECE0FEA27B6A52DCE67A7B29FA1B77FEB7352A7E4268B25EA63E780E204A78",
+    "docs/recommendations.md": "CF3FD18BD8E0392C073F680327383F9AC640DF89A12B7A1B39A7DF07297CCC77",
+    "docs/scroll-position.md": "6D3F8BCAA7169C9706F4F5EE24AE3BD8EC8294647217E15E80A44777B2C3107A",
+    "gemini/index.md": "45CF2470CB56BAD8803E4F7186A3649DED58AD898E118D9500D6DF087AACEB46",
+    "gemini/project_analysis.md": "9DFCFABF0C7D80BBC7FAD957D86A90B61A5DC6EC3D90023D53CB1EEDE000195B",
+    "gemini/project_memos.md": "197B82C6EDD6E6C5BC8A0A524A2ACDB9D279388C8E37B4791C55BE7E6F960B27",
+    "gemini/release_git_steps.md": "93FDE30F508DC9419A42AE9D7F315F84618D17C44CC4F8CF983F3ED6321230B3",
+    "src/index.tsx": "E91B7DF73988D0B8EA5785763739557BF84C3F7D00DC8E33C0383A5C72E52459",
+    "src/typings.d.ts": "D1343E7558C699DE27441F398098AA9636EF53F5F6F11BCAAA62F457CCC6A4CF",
+    "conductor/code_styleguides/html-css.md": "1B1060B94332484355F33B3FE192873A95F811CD2109B1BBE7BAB198A9EB1947",
+    "conductor/code_styleguides/javascript.md": "B3DA98BDB87CE1FDB724980710429121B62F98AC526960F126DF0EEE8F0ED068",
+    "conductor/code_styleguides/typescript.md": "7C7D5CF5DD5B75C2D8189CB4CDE2EED0AB1B2E3B0169394B5317BAA7C6FDC319",
+    "gemini/context/1.md": "A35D20F2D1BF911FE37A92584DF2F8BD43C6584D1ED7644CA442DFACE54E0BC3",
+    "gemini/context/2.md": "CC8E13DF9A63760A842644C3960AA464EBB0339F32E30A3A35ECA343244A0175",
+    "gemini/inferences/1.md": "49AE7B733CEE81DE2DE52C9A23F14B9E344ADB01E78FBA1169F13A96084B23D9",
+    "gemini/inferences/2.md": "7CB8AC471B071247A1C7A89F03FD2DC684AA98885E8B9E437C40A3721C93AB13",
+    "gemini/inferences/3.md": "A20B30DB9A9D963C18B2C432EB7FDCEF8B02BB69D9F93638E7B5FB4A79625FD0",
+    "gemini/inferences/4.md": "0503E9B69C90B719010847972D0AD1D6A3C4F1264DA6B76BFA619FB7C8E7CEB6",
+    "gemini/inferences/5.md": "9F0BE664EDF7A83665E15B8F92D65BD8FE07B94D17FB2915C1F425D29E8EDEC2",
+    "gemini/inferences/6.md": "FBC0665070B638DAD330434A8CD4E28BB76E0B910F61E8FA711927BCB2C878B7",
+    "gemini/inferences/7.md": "49B670BDEE8757AEA14AF9B1B5C4223E489B57A44A37BA6D45B667380F383626",
+    "src/Context/TableContext.tsx": "7184CC03C00F0E95EFA7A7D093C49C8C231327B7D33F5471238E457379658FC5",
+    "src/Data/IFooterColumnDefinition.ts": "924918E773D6EB338D40536C27960D831DEF903EBD90B03B2C498CDD90861A5D",
+    "src/Data/IFooterRowDefinition.ts": "F007073399777B9BBFD601BC84A534E4567EFE7243B9D0343DA759D7F4A44A40",
+    "src/Data/IResponsiveTableColumnDefinition.tsx": "534C5EB1D53AFCA8A5E1C3BAC9528C0A5B08148C237DA68D6618A77E889E89D1",
+    "src/Data/ResponsiveTableTheme.ts": "C14FC2F1AC96C1F21B3418F74EC1E5EFD7392BEB6B0C1D6FBC534F5293E15A17",
+    "src/Hooks/useResolvedTheme.test.ts": "50FA51780618A5CB914A059A555AFC5CD642B5D9D291F442442C5F591FB1A107",
+    "src/Hooks/useResolvedTheme.ts": "A45A54FB5F042413F5D313521AECFC88C6A2370AB55116B76455A9BA83CE7486",
+    "src/Hooks/useResponsiveTable.test.ts": "A611997D4D95D6176C92E55981E1B413A9538B046B1D6C9D2AAB9E99C24526C4",
+    "src/Hooks/useResponsiveTable.ts": "F1CCEB70290ED26A930CF458E6681BCD27B89A78E56386A8D53F07C43AFB315C",
+    "src/Hooks/useTableDataSource.ts": "0DF442F0F94E811A1B4BBAE1F9345E349FF90780AEA43B52C6FDB5DD900331D8",
+    "src/Hooks/useTablePlugins.test.ts": "011F5EBFD124C66AD59B6AAF00C703016B56FDCAF36DDF7E393324C077A4D778",
+    "src/Hooks/useTablePlugins.ts": "7032BD48A9FF94E30057AE2889E1971C1B4770361310CFE8F157BA0C9F7120FE",
+    "src/Plugins/FilterPlugin.tsx": "F72EF28E93284FAFD83E29F98BB2A942A09B25352964A5CB68D89F95C091F581",
+    "src/Plugins/IResponsiveTablePlugin.ts": "3555359D1DB87FB7AF2D0ABECB457B7AE64A5E6CF850F62D5BB1396137787345",
+    "src/Plugins/SelectionPlugin.ts": "57EFF8834D623A581A23D7F5C8DE0F15FC0E4E5E6E6131C901F9252008733011",
+    "src/Plugins/SortPlugin.ts": "68D147DE5AB9AFA0C260E77DAF5CF88744C0E8276602078CB7DD31F05B523385",
+    "src/Styles/LoadingSpinner.module.css": "258BCDF0E8E0BC6F095C4CA9AB2045FF7D5D980525B3D170404BBC92642EC869",
+    "src/Styles/NoMoreDataMessage.module.css": "9B3DFC7AF256B026FC659C4984DAFFABAADCFC0BDF9AF45ADEFA3F17214FF116",
+    "src/Styles/ResponsiveTable.module.css": "FF2F3E001E506FF4F2B48C3EBA8BFABA68537B19FADC8BDA7002C7E159EA3FF8",
+    "src/Styles/Theme.module.css": "3EF27887C40A344E70DC0AE87EA178335687C06D6BF4793DB484362B19832E95",
+    "src/UI/DesktopView.tsx": "32DE0A17022C97FD268BEEF922628556542589169E55F632D17C75B653D97018",
+    "src/UI/DetailRow.test.tsx": "5A4ABBA0C98AF66AB5DD6B2B3B7531F7EB0264108AEC0DE59BDA1EF0E73F8945",
+    "src/UI/DetailRow.tsx": "005EAAF7F755901967B6C4FA3825DFF0504956ADAFDA357BB13D21F6716A4B7D",
+    "src/UI/ExpandCollapse.test.tsx": "4DB0039EE494F7797C4F76D7F44574F57398678294C2BE3385BB3E2873FC56A8",
+    "src/UI/LoadingSpinner.tsx": "325E0105D88017055057309B950DB00514D7EB0AFF508DE0F5B4ECBD6E240B88",
+    "src/UI/MobileView.test.tsx": "B27D4C759B8846071AE267C4EF1B310FEEAB3C95F2E4DBBF4B17BEE59939A0EF",
+    "src/UI/MobileView.tsx": "626A72BECE892FF66F41D819A08ABE0639C58AF36242A57136531E92B8936B93",
+    "src/UI/NoMoreDataMessage.tsx": "2B87601B28A67DF6F092006CE0890AB24C1B6F45D33A992A06413248D5BC333F",
+    "src/UI/ResponsiveTable.onDataSourceStateChange.test.tsx": "EA17D1179A3F8642CE9A43B3BE238029B188E17FD7C8CE879A79822BBE23BAD3",
+    "src/UI/ResponsiveTable.test.tsx": "A264B36944E2F0D9E2807813310F369F150147B0858226ACB3D007FD4F7E3D02",
+    "src/UI/ResponsiveTable.theme.test.tsx": "FFD800BDD33A7BEAE8565C8F9AA482C43AC04163DA7D265C981F8927DC2D6504",
+    "src/UI/ResponsiveTable.tsx": "BA4C5D83F774780C6D5FEC3E9F8B3949F0B53F13C437921893971CD37E60B549",
+    "src/UI/ScrollPosition.test.tsx": "8AE1AF5454AB36FD6C2B8C59357950684C8F1E892C9F6E0572E4BF3A45634CC7",
+    "src/UI/SkeletonView.tsx": "FF683F0DC446EDA5EFCB7114D01F26236D1D2389B7EC48BB111680DE6954FCD6",
+    "src/UI/SmartDataSource.test.tsx": "7C27BECBB5FB692480A95E29B33E0E57B0B927ADC1FE360FD82D9F0CA8556CA5",
+    "src/UI/TableBodyCell.tsx": "73EF31D4151D3FE0797ED68FC4BA83CC7AC02906F71E031F90CA57D3E4C76993",
+    "src/UI/TableBodyRow.tsx": "B15C6550DA938DE86742B7AED92678E9464D7814423D5924062327BB23CF9441",
+    "src/UI/TableHeaderCell.tsx": "F6759367B0CF110A1875F1DFF896EAF48B8A53AD620F69B158BF46E65825F0AC",
+    "src/UI/TableSentinel.test.tsx": "1E19D38B9A6F8271F411947EEBAE41E7B3931FBFBC733889F50BC19F35931015",
+    "src/UI/TableSentinel.tsx": "E6CDF98C7A56F9321AE80E36EAAA3AE34D62531F4479BBFC4FC572237FAA6CA0",
+    "src/UI/ThemeRoot.tsx": "D1E7F819B70974A86ABD1135BC703482F0295F69AE5D460EAF9469BE84467340",
+    "conductor/archive/mobile-styling-20260514/index.md": "515BA285B5B908CD96691619EA9DDB55AB5BC538A886C009FDDBC0FF6BA714B7",
+    "conductor/archive/mobile-styling-20260514/metadata.json": "55F7FB8401D6A0F8907C9BCE5BE8E777B2DCCBAC7C2BB219DE65B16673FA0427",
+    "conductor/archive/mobile-styling-20260514/plan.md": "07EF6C96ADF0E4AA954D8456D54DC9DC22C082F574D28A930D415BA991B939D2",
+    "conductor/archive/mobile-styling-20260514/spec.md": "B64E8880795A3C3455BA52659A1247DC689BD02DB5C23342256C3DE02CDF9B23",
+    "conductor/tracks/column-visibility/plan.md": "440765E33374AAFE216B04CA2FEAA7AF9209C8DA7F1F5BCF178C963EDE6F8140",
+    "conductor/tracks/column-visibility/spec.md": "AAB4F775B0CD86C892EDECBF95E8D6464214F7631D0B3526C2FB78FD0D29B25B",
+    "conductor/tracks/documentation/guidelines.md": "9FC35E4387CEC8AD0DDC1D6773A25F09FB4A24EEBC39E84262EA4C43110DF763",
+    "conductor/tracks/fix-lint-issues/plan.md": "1294C571684A820737110166ADB507878E113FA5E1186B673CD9D9C1EEF9ED85",
+    "conductor/tracks/fix-lint-issues/spec.md": "7F8FE712AEAE5D05086E45D17590FEE162BD9F90BA1D700AEB88ED6C79C46E42",
+    "conductor/tracks/fix-resolution-issue/plan.md": "D7E39C38A6CD8929C1A8E3E5A53C2802FDF7A75453EC335214B223B32F56CAE4",
+    "conductor/tracks/fix-resolution-issue/spec.md": "232FBA684104F760C4467CF8E9311C538AB21132E27BF385B1491FA4A6CD1FDB",
+    "conductor/tracks/fix-row-click-bubbling/index.md": "8825444716406D38C9C16FEE12952ADF0C37DD8CC5DC7C8FD1257A8DA131A985",
+    "conductor/tracks/fix-row-click-bubbling/metadata.json": "970EEF713CEC8CE637F70C32970E324672BD283B0F1D3FD2DD8E478B95EBF2DB",
+    "conductor/tracks/fix-row-click-bubbling/plan.md": "74560509849B24C193FE3068DB9DF98D68CC5A696C9001ABCD24F791020D624A",
+    "conductor/tracks/fix-row-click-bubbling/spec.md": "36A1AE80D075E0D2C94C3EB085EE46FB55CBA7423570B66C434E7176776D14D6",
+    "conductor/tracks/refactor-atomize/plan.md": "D8A16B6AB9B2575547443F6E3D25FC117A376938C18B34A89642355AED10DB89",
+    "conductor/tracks/refactor-atomize-v2/plan.md": "A299EBCB702AD1660F2EB435EBD971D7C2C1B833E3C86635B26A21D762C178A7",
+    "conductor/tracks/refactor-atomize-v2/spec.md": "A542DCB46BB511E71CF7F6679B94278C9629998D6660BC20F7F8F9D32D90F53E",
+    "conductor/tracks/smart-datasource/plan.md": "79910026CB2710AEAA97751EA9F15254301843F90809F043B3D2BF04E5E4B477",
+    "conductor/tracks/smart-datasource/spec.md": "6E362836C31BE7D566D8CCC5B2F41A8ACDD497C3F773BC5C820DACD6DED708DC"
+  }
+}

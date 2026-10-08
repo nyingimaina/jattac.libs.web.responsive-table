@@ -54,6 +54,7 @@ What the app looks like (a sample of its files, and its package.json when it has
 - coverage/lcov-report/Plugins/SortPlugin.ts.html
 - coverage/lcov-report/Plugins/index.html
 - coverage/lcov-report/UI/DesktopView.tsx.html
+- coverage/lcov-report/UI/DetailRow.tsx.html
 - coverage/lcov-report/UI/InfiniteTable.tsx.html
 - coverage/lcov-report/UI/LoadingSpinner.tsx.html
 - coverage/lcov-report/UI/MobileView.tsx.html
@@ -73,6 +74,30 @@ What the app looks like (a sample of its files, and its package.json when it has
 - coverage/lcov-report/prettify.js
 - coverage/lcov-report/sort-arrow-sprite.png
 - coverage/lcov-report/sorter.js
+- coverage/lcov-report/src/Context/TableContext.tsx.html
+- coverage/lcov-report/src/Context/index.html
+- coverage/lcov-report/src/Hooks/index.html
+- coverage/lcov-report/src/Hooks/useResolvedTheme.ts.html
+- coverage/lcov-report/src/Hooks/useResponsiveTable.ts.html
+- coverage/lcov-report/src/Hooks/useTableDataSource.ts.html
+- coverage/lcov-report/src/Hooks/useTablePlugins.ts.html
+- coverage/lcov-report/src/Plugins/FilterPlugin.tsx.html
+- coverage/lcov-report/src/Plugins/SelectionPlugin.ts.html
+- coverage/lcov-report/src/Plugins/SortPlugin.ts.html
+- coverage/lcov-report/src/Plugins/index.html
+- coverage/lcov-report/src/UI/DesktopView.tsx.html
+- coverage/lcov-report/src/UI/DetailRow.tsx.html
+- coverage/lcov-report/src/UI/MobileView.tsx.html
+- coverage/lcov-report/src/UI/ResponsiveTable.tsx.html
+- coverage/lcov-report/src/UI/SkeletonView.tsx.html
+- coverage/lcov-report/src/UI/TableBodyCell.tsx.html
+- coverage/lcov-report/src/UI/TableBodyRow.tsx.html
+- coverage/lcov-report/src/UI/TableHeaderCell.tsx.html
+- coverage/lcov-report/src/UI/TableSentinel.tsx.html
+- coverage/lcov-report/src/UI/ThemeRoot.tsx.html
+- coverage/lcov-report/src/UI/index.html
+- coverage/lcov-report/src/index.html
+- coverage/lcov-report/src/index.tsx.html
 - coverage/lcov.info
 - docs/api.md
 - docs/breaking-changes.md
@@ -107,6 +132,9 @@ What the app looks like (a sample of its files, and its package.json when it has
 - src/Data/IFooterColumnDefinition.ts
 - src/Data/IFooterRowDefinition.ts
 - src/Data/IResponsiveTableColumnDefinition.tsx
+- src/Data/ResponsiveTableTheme.ts
+- src/Hooks/useResolvedTheme.test.ts
+- src/Hooks/useResolvedTheme.ts
 - src/Hooks/useResponsiveTable.test.ts
 - src/Hooks/useResponsiveTable.ts
 - src/Hooks/useTableDataSource.ts
@@ -119,6 +147,7 @@ What the app looks like (a sample of its files, and its package.json when it has
 - src/Styles/LoadingSpinner.module.css
 - src/Styles/NoMoreDataMessage.module.css
 - src/Styles/ResponsiveTable.module.css
+- src/Styles/Theme.module.css
 - src/UI/DesktopView.tsx
 - src/UI/DetailRow.test.tsx
 - src/UI/DetailRow.tsx
@@ -129,6 +158,7 @@ What the app looks like (a sample of its files, and its package.json when it has
 - src/UI/NoMoreDataMessage.tsx
 - src/UI/ResponsiveTable.onDataSourceStateChange.test.tsx
 - src/UI/ResponsiveTable.test.tsx
+- src/UI/ResponsiveTable.theme.test.tsx
 - src/UI/ResponsiveTable.tsx
 - src/UI/ScrollPosition.test.tsx
 - src/UI/SkeletonView.tsx
@@ -138,6 +168,7 @@ What the app looks like (a sample of its files, and its package.json when it has
 - src/UI/TableHeaderCell.tsx
 - src/UI/TableSentinel.test.tsx
 - src/UI/TableSentinel.tsx
+- src/UI/ThemeRoot.tsx
 - src/index.tsx
 - src/typings.d.ts
 - tsconfig.json
@@ -146,7 +177,7 @@ What the app looks like (a sample of its files, and its package.json when it has
 package.json:
 {
   "name": "jattac.libs.web.responsive-table",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "description": "A fully responsive, customizable, and lightweight React table component with a modern, mobile-first design and a powerful plugin system.",
   "author": {
     "name": "Nyingi Maina",

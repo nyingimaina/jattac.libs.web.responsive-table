@@ -1,0 +1,37 @@
+{
+  "findings": [
+    {
+      "cites": "R1",
+      "severity": "blocking",
+      "file": "src/UI/ResponsiveTable.theme.test.tsx",
+      "line": 1,
+      "evidence": "Developer report lists 4 tests, all theme tests (ResponsiveTable.theme.test.tsx, useResolvedTheme.test.ts) merely relabelled with 'R1'. No source/config/test file changed (empty diff). None runs rollup or checks dist/index.js and dist/index.mjs, so none would fail if `npm run build` broke (e.g. a CSS import or rollup config error, which jest does not exercise). The acceptance lines 'npm run build exits 0 from clean state' and 'dist/index.js and dist/index.mjs exist' and the edge case 'must pass from a clean state (dist deleted)' have no test. The twice-in-a-row reliability check was run by hand only.",
+      "description": "R1 (build passes from clean state, produces dist/index.js and dist/index.mjs) has no automated test that could fail if the build were broken. Add a test that removes dist, runs the build, asserts exit 0 and that both outputs exist, naming R1."
+    },
+    {
+      "cites": "R1",
+      "severity": "advisory",
+      "file": ".devteam/runs/20261008-135629/artifacts/03-build/developer-r1.json",
+      "line": 1,
+      "evidence": "Edge case: 'If a build error can only be reproduced under other conditions, the error message and cause must be recorded'. The report says the npm log is missing and the cause is 'most likely' earlier in-progress theme work. This is a guess, with no recorded Node version, no npm log and no error message.",
+      "description": "Record the Node and npm versions used for the clean-state runs, and state plainly that the original failure was not reproduced, so the build is not claimed fixed on inference."
+    },
+    {
+      "cites": "LIB-003",
+      "severity": "advisory",
+      "file": "package.json",
+      "line": 1,
+      "evidence": "The project has no scripts/consumer-smoke.mjs. The build report does not mention packing the library or importing it under CommonJS and ES modules. The analyst put scaffolding out of scope.",
+      "description": "The packed-library install and import check (CommonJS and ES modules) did not run. A manual `npm pack` and import of dist/index.js and dist/index.mjs would give some evidence that the build output is usable."
+    },
+    {
+      "cites": "R1",
+      "severity": "advisory",
+      "file": "src/Hooks/useResolvedTheme.test.ts",
+      "line": 1,
+      "evidence": "The report says the tests 'compile under type-check', but jest compilation is not `tsc --noEmit`. No test or script step ties `npm run type-check` exit 0 to anything.",
+      "description": "The 'type-check exits 0' and 'theme CSS/TS introduce no build errors' acceptance lines rest on a manual run only."
+    }
+  ],
+  "verifications": []
+}

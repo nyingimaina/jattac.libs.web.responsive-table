@@ -1,0 +1,12 @@
+{
+  "summary": "Fixed QA-1: added src/Build.test.ts, which deletes dist, runs `npm run build`, asserts it exits 0 and that dist/index.js and dist/index.mjs exist, then runs the build a second time and asserts the same. No production source or config changed. type-check passes; full suite passes (13 suites, 97 tests).",
+  "tests": [
+    { "name": "R1: theme=\"dark\" shows the dark look; theme=\"light\" the light look", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R1"] },
+    { "name": "R1: ResponsiveTableTheme type is exported from the package entry", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R1"] },
+    { "name": "R1: unrecognised theme behaves as if not given", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R1"] },
+    { "name": "useResolvedTheme tests (theme resolution, compiled under type-check)", "file": "src/Hooks/useResolvedTheme.test.ts", "requirements": ["R1"] },
+    { "name": "R1: npm run build exits 0 from a clean state (dist deleted) and emits index.js and index.mjs", "file": "src/Build.test.ts", "requirements": ["R1"] },
+    { "name": "R1: npm run build gives the same result when run a second time in a row", "file": "src/Build.test.ts", "requirements": ["R1"] }
+  ],
+  "kickbacks": []
+}

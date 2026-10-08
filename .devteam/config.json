@@ -1,29 +1,25 @@
 {
   "pack": ".devteam/pack",
   "agent": {
-    "runtime": "claude-code",
-    "command": "claude",
+    "runtime": "opencode",
+    "command": "opencode",
     "args": [
-      "-p",
-      "{prompt}",
-      "--output-format",
-      "stream-json",
-      "--verbose",
-      "--permission-mode",
-      "acceptEdits",
-      "--allowedTools",
-      "Read,Write,Edit,Glob,Grep,Bash(dotnet:*),Bash(npm:*),Bash(npx:*),Bash(git status:*),Bash(git diff:*)"
-    ],
-    "discussArgs": [
-      "--permission-mode",
-      "plan",
+      "run",
+      "--format",
+      "json",
+      "--dir",
+      "{dir}",
       "{prompt}"
     ],
+    "discussArgs": [
+      "--agent",
+      "plan",
+      "--prompt",
+      "{prompt}"
+    ],
+    "model": "opencode-go/deepseek-v4.1-flash",
     "timeoutSeconds": 900,
-    "ceilingSeconds": 7200,
     "stallSeconds": 900,
-    "ceiling": "02:00:00",
-    "stallWindowSeconds": 900,
     "roles": {}
   },
   "limits": {
@@ -34,9 +30,6 @@
     "parallelChallengers": true,
     "baselineChecks": true,
     "tidyStrayFiles": true,
-    "quietGraceSeconds": 300,
-    "noProgressMinutes": 20,
-    "progressPollSeconds": 15,
     "quickCheckSeconds": 30,
     "analystQuestionBudget": 8,
     "analystQuestionCap": 12,

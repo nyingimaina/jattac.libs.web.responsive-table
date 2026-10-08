@@ -1,0 +1,598 @@
+{
+  "runId": "20261008-135629",
+  "options": {
+    "browser": "end",
+    "visible": false
+  },
+  "browser": {
+    "ran": false,
+    "passed": false,
+    "visible": false,
+    "seconds": 0,
+    "treeHash": "937C353F77ED9525CEEA8D4834B06BBF4973849EF1CEDE51A42D6328CF8EF323",
+    "reason": "this stack has no browser journeys",
+    "output": ""
+  },
+  "isVerification": false,
+  "stageSeconds": {
+    "define": 68.2532077,
+    "design": 40.0944103,
+    "build": 262.9954616,
+    "challenge": 479.2696251,
+    "prove": 0.246082
+  },
+  "timeCapExtensions": {},
+  "featureRequest": "npm run build fails. see the run log C:\\Users\\nying\\AppData\\Local\\npm-cache\\_logs\\2026-10-08T13_46_23_495Z-debug-0.log",
+  "packId": "react-component-library",
+  "status": "completed",
+  "currentStage": "prove",
+  "stages": {
+    "define": "done",
+    "design": "done",
+    "build": "done",
+    "challenge": "done",
+    "prove": "done"
+  },
+  "defineRound": 2,
+  "designRound": 1,
+  "buildRound": 2,
+  "revisionsUsed": 1,
+  "requirementKickbacks": 0,
+  "specialists": [],
+  "specialistsDone": [],
+  "specialistCallbacks": 0,
+  "specialistHashes": {},
+  "ran": [
+    "define",
+    "design",
+    "build",
+    "challenge",
+    "prove"
+  ],
+  "accepted": {
+    "define/analyst": "artifacts/01-define/analyst-r1.json",
+    "design/architect": "artifacts/02-design/architect-r1.json",
+    "build/developer": "artifacts/03-build/developer-r2.json",
+    "challenge/reviewer": "artifacts/04-challenge/reviewer-r1.json",
+    "challenge/security": "artifacts/04-challenge/security-r2.json",
+    "challenge/qa": "artifacts/04-challenge/qa-r2.json"
+  },
+  "extraRounds": 0,
+  "reviewPasses": 2,
+  "costUsd": 1.2144812160000003,
+  "budgetUsd": 10,
+  "agentCalls": 12,
+  "modelCalls": {
+    "claude-sonnet-5-5": 8,
+    "opencode-go/deepseek-v4.1-flash": 3
+  },
+  "startedAt": "2026-10-08T13:56:29.7058697+00:00",
+  "updatedAt": "2026-10-08T14:27:31.9348775+00:00",
+  "completedAt": "2026-10-08T14:27:31.5004069+00:00",
+  "findings": [
+    {
+      "id": "CHK-lib-validate-package",
+      "source": "check:lib-validate-package",
+      "cites": "LIB-002",
+      "severity": "advisory",
+      "description": "Check \u0027Package check (attw and publint)\u0027 is failing.",
+      "file": "",
+      "evidence": "Failed twice in a row, so this is not a one-off.\n\u003E jattac.libs.web.responsive-table@0.20.0 validate-package\r\n\u003E attw --pack . \u0026\u0026 publint\r\n\r\n\r\njattac.libs.web.responsive-table v0.20.0\r\n\r\nBuild tools:\r\n- @arethetypeswrong/cli@^0.18.5\r\n- typescript@^5.2.2\r\n- rollup@^4.2.0\r\n- @rollup/plugin-typescript@^11.1.5\r\n\r\n\uD83C\uDFAD Import resolved to a CommonJS type declaration file, but an ESM JavaScript file. https://github.com/arethetypeswrong/arethetypeswrong.github.io/blob/main/docs/problems/FalseCJS.md\r\n\r\n\r\n\u0022jattac.libs.web.responsive-table\u0022\r\n\r\nnode10: \uD83D\uDFE2 \r\nnode16 (from CJS): \uD83D\uDFE2 (CJS)\r\nnode16 (from ESM): \uD83C\uDFAD Masquerading as CJS\r\nbundler: \uD83D\uDFE2 \r\n\r\n***********************************\r\n\r\n\u0022jattac.libs.web.responsive-table/dist/*.css\u0022\r\n\r\nnode10: (wildcard)\r\nnode16 (from CJS): (wildcard)\r\nnode16 (from ESM): (wildcard)\r\nbundler: (wildcard)\r\n\r\n***********************************",
+      "status": "advisory",
+      "raisedRound": 1,
+      "note": "It was already failing before this run started, so it does not block this feature.",
+      "repeats": 0
+    },
+    {
+      "id": "CHK-lib-size",
+      "source": "check:lib-size",
+      "cites": "EFF-001",
+      "severity": "advisory",
+      "description": "Check \u0027Size budget\u0027 is failing.",
+      "file": "",
+      "evidence": "Not set up in this project: The project has no .size-limit.json, so this check has nothing to run.",
+      "status": "advisory",
+      "raisedRound": 1,
+      "note": "It could not be run, so nothing was checked here; it does not block this feature.",
+      "repeats": 0
+    },
+    {
+      "id": "CHK-lib-consumer-smoke",
+      "source": "check:lib-consumer-smoke",
+      "cites": "LIB-003",
+      "severity": "advisory",
+      "description": "Check \u0027Install and import the packed library\u0027 is failing.",
+      "file": "",
+      "evidence": "Not set up in this project: Nothing installs the packed library into a scratch project and imports it  no scripts/consumer-smoke.mjs .",
+      "status": "advisory",
+      "raisedRound": 1,
+      "note": "It could not be run, so nothing was checked here; it does not block this feature.",
+      "repeats": 0
+    },
+    {
+      "id": "CHK-lib-docs",
+      "source": "check:lib-docs",
+      "cites": "DOC-001",
+      "severity": "advisory",
+      "description": "Check \u0027Documentation is complete\u0027 is failing.",
+      "file": "",
+      "evidence": "Not set up in this project: The project has no scripts/check-docs.mjs, so this check has nothing to run.",
+      "status": "advisory",
+      "raisedRound": 1,
+      "note": "It could not be run, so nothing was checked here; it does not block this feature.",
+      "repeats": 0
+    },
+    {
+      "id": "QA-1",
+      "source": "qa",
+      "cites": "R1",
+      "severity": "blocking",
+      "description": "R1 (build passes from clean state, produces dist/index.js and dist/index.mjs) has no automated test that could fail if the build were broken. Add a test that removes dist, runs the build, asserts exit 0 and that both outputs exist, naming R1.",
+      "file": "src/UI/ResponsiveTable.theme.test.tsx",
+      "line": 1,
+      "evidence": "Developer report lists 4 tests, all theme tests (ResponsiveTable.theme.test.tsx, useResolvedTheme.test.ts) merely relabelled with \u0027R1\u0027. No source/config/test file changed (empty diff). None runs rollup or checks dist/index.js and dist/index.mjs, so none would fail if \u0060npm run build\u0060 broke (e.g. a CSS import or rollup config error, which jest does not exercise). The acceptance lines \u0027npm run build exits 0 from clean state\u0027 and \u0027dist/index.js and dist/index.mjs exist\u0027 and the edge case \u0027must pass from a clean state (dist deleted)\u0027 have no test. The twice-in-a-row reliability check was run by hand only.",
+      "status": "fixed",
+      "raisedRound": 1,
+      "fixedRound": 2,
+      "note": "src/Build.test.ts was added (only changed file). Test 1 removes dist, runs \u0060npm run build\u0060 via execSync (which throws on a non-zero exit) and asserts dist/index.js and dist/index.mjs exist; test 2 repeats the build and asserts the same, covering the twice-in-a-row reliability check. Both name R1. I ran \u0060npx jest src/Build.test.ts --verbose\u0060: 2 passed, 2 total, ~27s. This fails if rollup errors or if either output is not produced, so it would notice the build breaking.",
+      "repeats": 0
+    },
+    {
+      "id": "QA-2",
+      "source": "qa",
+      "cites": "R1",
+      "severity": "advisory",
+      "description": "Record the Node and npm versions used for the clean-state runs, and state plainly that the original failure was not reproduced, so the build is not claimed fixed on inference.",
+      "file": ".devteam/runs/20261008-135629/artifacts/03-build/developer-r1.json",
+      "line": 1,
+      "evidence": "Edge case: \u0027If a build error can only be reproduced under other conditions, the error message and cause must be recorded\u0027. The report says the npm log is missing and the cause is \u0027most likely\u0027 earlier in-progress theme work. This is a guess, with no recorded Node version, no npm log and no error message.",
+      "status": "advisory",
+      "raisedRound": 1,
+      "repeats": 0
+    },
+    {
+      "id": "QA-3",
+      "source": "qa",
+      "cites": "LIB-003",
+      "severity": "advisory",
+      "description": "The packed-library install and import check (CommonJS and ES modules) did not run. A manual \u0060npm pack\u0060 and import of dist/index.js and dist/index.mjs would give some evidence that the build output is usable.",
+      "file": "package.json",
+      "line": 1,
+      "evidence": "The project has no scripts/consumer-smoke.mjs. The build report does not mention packing the library or importing it under CommonJS and ES modules. The analyst put scaffolding out of scope.",
+      "status": "advisory",
+      "raisedRound": 1,
+      "repeats": 0
+    },
+    {
+      "id": "QA-4",
+      "source": "qa",
+      "cites": "R1",
+      "severity": "advisory",
+      "description": "The \u0027type-check exits 0\u0027 and \u0027theme CSS/TS introduce no build errors\u0027 acceptance lines rest on a manual run only.",
+      "file": "src/Hooks/useResolvedTheme.test.ts",
+      "line": 1,
+      "evidence": "The report says the tests \u0027compile under type-check\u0027, but jest compilation is not \u0060tsc --noEmit\u0060. No test or script step ties \u0060npm run type-check\u0060 exit 0 to anything.",
+      "status": "advisory",
+      "raisedRound": 1,
+      "repeats": 0
+    },
+    {
+      "id": "QA-5",
+      "source": "qa",
+      "cites": "R1",
+      "severity": "advisory",
+      "description": "Add or explicitly note an automated type-check step (or record that it stays manual) so the \u0027type-check exits 0\u0027 acceptance line has proof of its own.",
+      "file": "src/Build.test.ts",
+      "line": 16,
+      "evidence": "The clean-state edge case is now covered: Build.test.ts deletes dist, runs rollup via \u0060npm run build\u0060, and asserts dist/index.js and dist/index.mjs exist (would throw/fail if the build broke). The acceptance line \u0027npm run type-check exits with code 0\u0027 still has no automated test of its own; it was only run by hand. Rollup\u0027s typescript plugin compiles the theme .ts/.tsx, so most type errors would also fail the build test, but the dedicated \u0060tsc --noEmit\u0060 script is not exercised by any test.",
+      "status": "advisory",
+      "raisedRound": 2,
+      "repeats": 0
+    },
+    {
+      "id": "QA-6",
+      "source": "qa",
+      "cites": "R1",
+      "severity": "advisory",
+      "description": "Record the Node and npm versions used for the clean-state runs and state plainly that the original failure was not reproduced on the current tree.",
+      "file": ".devteam/runs/20261008-135629/artifacts/03-build/developer-r2.json",
+      "line": 2,
+      "evidence": "Edge case: \u0027If a build error can only be reproduced under conditions other than the current tree ... the error message and cause must be recorded\u0027. The report states only that no production/config file changed; it records no Node/npm version and no error message, and the referenced npm log is missing. The failure is treated as fixed without a recorded original cause.",
+      "status": "advisory",
+      "raisedRound": 2,
+      "repeats": 0
+    },
+    {
+      "id": "QA-7",
+      "source": "qa",
+      "cites": "LIB-003",
+      "severity": "advisory",
+      "description": "The packed-library install-and-import check did not run, so the build output is proven to exist but not to be consumable.",
+      "file": "package.json",
+      "line": 19,
+      "evidence": "No scripts/consumer-smoke.mjs exists and the build report does not pack the library or import dist/index.js / dist/index.mjs under CommonJS and ES modules. The project note marks this check as not set up, and the analyst scoped scaffolding out, so nothing proves the packed output imports. A manual \u0060npm pack\u0060 \u002B CJS/ESM import of the two dist entry files would give some evidence.",
+      "status": "advisory",
+      "raisedRound": 2,
+      "repeats": 0
+    }
+  ],
+  "lastChecks": [
+    {
+      "id": "no-secrets",
+      "name": "No secrets in code",
+      "passed": true,
+      "seconds": 0.6480976,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "SEC-001"
+      ]
+    },
+    {
+      "id": "no-debug-leftovers",
+      "name": "No debugging leftovers",
+      "passed": true,
+      "seconds": 0.0282951,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern in the files this change touched.\r\nAlso found in 1 file(s) this change did not touch (not counted against it): src/Plugins/SortPlugin.ts.",
+      "rules": [
+        "QUAL-001"
+      ]
+    },
+    {
+      "id": "lib-typecheck",
+      "name": "Type check (library and tests)",
+      "passed": true,
+      "seconds": 17.9149194,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "\u003E jattac.libs.web.responsive-table@0.20.0 type-check\r\n\u003E tsc --noEmit",
+      "rules": []
+    },
+    {
+      "id": "lib-build",
+      "name": "Build (CommonJS, ES modules, type definitions)",
+      "passed": true,
+      "seconds": 40.7817763,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "\u003E jattac.libs.web.responsive-table@0.20.0 build\r\n\u003E rollup -c\r\n\r\n\n\u001B[36m\r\n\u001B[1msrc/index.tsx\u001B[22m \u2192 \u001B[1mdist/index.js, dist/index.mjs\u001B[22m...\u001B[39m\r\nBrowserslist: browsers data (caniuse-lite) is 16 months old. Please run:\r\n  npx update-browserslist-db@latest\r\n  Why you should do it regularly: https://github.com/browserslist/update-db#readme\r\n\u001B[32mcreated \u001B[1mdist/index.js, dist/index.mjs\u001B[22m in \u001B[1m31.1s\u001B[22m\u001B[39m",
+      "rules": []
+    },
+    {
+      "id": "lib-validate-package",
+      "name": "Package check (attw and publint)",
+      "passed": false,
+      "seconds": 49.3988519,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "Failed twice in a row, so this is not a one-off.\n\u003E jattac.libs.web.responsive-table@0.20.0 validate-package\r\n\u003E attw --pack . \u0026\u0026 publint\r\n\r\n\r\njattac.libs.web.responsive-table v0.20.0\r\n\r\nBuild tools:\r\n- @arethetypeswrong/cli@^0.18.5\r\n- typescript@^5.2.2\r\n- rollup@^4.2.0\r\n- @rollup/plugin-typescript@^11.1.5\r\n\r\n\uD83C\uDFAD Import resolved to a CommonJS type declaration file, but an ESM JavaScript file. https://github.com/arethetypeswrong/arethetypeswrong.github.io/blob/main/docs/problems/FalseCJS.md\r\n\r\n\r\n\u0022jattac.libs.web.responsive-table\u0022\r\n\r\nnode10: \uD83D\uDFE2 \r\nnode16 (from CJS): \uD83D\uDFE2 (CJS)\r\nnode16 (from ESM): \uD83C\uDFAD Masquerading as CJS\r\nbundler: \uD83D\uDFE2 \r\n\r\n***********************************\r\n\r\n\u0022jattac.libs.web.responsive-table/dist/*.css\u0022\r\n\r\nnode10: (wildcard)\r\nnode16 (from CJS): (wildcard)\r\nnode16 (from ESM): (wildcard)\r\nbundler: (wildcard)\r\n\r\n***********************************",
+      "rules": [
+        "LIB-002"
+      ]
+    },
+    {
+      "id": "lib-pack",
+      "name": "What would be published",
+      "passed": true,
+      "seconds": 10.9437076,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "\u2026\nnpm notice 149B dist/Data/ResponsiveTableTheme.d.ts\r\nnpm notice 388B dist/Hooks/useResolvedTheme.d.ts\r\nnpm notice 11B dist/Hooks/useResolvedTheme.test.d.ts\r\nnpm notice 695B dist/Hooks/useResponsiveTable.d.ts\r\nnpm notice 11B dist/Hooks/useResponsiveTable.test.d.ts\r\nnpm notice 917B dist/Hooks/useTableDataSource.d.ts\r\nnpm notice 1.4kB dist/Hooks/useTablePlugins.d.ts\r\nnpm notice 11B dist/Hooks/useTablePlugins.test.d.ts\r\nnpm notice 1.2kB dist/index.d.ts\r\nnpm notice 91.2kB dist/index.js\r\nnpm notice 81.0kB dist/index.js.map\r\nnpm notice 90.7kB dist/index.mjs\r\nnpm notice 80.8kB dist/index.mjs.map\r\nnpm notice 720B dist/Plugins/FilterPlugin.d.ts\r\nnpm notice 1.4kB dist/Plugins/IResponsiveTablePlugin.d.ts\r\nnpm notice 512B dist/Plugins/SelectionPlugin.d.ts\r\nnpm notice 1.3kB dist/Plugins/SortPlugin.d.ts\r\nnpm notice 687B dist/UI/DesktopView.d.ts\r\nnpm notice 375B dist/UI/DetailRow.d.ts\r\nnpm notice 36B dist/UI/DetailRow.test.d.ts\r\nnpm notice 36B dist/UI/ExpandCollapse.test.d.ts\r\nnpm notice 98B dist/UI/LoadingSpinner.d.ts\r\nnpm notice 375B dist/UI/MobileView.d.ts\r\nnpm notice 36B dist/UI/MobileView.test.d.ts\r\nnpm notice 104B dist/UI/NoMoreDataMessage.d.ts\r\nnpm notice 5.5kB dist/UI/ResponsiveTable.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.onDataSourceStateChange.test.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.test.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.theme.test.d.ts\r\nnpm notice 36B dist/UI/ScrollPosition.test.d.ts\r\nnpm notice 312B dist/UI/SkeletonView.d.ts\r\nnpm notice 36B dist/UI/SmartDataSource.test.d.ts\r\nnpm notice 322B dist/UI/TableBodyCell.d.ts\r\nnpm notice 1.7kB dist/UI/TableBodyRow.d.ts\r\nnpm notice 312B dist/UI/TableHeaderCell.d.ts\r\nnpm notice 526B dist/UI/TableSentinel.d.ts\r\nnpm notice 36B dist/UI/TableSentinel.test.d.ts\r\nnpm notice 317B dist/UI/ThemeRoot.d.ts\r\nnpm notice 16.3kB docs/api.md\r\nnpm notice 2.4kB docs/breaking-changes.md\r\nnpm notice 4.4kB docs/configuration.md\r\nnpm notice 4.8kB docs/custom-plugin-example.md\r\nnpm notice 2.4kB docs/development.md\r\nnpm notice 14.4kB docs/examples.md\r\nnpm notice 34.6kB docs/expand-collapse.md\r\nnpm notice 4.5kB docs/features.md\r\nnpm notice 2.9kB docs/handling-interactive-elements.md\r\nnpm notice 15.0kB docs/recommendations.md\r\nnpm notice 17.2kB docs/scroll-position.md\r\nnpm notice 3.7kB package.json\r\nnpm notice Tarball Details\r\nnpm notice name: jattac.libs.web.responsive-table\r\nnpm notice version: 0.20.0\r\nnpm notice filename: jattac.libs.web.responsive-table-0.20.0.tgz\r\nnpm notice package size: 124.3 kB\r\nnpm notice unpacked size: 508.0 kB\r\nnpm notice shasum: e02194f906583d852e84ce683d448863b6f2c9c8\r\nnpm notice integrity: sha512-bK15VxUxinkXm[...]KTBB0Xu7zaz9g==\r\nnpm notice total files: 57\r\nnpm notice",
+      "rules": []
+    },
+    {
+      "id": "lib-size",
+      "name": "Size budget",
+      "passed": false,
+      "seconds": 0.0742843,
+      "notRun": true,
+      "flaky": false,
+      "tier": "fast",
+      "output": "Not set up in this project: The project has no .size-limit.json, so this check has nothing to run.",
+      "rules": [
+        "EFF-001"
+      ]
+    },
+    {
+      "id": "lib-consumer-smoke",
+      "name": "Install and import the packed library",
+      "passed": false,
+      "seconds": 0.0655645,
+      "notRun": true,
+      "flaky": false,
+      "tier": "fast",
+      "output": "Not set up in this project: Nothing installs the packed library into a scratch project and imports it  no scripts/consumer-smoke.mjs .",
+      "rules": [
+        "LIB-003",
+        "LIB-004",
+        "LIB-005"
+      ]
+    },
+    {
+      "id": "lib-docs",
+      "name": "Documentation is complete",
+      "passed": false,
+      "seconds": 0.0653709,
+      "notRun": true,
+      "flaky": false,
+      "tier": "fast",
+      "output": "Not set up in this project: The project has no scripts/check-docs.mjs, so this check has nothing to run.",
+      "rules": [
+        "DOC-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-1",
+      "name": "No native button (use zest-button)",
+      "passed": true,
+      "seconds": 0.0252255,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern in the files this change touched.\r\nAlso found in 5 file(s) this change did not touch (not counted against it): src/Data/IResponsiveTableColumnDefinition.tsx, src/UI/MobileView.test.tsx, src/UI/ResponsiveTable.test.tsx, src/UI/ResponsiveTable.tsx, src/UI/TableBodyRow.tsx.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-2",
+      "name": "No native textarea (use zest-textbox)",
+      "passed": true,
+      "seconds": 0.0700276,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-3",
+      "name": "No native text input (use zest-textbox)",
+      "passed": true,
+      "seconds": 0.028566,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-4",
+      "name": "No native file input (use zest-file-upload)",
+      "passed": true,
+      "seconds": 0.0293235,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "lib-build",
+      "name": "Build (CommonJS, ES modules, type definitions)",
+      "passed": true,
+      "seconds": 10.0516187,
+      "notRun": false,
+      "flaky": false,
+      "tier": "full",
+      "output": "\u003E jattac.libs.web.responsive-table@0.20.0 build\r\n\u003E rollup -c\r\n\r\n\n\u001B[36m\r\n\u001B[1msrc/index.tsx\u001B[22m \u2192 \u001B[1mdist/index.js, dist/index.mjs\u001B[22m...\u001B[39m\r\nBrowserslist: browsers data (caniuse-lite) is 16 months old. Please run:\r\n  npx update-browserslist-db@latest\r\n  Why you should do it regularly: https://github.com/browserslist/update-db#readme\r\n\u001B[32mcreated \u001B[1mdist/index.js, dist/index.mjs\u001B[22m in \u001B[1m8.6s\u001B[22m\u001B[39m",
+      "rules": []
+    },
+    {
+      "id": "lib-validate-package",
+      "name": "Package check (attw and publint)",
+      "passed": false,
+      "seconds": 26.626908399999998,
+      "notRun": false,
+      "flaky": false,
+      "tier": "full",
+      "output": "Failed twice in a row, so this is not a one-off.\n\u003E jattac.libs.web.responsive-table@0.20.0 validate-package\r\n\u003E attw --pack . \u0026\u0026 publint\r\n\r\n\r\njattac.libs.web.responsive-table v0.20.0\r\n\r\nBuild tools:\r\n- @arethetypeswrong/cli@^0.18.5\r\n- typescript@^5.2.2\r\n- rollup@^4.2.0\r\n- @rollup/plugin-typescript@^11.1.5\r\n\r\n\uD83C\uDFAD Import resolved to a CommonJS type declaration file, but an ESM JavaScript file. https://github.com/arethetypeswrong/arethetypeswrong.github.io/blob/main/docs/problems/FalseCJS.md\r\n\r\n\r\n\u0022jattac.libs.web.responsive-table\u0022\r\n\r\nnode10: \uD83D\uDFE2 \r\nnode16 (from CJS): \uD83D\uDFE2 (CJS)\r\nnode16 (from ESM): \uD83C\uDFAD Masquerading as CJS\r\nbundler: \uD83D\uDFE2 \r\n\r\n***********************************\r\n\r\n\u0022jattac.libs.web.responsive-table/dist/*.css\u0022\r\n\r\nnode10: (wildcard)\r\nnode16 (from CJS): (wildcard)\r\nnode16 (from ESM): (wildcard)\r\nbundler: (wildcard)\r\n\r\n***********************************",
+      "rules": [
+        "LIB-002"
+      ]
+    }
+  ],
+  "baseline": [
+    {
+      "id": "no-secrets",
+      "name": "No secrets in code",
+      "passed": true,
+      "seconds": 0.1421174,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "SEC-001"
+      ]
+    },
+    {
+      "id": "no-debug-leftovers",
+      "name": "No debugging leftovers",
+      "passed": true,
+      "seconds": 0.140285,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern in the files this change touched.\r\nAlso found in 1 file(s) this change did not touch (not counted against it): src/Plugins/SortPlugin.ts.",
+      "rules": [
+        "QUAL-001"
+      ]
+    },
+    {
+      "id": "lib-typecheck",
+      "name": "Type check (library and tests)",
+      "passed": true,
+      "seconds": 5.0297017,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "\u003E jattac.libs.web.responsive-table@0.20.0 type-check\r\n\u003E tsc --noEmit",
+      "rules": []
+    },
+    {
+      "id": "lib-tests",
+      "name": "Tests, with coverage",
+      "passed": true,
+      "seconds": 13.1094782,
+      "notRun": false,
+      "flaky": false,
+      "tier": "full",
+      "output": "\u2026\n            _debugHookTypes: null\r\n          },\r\n          actualDuration: -0,\r\n          actualStartTime: 7819.1628,\r\n          selfBaseDuration: -0,\r\n          treeBaseDuration: -0,\r\n          _debugInfo: null,\r\n          _debugOwner: FiberNode {\r\n            tag: 0,\r\n            key: \u00272\u0027,\r\n            elementType: [Function: TableHeaderCell],\r\n            type: [Function: TableHeaderCell],\r\n            stateNode: null,\r\n            return: [FiberNode],\r\n            child: [FiberNode],\r\n            sibling: null,\r\n            index: 2,\r\n            ref: null,\r\n            refCleanup: null,\r\n            pendingProps: [Object],\r\n            memoizedProps: [Object],\r\n            updateQueue: null,\r\n            memoizedState: null,\r\n            dependencies: [Object],\r\n            mode: 1,\r\n            flags: 1572865,\r\n            subtreeFlags: 1048576,\r\n            deletions: null,\r\n            lanes: 0,\r\n            childLanes: 0,\r\n            alternate: [FiberNode],\r\n            actualDuration: -0,\r\n            actualStartTime: 7819.544100000001,\r\n            selfBaseDuration: -0,\r\n            treeBaseDuration: -0,\r\n            _debugInfo: null,\r\n            _debugOwner: [FiberNode],\r\n            _debugNeedsRemount: false,\r\n            _debugHookTypes: [Array]\r\n          },\r\n          _debugNeedsRemount: false,\r\n          _debugHookTypes: null\r\n        },\r\n        \u0027__reactProps$mfuokyhhxso\u0027: { className: \u0027headerContent\u0027, children: \u0027Age\u0027 },\r\n        [Symbol(SameObject caches)]: [Object: null prototype] { childNodes: NodeList {} }\r\n      }\r\n\r\n      at log (src/Plugins/SortPlugin.ts:120:15)\r\n\r\n    console.log\r\n      SortPlugin: Non-interactive element clicked, proceeding with sort.\r\n\r\n      at log (src/Plugins/SortPlugin.ts:127:15)\r\n\r\n\r\nTest Suites: 12 passed, 12 total\r\nTests:       95 passed, 95 total\r\nSnapshots:   0 total\r\nTime:        11.212 s, estimated 15 s\r\nRan all test suites.",
+      "rules": []
+    },
+    {
+      "id": "lib-build",
+      "name": "Build (CommonJS, ES modules, type definitions)",
+      "passed": true,
+      "seconds": 9.1883494,
+      "notRun": false,
+      "flaky": false,
+      "tier": "full",
+      "output": "\u003E jattac.libs.web.responsive-table@0.20.0 build\r\n\u003E rollup -c\r\n\r\n\n\u001B[36m\r\n\u001B[1msrc/index.tsx\u001B[22m \u2192 \u001B[1mdist/index.js, dist/index.mjs\u001B[22m...\u001B[39m\r\nBrowserslist: browsers data (caniuse-lite) is 16 months old. Please run:\r\n  npx update-browserslist-db@latest\r\n  Why you should do it regularly: https://github.com/browserslist/update-db#readme\r\n\u001B[32mcreated \u001B[1mdist/index.js, dist/index.mjs\u001B[22m in \u001B[1m7.6s\u001B[22m\u001B[39m",
+      "rules": []
+    },
+    {
+      "id": "lib-validate-package",
+      "name": "Package check (attw and publint)",
+      "passed": false,
+      "seconds": 27.6753682,
+      "notRun": false,
+      "flaky": false,
+      "tier": "full",
+      "output": "Failed twice in a row, so this is not a one-off.\n\u003E jattac.libs.web.responsive-table@0.20.0 validate-package\r\n\u003E attw --pack . \u0026\u0026 publint\r\n\r\n\r\njattac.libs.web.responsive-table v0.20.0\r\n\r\nBuild tools:\r\n- @arethetypeswrong/cli@^0.18.5\r\n- typescript@^5.2.2\r\n- rollup@^4.2.0\r\n- @rollup/plugin-typescript@^11.1.5\r\n\r\n\uD83C\uDFAD Import resolved to a CommonJS type declaration file, but an ESM JavaScript file. https://github.com/arethetypeswrong/arethetypeswrong.github.io/blob/main/docs/problems/FalseCJS.md\r\n\r\n\r\n\u0022jattac.libs.web.responsive-table\u0022\r\n\r\nnode10: \uD83D\uDFE2 \r\nnode16 (from CJS): \uD83D\uDFE2 (CJS)\r\nnode16 (from ESM): \uD83C\uDFAD Masquerading as CJS\r\nbundler: \uD83D\uDFE2 \r\n\r\n***********************************\r\n\r\n\u0022jattac.libs.web.responsive-table/dist/*.css\u0022\r\n\r\nnode10: (wildcard)\r\nnode16 (from CJS): (wildcard)\r\nnode16 (from ESM): (wildcard)\r\nbundler: (wildcard)\r\n\r\n***********************************",
+      "rules": [
+        "LIB-002"
+      ]
+    },
+    {
+      "id": "lib-pack",
+      "name": "What would be published",
+      "passed": true,
+      "seconds": 11.5619609,
+      "notRun": false,
+      "flaky": false,
+      "tier": "full",
+      "output": "\u2026\nnpm notice 149B dist/Data/ResponsiveTableTheme.d.ts\r\nnpm notice 388B dist/Hooks/useResolvedTheme.d.ts\r\nnpm notice 11B dist/Hooks/useResolvedTheme.test.d.ts\r\nnpm notice 695B dist/Hooks/useResponsiveTable.d.ts\r\nnpm notice 11B dist/Hooks/useResponsiveTable.test.d.ts\r\nnpm notice 917B dist/Hooks/useTableDataSource.d.ts\r\nnpm notice 1.4kB dist/Hooks/useTablePlugins.d.ts\r\nnpm notice 11B dist/Hooks/useTablePlugins.test.d.ts\r\nnpm notice 1.2kB dist/index.d.ts\r\nnpm notice 91.2kB dist/index.js\r\nnpm notice 81.0kB dist/index.js.map\r\nnpm notice 90.7kB dist/index.mjs\r\nnpm notice 80.8kB dist/index.mjs.map\r\nnpm notice 720B dist/Plugins/FilterPlugin.d.ts\r\nnpm notice 1.4kB dist/Plugins/IResponsiveTablePlugin.d.ts\r\nnpm notice 512B dist/Plugins/SelectionPlugin.d.ts\r\nnpm notice 1.3kB dist/Plugins/SortPlugin.d.ts\r\nnpm notice 687B dist/UI/DesktopView.d.ts\r\nnpm notice 375B dist/UI/DetailRow.d.ts\r\nnpm notice 36B dist/UI/DetailRow.test.d.ts\r\nnpm notice 36B dist/UI/ExpandCollapse.test.d.ts\r\nnpm notice 98B dist/UI/LoadingSpinner.d.ts\r\nnpm notice 375B dist/UI/MobileView.d.ts\r\nnpm notice 36B dist/UI/MobileView.test.d.ts\r\nnpm notice 104B dist/UI/NoMoreDataMessage.d.ts\r\nnpm notice 5.5kB dist/UI/ResponsiveTable.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.onDataSourceStateChange.test.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.test.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.theme.test.d.ts\r\nnpm notice 36B dist/UI/ScrollPosition.test.d.ts\r\nnpm notice 312B dist/UI/SkeletonView.d.ts\r\nnpm notice 36B dist/UI/SmartDataSource.test.d.ts\r\nnpm notice 322B dist/UI/TableBodyCell.d.ts\r\nnpm notice 1.7kB dist/UI/TableBodyRow.d.ts\r\nnpm notice 312B dist/UI/TableHeaderCell.d.ts\r\nnpm notice 526B dist/UI/TableSentinel.d.ts\r\nnpm notice 36B dist/UI/TableSentinel.test.d.ts\r\nnpm notice 317B dist/UI/ThemeRoot.d.ts\r\nnpm notice 16.3kB docs/api.md\r\nnpm notice 2.4kB docs/breaking-changes.md\r\nnpm notice 4.4kB docs/configuration.md\r\nnpm notice 4.8kB docs/custom-plugin-example.md\r\nnpm notice 2.4kB docs/development.md\r\nnpm notice 14.4kB docs/examples.md\r\nnpm notice 34.6kB docs/expand-collapse.md\r\nnpm notice 4.5kB docs/features.md\r\nnpm notice 2.9kB docs/handling-interactive-elements.md\r\nnpm notice 15.0kB docs/recommendations.md\r\nnpm notice 17.2kB docs/scroll-position.md\r\nnpm notice 3.7kB package.json\r\nnpm notice Tarball Details\r\nnpm notice name: jattac.libs.web.responsive-table\r\nnpm notice version: 0.20.0\r\nnpm notice filename: jattac.libs.web.responsive-table-0.20.0.tgz\r\nnpm notice package size: 124.3 kB\r\nnpm notice unpacked size: 507.9 kB\r\nnpm notice shasum: c338e1cc836f646706d78347007f487738b28bb0\r\nnpm notice integrity: sha512-U/J\u002B7W8r5Ie8S[...]JdqU\u002Bx1eE8g\u002Bg==\r\nnpm notice total files: 56\r\nnpm notice",
+      "rules": []
+    },
+    {
+      "id": "lib-size",
+      "name": "Size budget",
+      "passed": false,
+      "seconds": 0.135527,
+      "notRun": true,
+      "flaky": false,
+      "tier": "full",
+      "output": "Not set up in this project: The project has no .size-limit.json, so this check has nothing to run.",
+      "rules": [
+        "EFF-001"
+      ]
+    },
+    {
+      "id": "lib-consumer-smoke",
+      "name": "Install and import the packed library",
+      "passed": false,
+      "seconds": 0.1381151,
+      "notRun": true,
+      "flaky": false,
+      "tier": "full",
+      "output": "Not set up in this project: Nothing installs the packed library into a scratch project and imports it  no scripts/consumer-smoke.mjs .",
+      "rules": [
+        "LIB-003",
+        "LIB-004",
+        "LIB-005"
+      ]
+    },
+    {
+      "id": "lib-docs",
+      "name": "Documentation is complete",
+      "passed": false,
+      "seconds": 0.1326573,
+      "notRun": true,
+      "flaky": false,
+      "tier": "fast",
+      "output": "Not set up in this project: The project has no scripts/check-docs.mjs, so this check has nothing to run.",
+      "rules": [
+        "DOC-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-1",
+      "name": "No native button (use zest-button)",
+      "passed": true,
+      "seconds": 0.0925444,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern in the files this change touched.\r\nAlso found in 5 file(s) this change did not touch (not counted against it): src/Data/IResponsiveTableColumnDefinition.tsx, src/UI/MobileView.test.tsx, src/UI/ResponsiveTable.test.tsx, src/UI/ResponsiveTable.tsx, src/UI/TableBodyRow.tsx.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-2",
+      "name": "No native textarea (use zest-textbox)",
+      "passed": true,
+      "seconds": 0.082959,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-3",
+      "name": "No native text input (use zest-textbox)",
+      "passed": true,
+      "seconds": 0.0817256,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-4",
+      "name": "No native file input (use zest-file-upload)",
+      "passed": true,
+      "seconds": 0.080541,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    }
+  ],
+  "generatedByChecks": [],
+  "preflightAnswered": false,
+  "analystQuestions": 0,
+  "analysisClosed": false,
+  "youDecided": 0,
+  "requirementsApproved": true,
+  "signOffRounds": 1,
+  "changedFiles": [
+    "src/Build.test.ts"
+  ]
+}

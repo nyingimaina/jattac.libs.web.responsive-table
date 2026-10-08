@@ -1,0 +1,10 @@
+{
+  "summary": "Re-verified from a clean state; no defect reproduces, so no source, config or test file was changed. Deleted dist and ran `npm run build` twice in a row: both exited 0 and produced dist/index.js and dist/index.mjs (only a browserslist data-age notice, not an error). `npm run type-check` (tsc --noEmit) passed with no errors, so the theme CSS and TypeScript changes introduce no build or type errors. `npm run test:coverage` passed: 12 suites, 95 tests, including the existing theme tests. The reported npm debug log does not exist on this machine, so the original failure could not be examined directly. It most likely came from earlier in-progress theme work that is now resolved. Checks and tests were not disabled or altered, and the exported surface, exports map and dependencies are unchanged.",
+  "tests": [
+    { "name": "R1: theme=\"dark\" shows the dark look; theme=\"light\" the light look", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R1"] },
+    { "name": "R1: ResponsiveTableTheme type is exported from the package entry", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R1"] },
+    { "name": "R1: unrecognised theme behaves as if not given", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R1"] },
+    { "name": "useResolvedTheme tests (theme resolution, compiled under type-check)", "file": "src/Hooks/useResolvedTheme.test.ts", "requirements": ["R1"] }
+  ],
+  "kickbacks": []
+}
