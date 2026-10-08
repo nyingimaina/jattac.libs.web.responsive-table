@@ -1,0 +1,139 @@
+{
+  "summary": "Add light, dark and system appearance to the ResponsiveTable library. The app that uses the table controls it: an optional `theme` prop ('light' | 'dark' | 'system') on the table, and when the prop is not given the table follows the `dark` class on the page body (body.dark), the same convention ZestTabs uses. Existing apps see no change unless they opt in. Every part of the table (desktop view, mobile cards, header, rows, detail rows, skeleton, spinner, empty and no-more-data messages, filter and selection controls) follows the active theme through CSS variables.",
+  "roles": [
+    "Developer (owner app): installs the library and chooses the table's theme with the prop or by toggling body.dark",
+    "End user of the owner app: sees the table in the light or dark look the app chose, or the one matching their device"
+  ],
+  "requirements": [
+    {
+      "id": "R1",
+      "text": "The table accepts an optional `theme` prop with values 'light', 'dark' or 'system'. 'light' always shows the light look, 'dark' always shows the dark look, 'system' follows the device's light/dark preference and updates live when the preference changes. Example: <ResponsiveTable theme=\"dark\" ... />.",
+      "rationale": "Apps with several tables, or apps that do not use body.dark, need an explicit way to say which look a table uses. The builder decided on a prop plus body.dark fallback.",
+      "acceptance": [
+        "theme=\"dark\" renders the dark colours even if the device prefers light and body has no dark class",
+        "theme=\"light\" renders the light colours even if the device prefers dark and body.dark is present",
+        "theme=\"system\" renders dark when the device prefers dark and light otherwise, and switches without remount when the device preference changes",
+        "Two tables on one page with different theme values each show their own look"
+      ],
+      "edgeCases": [
+        "An unrecognised theme value (for example from untyped JavaScript) behaves as if theme were not given",
+        "Changing the theme prop on a mounted table switches the look immediately without losing scroll position, selection, sort or expanded rows",
+        "In an environment with no device preference information (server render, tests), 'system' shows the light look and does not throw"
+      ],
+      "pitfalls": [
+        "The table must not store the chosen theme anywhere (no localStorage or cookies); the owner app owns it",
+        "A table with theme set must not change the look of other tables or of the rest of the host page"
+      ],
+      "rules": ["LIB-001", "UI-001"]
+    },
+    {
+      "id": "R2",
+      "text": "When `theme` is not given, the table follows the `dark` class on document.body: dark look while body has class 'dark', light look otherwise, and it updates live when the app adds or removes the class.",
+      "rationale": "Apps already built for ZestTabs toggle body.dark; they should work with no code change. Not giving a theme keeps today's light look for apps that never opt in.",
+      "acceptance": [
+        "With no theme prop and body.dark present, the table shows the dark look",
+        "With no theme prop and no body.dark, the table looks exactly as it does today",
+        "Adding or removing body.dark while the table is mounted switches the look without a reload",
+        "An explicit theme prop takes priority over body.dark"
+      ],
+      "edgeCases": [
+        "Removing the table from the page stops it reacting to body class changes",
+        "Toggling body.dark many times quickly ends in the look matching the final state"
+      ],
+      "pitfalls": [
+        "Upgrading the library must not change the look for apps that pass no theme and have no body.dark",
+        "The table must never add or remove classes on body"
+      ],
+      "rules": ["LIB-001", "UI-001"]
+    },
+    {
+      "id": "R3",
+      "text": "Every visible part of the table uses theme-driven colours: desktop header, rows, stripes, hover, borders, mobile cards and labels, detail/expanded rows, selection and filter controls, sorting indicators, skeleton loading, loading spinner, empty state and the 'no more data' message. Text stays readable on its background in both looks.",
+      "rationale": "A theme that darkens only part of the table leaves unreadable or glaring pieces and makes the feature unusable.",
+      "acceptance": [
+        "In the dark look, no part of the table shows the light background colour or dark-on-dark text",
+        "Normal text has a contrast ratio of at least 4.5:1 against its background in both light and dark",
+        "Custom colour variables the app already overrides for the light look (for example --table-header-bg) still apply",
+        "Light look is visually unchanged from the current release"
+      ],
+      "edgeCases": [
+        "Row content supplied by the app (custom cell renderers) is not recoloured by the library, but the cell background and default text colour follow the theme",
+        "Skeleton, spinner and detail rows are checked in the dark look, not only the main rows"
+      ],
+      "pitfalls": [
+        "Sizes stay in rem (px only for borders); the theme change must not alter layout or spacing"
+      ],
+      "rules": ["UI-001", "LIB-001"]
+    },
+    {
+      "id": "R4",
+      "text": "The new `theme` prop and its type are additive public API, exported from the library, and documented with a working example for each of light, dark, system and the body.dark fallback.",
+      "rationale": "Developers can only use a prop they can find; the house rules require docs for every prop and an unchanged existing surface.",
+      "acceptance": [
+        "Existing exports, props and defaults are unchanged; no entry is needed in breaking-changes.md other than a note that this release is additive, and the version is bumped as a minor release",
+        "The theme type can be imported by TypeScript consumers",
+        "README.md, docs/examples.md, docs/features.md, docs/api.md and docs/configuration.md describe the prop, the body.dark fallback and the CSS variables; docs/development.md and docs/breaking-changes.md are updated; each page links to the previous and next page",
+        "Docs state that the table does not remember the theme and that 'system' needs no app code"
+      ],
+      "edgeCases": [
+        "Docs explain that an explicit prop wins over body.dark"
+      ],
+      "pitfalls": [
+        "Documentation examples must run as written"
+      ],
+      "rules": ["LIB-001", "DOC-001"]
+    }
+  ],
+  "outOfScope": [
+    "A built-in theme switcher button or UI",
+    "Remembering the user's theme between visits",
+    "Custom named themes or a full colour palette editor beyond the existing CSS variables",
+    "Changing the look of apps' own cell content",
+    "Theming components other than the table"
+  ],
+  "nonFunctional": [
+    {
+      "area": "accessibility",
+      "statement": "Text and interactive controls meet WCAG AA contrast in both light and dark looks; focus indicators stay visible in both.",
+      "acceptance": "Contrast of text/background pairs is at least 4.5:1 (3:1 for focus rings and borders) in each look, checked on the example page."
+    },
+    {
+      "area": "reliability",
+      "statement": "Works in Next.js App Router apps ('use client'), on server render without errors, and on React 18 and 19; no hydration mismatch warning when theme='system' or body.dark is used.",
+      "acceptance": "Tests render the table with no window/matchMedia available without throwing; a server-render test produces no warning."
+    },
+    {
+      "area": "performance",
+      "statement": "Theme switching adds no extra data fetches and no remount of rows; the bundle grows only by the added CSS and a small amount of code.",
+      "acceptance": "Switching theme on a mounted table does not call the data source again and does not reset scroll; build output size increase is noted in the release notes."
+    }
+  ],
+  "risks": [
+    "Apps that style the table by overriding its existing colour variables may see unexpected colours in the dark look if they only defined light values.",
+    "Flash of the wrong look on first paint in server-rendered apps when 'system' or body.dark is used, because the preference is only known in the browser."
+  ],
+  "glossary": [
+    "Theme: the light or dark appearance of the table.",
+    "System: follow the device's own light/dark setting.",
+    "body.dark: the 'dark' class the owner app puts on the page body to request the dark look."
+  ],
+  "questions": [],
+  "coverage": [
+    { "topic": "users", "status": "answered", "note": "Owner app developer controls the theme via prop or body.dark (builder decision); end users see the result." },
+    { "topic": "data", "status": "not-applicable", "note": "No data is stored; the theme choice is owned by the app." },
+    { "topic": "permissions", "status": "not-applicable", "note": "Presentation-only change; no records or ownership." },
+    { "topic": "validation", "status": "assumed", "note": "Unknown theme value behaves as if no theme was given (R1)." },
+    { "topic": "states", "status": "assumed", "note": "Loading skeleton, spinner, empty, no-more-data and detail rows follow the active theme (R3)." },
+    { "topic": "duplicates", "status": "not-applicable", "note": "No submissions or shared edits." },
+    { "topic": "volume", "status": "not-applicable", "note": "Styling only; no change to rows, sorting or paging." },
+    { "topic": "deletion", "status": "not-applicable", "note": "Nothing is deleted." },
+    { "topic": "privacy", "status": "not-applicable", "note": "No personal data; the table does not store the theme." },
+    { "topic": "quality", "status": "assumed", "note": "Contrast, SSR safety, React 18/19 and no remount on switch (non-functional section)." }
+  ],
+  "assumptions": [
+    "When neither theme nor body.dark is present, the table looks exactly as it does today (light).",
+    "An unrecognised theme value is treated as if no theme was given.",
+    "'system' falls back to light when the device preference is unavailable (server render).",
+    "The release is a minor, additive version bump."
+  ]
+}

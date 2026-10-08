@@ -26,9 +26,15 @@ The component uses CSS variables for effortless theming. You can override these 
 | `--table-row-hover-bg` | `#f1f3f5` | Background color when hovering over a row. |
 | `--card-shadow` | `0 2px 8px rgba(0,0,0,0.06)` | Shadow applied to mobile cards. |
 
-#### Example: Dark Mode Theme
+#### Built-in Light, Dark and System Themes
+Use the `theme` prop (`'light' | 'dark' | 'system'`), or omit it to follow `body.dark`. The default is light; the device preference is used only for `theme="system"`. An explicit prop wins over `body.dark`. The table does not remember the theme.
+
+The variables above have separate light and dark values. The light values are defaults with zero specificity on `:root`, so overriding a variable on `:root` or `body` still works for a light table. The dark values are set on the wrapper of a dark table, so a dark table does not affect other tables or the host page. The wrapper uses `display: contents` and adds no box, so it never changes layout. State colours also have variables: `--rt-sorted-bg`, `--rt-selected-bg`, `--rt-skeleton-bg`, `--rt-skeleton-shimmer`, `--rt-spinner-track`, `--rt-detail-bg`, `--rt-sort-icon-color`, `--rt-nodata-icon-color`.
+
+To override a variable in the dark look (a `:root` override applies to the light look), target the wrapper's `data-rt-theme` attribute:
+
 ```css
-:root {
+[data-rt-theme='dark'] {
   --table-header-bg: #1a1a1a;
   --table-border-color: #333333;
   --text-color: #ffffff;

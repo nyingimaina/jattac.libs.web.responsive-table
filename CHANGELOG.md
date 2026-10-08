@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.20.0] - 2026-10-08
+
+### Added
+- **Light, dark and system themes** — new optional `theme` prop (`'light' | 'dark' | 'system'`) and exported `ResponsiveTableTheme` type. With no `theme`, the table follows the `dark` class on `document.body` (the ZestTabs convention) and is light otherwise. `'system'` follows the device preference and updates live. An explicit prop wins over `body.dark`. The table never stores the choice.
+- New CSS variables for state colours (`--rt-sorted-bg`, `--rt-selected-bg`, `--rt-skeleton-bg`, `--rt-spinner-track`, and others), with light and dark values.
+
+### Changed
+- Colour variables are now defined on a wrapper `div` around the table instead of the `<table>` element, so mobile cards, spinner and messages share them. The light look is unchanged. The bundle grows only by the dark CSS block and a small hook.
+- Not a breaking change: existing props, exports and defaults are unchanged.
+
+---
+
 ## [0.19.0] - 2026-09-24
 
 ### Added

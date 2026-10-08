@@ -1,0 +1,26 @@
+{
+  "summary": "Fixed REV-1/2/3 and QA-1. Theme.module.css: light colour variables are now zero-specificity defaults on :where(:root) and dark values sit on :where(.themeDark), so overrides on :root, body or [data-rt-theme] win and the wrapper no longer shadows them (also reaches mobile cards, spinner, messages). The .themeRoot wrapper is display: contents and declares no variables, so layout is unchanged. docs/breaking-changes.md and docs/configuration.md corrected to match. Added stylesheet tests: light/dark variable sets exist and differ, every variable the table styles read is defined, no hard-coded colours remain outside var() fallbacks/shadows/keyframes, wrapper is layout-neutral, and no rule shadows an app override of --table-header-bg. Build and full suite pass (12 suites, 95 tests).",
+  "tests": [
+    { "name": "R1: theme=\"dark\" shows the dark look; theme=\"light\" the light look", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R1"] },
+    { "name": "R1: two tables on one page each show their own look", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R1"] },
+    { "name": "R1: theme=\"system\" follows the device preference", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R1"] },
+    { "name": "R1: changing theme on a mounted table keeps rows (no remount) and does not refetch", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R1"] },
+    { "name": "R1: unrecognised theme behaves as if not given", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R1"] },
+    { "name": "R1: the table does not store the theme", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R1"] },
+    { "name": "R2: no theme and no body.dark is light, even when device prefers dark", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R2"] },
+    { "name": "R2: no theme follows body.dark live; explicit prop wins over body.dark", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R2"] },
+    { "name": "R2: after unmount, body class changes cause no update warnings", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R2"] },
+    { "name": "R2: app overrides on :root or [data-rt-theme] (e.g. --table-header-bg) are not shadowed by the wrapper", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R2"] },
+    { "name": "R3: skeleton and error states are wrapped in the theme root", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R3"] },
+    { "name": "R3: detail rows, no-data and mobile cards sit inside the theme root", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R3"] },
+    { "name": "R3: the theme root uses CSS variables for default colour and background", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R3"] },
+    { "name": "R3: every colour variable has a light and a different dark value", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R3"] },
+    { "name": "R3: every variable the table styles read is defined in both looks (skeleton, spinner, detail rows included)", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R3"] },
+    { "name": "R3: no hard-coded light colours remain in the table styles outside var() fallbacks, shadows and keyframes", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R3"] },
+    { "name": "R3: the wrapper adds no layout box (display: contents) and declares no colour variables", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R3"] },
+    { "name": "R4: ResponsiveTableTheme type is exported from the package entry", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R4"] },
+    { "name": "NFR reliability: server render with no window/matchMedia is light and warns nothing", "file": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R1"] },
+    { "name": "useResolvedTheme tests", "file": "src/Hooks/useResolvedTheme.test.ts", "requirements": ["R1", "R2"] }
+  ],
+  "kickbacks": []
+}

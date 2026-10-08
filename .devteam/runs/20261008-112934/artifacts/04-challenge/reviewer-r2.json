@@ -1,0 +1,8 @@
+{
+  "findings": [],
+  "verifications": [
+    { "id": "REV-1", "status": "fixed", "evidence": "src/Styles/Theme.module.css:6 now declares the light defaults in :where(:root) (zero specificity) and the dark values in :where(.themeDark) (line 55); no colour variables are declared on the wrapper or in other CSS files, so :root/body/[data-rt-theme] overrides win. ResponsiveTable.theme.test.tsx:223 tests that overrides are not shadowed. Full jest run: 12 suites, 95 tests pass." },
+    { "id": "REV-2", "status": "fixed", "evidence": "docs/breaking-changes.md:14 now describes the zero-specificity :root defaults, so the ':root', 'body' and '[data-rt-theme]' advice works as written, and it states that the wrapper is display: contents. The note is accurate to the CSS." },
+    { "id": "REV-3", "status": "fixed", "evidence": "src/Styles/Theme.module.css:47 sets .themeRoot { display: contents; } and nothing else. The test at ResponsiveTable.theme.test.tsx:217 asserts this and that the wrapper declares no colour variables." }
+  ]
+}

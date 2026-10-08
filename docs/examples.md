@@ -18,6 +18,7 @@ This guide details standard implementation patterns for the ResponsiveTable comp
    *   [Imperative Control via Ref](#12-imperative-control-via-ref)
    *   [Error Handling and Retry](#13-error-handling-and-retry)
    *   [Expandable Rows](#14-expandable-rows)
+   *   [Light, Dark and System Themes](#15-light-dark-and-system-themes)
 
 ---
 
@@ -404,6 +405,36 @@ export const ExpandableOrderTable = () => (
 ```
 
 For the complete feature reference including lazy mounting, keyboard accessibility, combining with `dataSource`, and CSS customization, see the **[Row Expansion and Collapse Guide](./expand-collapse.md)**.
+
+### 15. Light, Dark and System Themes
+
+```tsx
+import ResponsiveTable, { ResponsiveTableTheme } from 'jattac.libs.web.responsive-table';
+
+type Row = { name: string };
+const columns = [{ displayLabel: 'Name', cellRenderer: (row: Row) => row.name }];
+const rows: Row[] = [{ name: 'Alice' }, { name: 'Bob' }];
+
+function ThemedTable({ theme }: { theme: ResponsiveTableTheme }) {
+  return <ResponsiveTable data={rows} columnDefinitions={columns} theme={theme} />;
+}
+
+// Always light / always dark / follow the device
+<ThemedTable theme="light" />;
+<ThemedTable theme="dark" />;
+<ThemedTable theme="system" />;
+
+// No theme: follow body.dark (light when absent). The explicit prop above wins over body.dark.
+<ResponsiveTable data={rows} columnDefinitions={columns} />;
+```
+
+To drive the no-prop mode from your app, toggle the class yourself:
+
+```ts
+document.body.classList.toggle('dark', isDark);
+```
+
+The table only reads this class; it never adds or removes classes on `body`.
 
 ---
 **Previous:** [Overview](../README.md) | **Next:** [Functional Capabilities](./features.md)

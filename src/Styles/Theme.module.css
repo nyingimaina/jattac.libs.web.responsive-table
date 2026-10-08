@@ -1,0 +1,91 @@
+/* Theme variables.
+   Light values are the defaults (they match the pre-theme look) and are declared
+   with zero specificity on the root, so an app can override any of them on :root,
+   body or [data-rt-theme] and the override wins. The dark values are declared on
+   the wrapper of a dark table, also with zero specificity. */
+:where(:root) {
+  --table-border-color: #e0e0e0;
+  --table-header-bg: #f8f9fa;
+  --table-row-hover-bg: #f1f3f5;
+  --table-row-stripe-bg: #fafbfc;
+  --table-row-active-bg: #dde3ea;
+  --card-bg: #ffffff;
+  --card-border-color: #d1d5db;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --text-color: #212529;
+  --text-color-muted: #6c757d;
+  --interactive-color: #0056b3;
+  --primary-color: #007bff;
+
+  /* Mobile-specific Quiet Luxury variables */
+  --rt-mobile-card-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.04);
+  --rt-mobile-card-radius: 16px;
+  --rt-mobile-bg-wash: #f1f5f9;
+  --rt-mobile-label-color: #475569; /* Slate 600 */
+  --rt-mobile-value-color: #1e293b; /* Slate 800 */
+
+  /* State colours that used to be hard-coded */
+  --rt-sorted-bg: #f0f7ff;
+  --rt-selected-bg: #e7f1ff;
+  --rt-skeleton-bg: #f0f0f0;
+  --rt-skeleton-shimmer: rgba(255, 255, 255, 0.6);
+  --rt-spinner-track: rgba(0, 0, 0, 0.1);
+  --rt-detail-bg: rgba(0, 0, 0, 0.012);
+  --rt-sort-icon-color: #6c757d;
+  --rt-nodata-icon-color: #cccccc;
+  --rt-error-bg: #f8f9fa;
+  --rt-error-text: #6c757d;
+  --rt-error-border: #e0e0e0;
+  --rt-error-button-bg: #007bff;
+  --rt-error-button-text: #ffffff;
+}
+
+/* The wrapper adds no box of its own, so the theme never changes layout. */
+.themeRoot {
+  display: contents;
+}
+
+.themeLight {
+  color-scheme: light;
+}
+
+:where(.themeDark) {
+  color-scheme: dark;
+  --table-border-color: #3b4252;
+  --table-header-bg: #1f2530;
+  --table-row-hover-bg: #2a3140;
+  --table-row-stripe-bg: #1a1f29;
+  --table-row-active-bg: #364054;
+  --card-bg: #151a23;
+  --card-border-color: #3b4252;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --text-color: #e6e9ef;
+  --text-color-muted: #a8b1c0;
+  --interactive-color: #7ab8ff;
+  --primary-color: #4da3ff;
+
+  --rt-mobile-card-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 12px 32px rgba(0, 0, 0, 0.3);
+  --rt-mobile-bg-wash: #0f131a;
+  --rt-mobile-label-color: #b4bdcc;
+  --rt-mobile-value-color: #e2e8f0;
+
+  --rt-sorted-bg: #1b2a40;
+  --rt-selected-bg: #1e3a5f;
+  --rt-skeleton-bg: #2a303c;
+  --rt-skeleton-shimmer: rgba(255, 255, 255, 0.08);
+  --rt-spinner-track: rgba(255, 255, 255, 0.15);
+  --rt-detail-bg: rgba(255, 255, 255, 0.03);
+  --rt-sort-icon-color: #a8b1c0;
+  --rt-nodata-icon-color: #5b6475;
+  --rt-error-bg: #1f2530;
+  --rt-error-text: #a8b1c0;
+  --rt-error-border: #3b4252;
+  --rt-error-button-bg: #4da3ff;
+  --rt-error-button-text: #0b1220;
+}

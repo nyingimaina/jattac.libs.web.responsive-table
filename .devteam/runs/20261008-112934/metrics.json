@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 0,
+  "runId": "20261008-112934",
+  "at": "2026-10-08T12:02:29.5195144+00:00",
+  "status": "Completed",
+  "feature": "I want to add dark, light and system modes that can be controlled by owner app, sort of like D:\\work\\nyingi\\code\\systems\\Jattac.Web.Libs.ZestTabs does",
+  "testsReported": 20,
+  "checksPassed": 6,
+  "checksTotal": 10,
+  "checksNotRun": 3,
+  "bootPassed": 0,
+  "bootTotal": 0,
+  "findingsOpen": 0,
+  "findingsAdvisory": 11,
+  "findingsFixed": 4,
+  "requirementsTotal": 4,
+  "requirementsWithTests": 4,
+  "costUsd": 4.528452,
+  "seconds": 1974.5308248,
+  "coverage": [
+    {
+      "name": "Library",
+      "linePercent": 81.6,
+      "branchPercent": 69.1,
+      "changedLinePercent": 89.2,
+      "filesCovered": 19,
+      "functionPercent": 72
+    }
+  ],
+  "testsExecuted": 0,
+  "testsFailed": 0,
+  "testsSkipped": 0,
+  "verification": false
+}

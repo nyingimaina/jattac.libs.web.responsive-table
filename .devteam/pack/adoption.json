@@ -1,0 +1,22 @@
+{
+  // How to recognise and run an existing React component library (D-082). "library" selects the library adapter.
+  "kind": "library",
+  "web": {
+    "requireAnyDependency": [ "typescript", "rollup", "tsup", "vite", "esbuild", "microbundle" ],
+    "featureNames": [ "UI", "src" ],
+    "sharedNames": [ "Styles", "src/lib", "lib", "utils" ],
+    "testRunners": [
+      { "dependency": "vitest", "command": "npx vitest run --coverage" },
+      { "dependency": "jest", "command": "npx jest --coverage" }
+    ],
+    "runScripts": []
+  },
+  "ci": {
+    "folders": [ ".github/workflows" ],
+    "commands": { "web-tests": [ "npm test", "npm run test", "pnpm test", "pnpm run test", "yarn test", "npx jest", "npx vitest" ] }
+  },
+  "fillableChecks": [ "lib-tests", "lib-typecheck", "lib-build" ],
+  "allowedPrograms": [ "npm", "npx", "pnpm", "yarn", "node" ],
+  "fillTimeoutSeconds": 180,
+  "ignoreExtra": [ "**/dist/**", "**/coverage/**", "**/test-results/**", "**/node_modules/**" ]
+}

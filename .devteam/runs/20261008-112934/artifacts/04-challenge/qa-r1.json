@@ -1,0 +1,45 @@
+{
+  "findings": [
+    {
+      "cites": "R3",
+      "severity": "blocking",
+      "file": "src/UI/ResponsiveTable.theme.test.tsx",
+      "line": 155,
+      "evidence": "The only R3 colour test, 'the theme root uses CSS variables for default colour and background', asserts only root.style.colorScheme === 'dark'. Other R3 tests only check that skeleton/error/detail/no-data/mobile render inside the [data-rt-theme] wrapper. No test reads Theme.module.css or any computed colour. Nothing would fail if the dark variable values were missing or identical to light, if a hard-coded light colour remained, or if --table-header-bg overrides stopped applying.",
+      "description": "R3 acceptance lines have no test that could fail: 'in the dark look no part shows the light background / dark-on-dark text', 'custom variables such as --table-header-bg still apply', and 'light look visually unchanged'. Also the edge case 'skeleton, spinner and detail rows are checked in the dark look' is only checked as 'inside the wrapper', not as dark colours. Add a test that asserts the dark and light variable sets exist and differ (for example parse Theme.module.css, check every variable the table uses is defined in both looks, and that no non-variable light hex colours remain in the module CSS used by these parts). Also assert that an app-level override of --table-header-bg is not shadowed by the wrapper."
+    },
+    {
+      "cites": "R3",
+      "severity": "advisory",
+      "file": "src/Styles/Theme.module.css",
+      "line": 1,
+      "evidence": "The developer report lists no contrast test. The accessibility NFR requires 4.5:1 for text and 3:1 for focus rings and borders, checked per look. A few hard-coded colours remain in ResponsiveTable.module.css (the #ea580c and #d97706 animation colours, and the #dde3ea and #3b82f6 fallbacks).",
+      "description": "Add an automated check of text/background variable pairs against 4.5:1 and borders/focus against 3:1 for both looks. There is no example-page check either."
+    },
+    {
+      "cites": "R1",
+      "severity": "advisory",
+      "file": "src/UI/ResponsiveTable.theme.test.tsx",
+      "line": 64,
+      "evidence": "The 'changing theme on a mounted table' test asserts that the same cell DOM node survives and that the data source is not called again. It does not set a selection, sort or expanded row, and does not set a scroll position before switching.",
+      "description": "The R1 edge case says scroll position, selection, sort and expanded rows are preserved on theme change, and the performance NFR says scroll is not reset. The node-identity check only partly proves this. A stronger test would select a row, sort, expand and scroll before the rerender."
+    },
+    {
+      "cites": "R1",
+      "severity": "advisory",
+      "file": "src/UI/ResponsiveTable.theme.test.tsx",
+      "line": 168,
+      "evidence": "The server-render test covers theme='system' only. There is no render with body.dark set before mount (hydration) and no hydrateRoot test. The work was done on one React version, so no React 18 and 19 matrix.",
+      "description": "The reliability NFR asks for no hydration mismatch warning with theme='system' or body.dark, and for React 18 and 19 support. Only the SSR-string path for system is proven. Light-first rendering followed by an effect makes mismatch unlikely, but it is not tested."
+    },
+    {
+      "cites": "R4",
+      "severity": "advisory",
+      "file": "src/UI/ResponsiveTable.theme.test.tsx",
+      "line": 160,
+      "evidence": "The R4 export test calls require('../index') and checks default is defined. It never checks the type's three values against the actual prop type. The packed-library check (scratch-project install, CJS and ESM import) did not run, because scripts/consumer-smoke.mjs does not exist. Neither .size-limit.json nor scripts/check-docs.mjs exists, so the size and docs checks did not run. These are accepted gaps.",
+      "description": "Docs content (the examples running as written, page links, the 'default is light' and 'explicit prop wins' statements) has no automated proof. The test that tags R4 for 'explicit prop wins over body.dark' proves behaviour, not docs. A review of docs is needed. The packed-library check and release-notes size note are not evidenced."
+    }
+  ],
+  "verifications": []
+}

@@ -280,6 +280,21 @@ Control skeleton loaders and entrance animations with `animationProps`:
 
 ---
 
+## Light, Dark and System Themes
+
+Pass `theme` to choose the look. Without it, the table follows the `dark` class on `document.body`, and is light otherwise.
+
+```tsx
+<ResponsiveTable data={rows} columnDefinitions={columns} theme="dark" />   {/* always dark */}
+<ResponsiveTable data={rows} columnDefinitions={columns} theme="light" />  {/* always light */}
+<ResponsiveTable data={rows} columnDefinitions={columns} theme="system" /> {/* follows the device */}
+<ResponsiveTable data={rows} columnDefinitions={columns} />                {/* follows body.dark, else light */}
+```
+
+An explicit `theme` always wins over `body.dark`. The default is light, and the device preference is only used when you pass `theme="system"`. The table does not remember the theme; your app owns it.
+
+---
+
 ## Documentation Directory
 
 The following technical documentation provides comprehensive implementation guidance:

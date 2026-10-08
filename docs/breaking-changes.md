@@ -10,6 +10,9 @@ This document details significant architectural modifications and provides migra
 
 [← Previous: Architecture and Contribution Guide](./development.md) | [Return to Overview](../README.md)
 
+## v0.20.0 (additive; one styling note)
+The `theme` prop and the `ResponsiveTableTheme` type are new. Existing props, exports and defaults are unchanged, and the look is the same for apps that pass no `theme` and have no `body.dark`. The light colour variables are now defaults with zero specificity on `:root`, so overrides you set on `:root` or `body` keep working (and now also reach the table itself). Each table is wrapped in a `display: contents` element with a `data-rt-theme` attribute; it adds no box, so layout is unchanged. Only apps that targeted the table's hashed class to override colour variables need to move those overrides to `:root`, `body` or `[data-rt-theme]`.
+
 ## v0.7.x Architectural Transition
 The v0.7.x release series introduced a fundamental internal refactor to transition from a monolithic design to an atomized architecture.
 

@@ -4,6 +4,9 @@ import { SortDirection } from '../Data/IResponsiveTableColumnDefinition';
 import IFooterRowDefinition from '../Data/IFooterRowDefinition';
 import { IResponsiveTablePlugin } from '../Plugins/IResponsiveTablePlugin';
 
+import { ResponsiveTableTheme } from '../Data/ResponsiveTableTheme';
+import { useResolvedTheme } from '../Hooks/useResolvedTheme';
+import ThemeRoot from './ThemeRoot';
 import DesktopView from './DesktopView';
 import MobileView from './MobileView';
 import SkeletonView from './SkeletonView';
@@ -113,6 +116,12 @@ interface IProps<TData> {
    * reflects `window.scrollY`. Use with `ref.scrollTo()` to save and restore position.
    */
   onScrollPositionChange?: (scrollTop: number) => void;
+  /**
+   * Appearance of the table: 'light', 'dark' or 'system' (follows the device preference).
+   * When omitted, the table follows the `dark` class on document.body, and is light otherwise.
+   * An explicit value always wins over body.dark. The table never stores the choice.
+   */
+  theme?: ResponsiveTableTheme;
 }
 
 /**
@@ -144,7 +153,10 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
     expandChevronClassName,
     defaultExpandedIds,
     onScrollPositionChange,
+    theme,
   } = props;
+
+  const resolvedTheme = useResolvedTheme(theme);
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLTableSectionElement>(null);
@@ -322,7 +334,7 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
   const hasData = useMemo(() => processedData.length > 0, [processedData]);
 
   const noDataSvg = (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="#ccc" height="40" width="40" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="var(--rt-nodata-icon-color, #ccc)" height="40" width="40" viewBox="0 0 24 24">
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-14h2v6h-2zm0 8h2v2h-2z" />
     </svg>
   );
@@ -421,44 +433,29 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
   }), [animationProps?.animateOnLoad, animationProps?.isLoading, isLoading]);
 
   if (isLoading && !hasData) {
-    return <SkeletonView isMobile={isMobile} columnDefinitions={visibleColumns} />;
+    return (
+      <ThemeRoot theme={resolvedTheme}>
+        <SkeletonView isMobile={isMobile} columnDefinitions={visibleColumns} />
+      </ThemeRoot>
+    );
   }
 
   if (error && !isLoading && !hasData) {
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '4rem 2rem',
-        gap: '1rem',
-        color: '#6c757d',
-        border: '2px dashed #e0e0e0',
-        borderRadius: '12px',
-        backgroundColor: '#f8f9fa',
-      }}>
-        <div style={{ fontWeight: 500, fontSize: '1.1rem' }}>Failed to load data</div>
-        <div style={{ fontSize: '0.85rem', textAlign: 'center' }}>{error.message}</div>
-        <button
-          onClick={resetAndFetch}
-          style={{
-            padding: '0.5rem 1.5rem',
-            backgroundColor: '#007bff',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontWeight: 500,
-          }}
-        >
-          Retry
-        </button>
-      </div>
+      <ThemeRoot theme={resolvedTheme}>
+        <div className={styles.errorPanel}>
+          <div className={styles.errorTitle}>Failed to load data</div>
+          <div className={styles.errorMessage}>{error.message}</div>
+          <button onClick={resetAndFetch} className={styles.errorRetry}>
+            Retry
+          </button>
+        </div>
+      </ThemeRoot>
     );
   }
 
   return (
+    <ThemeRoot theme={resolvedTheme}>
     <TableProvider
       value={{
         data: currentDataToProcess,
@@ -514,6 +511,7 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
         )}
       </div>
     </TableProvider>
+    </ThemeRoot>
   );
 }
 

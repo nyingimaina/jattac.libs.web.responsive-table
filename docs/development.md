@@ -19,6 +19,7 @@ The system is partitioned into three distinct functional layers:
     *   `DesktopView`: Manages standard tabular rendering and intelligent footer scaling logic.
     *   `MobileView`: Manages card-based interface generation.
     *   `SkeletonView`: Unified structural placeholder logic.
+    *   `ThemeRoot` and `useResolvedTheme`: resolve the `theme` prop (or `body.dark`, or the device preference) to light or dark and scope the colour variables in `Theme.module.css`. Switching theme only changes a class, so rows are never remounted.
 3.  **Shell Orchestrators**:
     *   `ResponsiveTable`: The primary entry point for all datasets, including async via `dataSource`.
 

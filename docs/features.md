@@ -41,5 +41,9 @@ The component features a robust internal lifecycle management system for plugins
 Integrated logic for intelligent layout scaling automatically recalculates footer ranges. This ensures that column-level visibility toggles do not compromise the structural integrity or visual alignment of complex data grids.
 *   [Implementation Example: Column Visibility](./examples.md#6-programmatic-column-visibility-management)
 
+### Light, Dark and System Themes
+Every part of the table (header, rows, mobile cards, detail rows, skeleton, spinner, empty and no-more-data messages, filter and selection controls) follows the active theme through CSS variables. Choose it with the `theme` prop, or leave it out and toggle `body.dark`. Switching never refetches data or resets scroll, selection, sort or expanded rows.
+*   [Implementation Example: Themes](./examples.md#15-light-dark-and-system-themes)
+
 ---
 **Previous:** [Implementation Guide](./examples.md) | **Next:** [API Reference](./api.md)

@@ -1,6 +1,6 @@
 /* Spinner for Loading More */
 .spinner {
-  border: 3px solid rgba(0, 0, 0, 0.05);
+  border: 3px solid var(--rt-spinner-track, rgba(0, 0, 0, 0.05));
   border-left-color: var(--primary-color, #007bff);
   border-radius: 50%;
   width: 28px;

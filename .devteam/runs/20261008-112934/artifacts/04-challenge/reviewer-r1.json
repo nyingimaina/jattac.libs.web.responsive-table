@@ -1,0 +1,53 @@
+{
+  "findings": [
+    {
+      "cites": "R2",
+      "severity": "blocking",
+      "file": "src/Styles/Theme.module.css",
+      "line": 3,
+      "evidence": ".themeRoot declares --primary-color, --text-color, --card-bg, --rt-mobile-* and the other colour variables directly on the wrapper div. A declaration on the wrapper always beats a value inherited from :root or body. Before the change these variables were declared on .responsiveTable (the <table>), so elements outside the table (mobile cards, spinner, no-more-data message) could still be themed by an app that set them on :root. docs/api.md:216 still tells apps to 'Override --primary-color at the :root level'.",
+      "description": "Upgrading changes the look for apps that pass no theme. An app that overrides the colour variables on :root (as the docs advise) now loses those overrides for the mobile cards, spinner and messages, because the wrapper redefines every variable. To stay non-breaking, the light defaults should be overridable from outside, for example by using :where() to give the defaults zero specificity and a custom-property layering scheme, or by reading app overrides first. Add a test showing that a :root override still wins."
+    },
+    {
+      "cites": "R4",
+      "severity": "blocking",
+      "file": "docs/breaking-changes.md",
+      "line": 15,
+      "evidence": "The new v0.20.0 note says: 'If you override colour variables on the <table> element's class, move them to [data-rt-theme] or :root, since the variables are now defined on a wrapper around the table.' The wrapper itself declares every variable, so a value set on :root is shadowed by the wrapper and has no effect. Only a rule targeting [data-rt-theme] (or the wrapper class) works.",
+      "description": "The migration advice does not run as written: following the ':root' option leaves the app's colours unchanged. The note also treats a visible behaviour change as 'additive, no breaking changes'. Fix the advice, or fix the CSS so :root really works (see the R2 finding)."
+    },
+    {
+      "cites": "R3",
+      "severity": "blocking",
+      "file": "src/UI/ThemeRoot.tsx",
+      "line": 11,
+      "evidence": "Every return path of ResponsiveTable is now wrapped in a new unstyled <div> (.themeRoot has only custom properties, no display, width, height or min-height). Hosts that render the table as a direct child of a flex or grid container, or that give a parent height and rely on the table's container filling it, now see an extra block box between the parent and .tableContainer. The existing tests only assert the wrapper exists, not that layout is unchanged.",
+      "description": "The theme change must not alter layout. The wrapper should be layout-neutral (for example display: contents, or pass-through width/height/flex) and a test should cover it. Without that, upgrading can change layout for apps that opt into nothing."
+    },
+    {
+      "cites": "UI-001",
+      "severity": "advisory",
+      "file": "src/UI/ResponsiveTable.tsx",
+      "line": 337,
+      "evidence": "fill=\"var(--rt-nodata-icon-color, #ccc)\" is set as an SVG presentation attribute. Support for var() in presentation attributes is not consistent across browsers and tooling.",
+      "description": "Use style={{ fill: 'var(--rt-nodata-icon-color, #ccc)' }} or fill=\"currentColor\" with a colour on the parent, as the design itself described."
+    },
+    {
+      "cites": "UI-001",
+      "severity": "advisory",
+      "file": "src/Styles/ResponsiveTable.module.css",
+      "line": 511,
+      "evidence": ".errorPanel (padding 4rem 2rem, border-radius: 12px) and .errorRetry (border-radius: 6px) are new CSS. The 2px dashed border is fine, but the radii are in px, and the rule says px only for borders.",
+      "description": "Use rem for the radii in the newly added error-panel classes. The values were px before as inline styles, so this is minor."
+    },
+    {
+      "cites": "UI-001",
+      "severity": "advisory",
+      "file": "src/index.tsx",
+      "line": 5,
+      "evidence": "import ResponsiveTable,{ ResponsiveTableHandle } from './UI/ResponsiveTable'; (missing space after the comma)",
+      "description": "Formatting only. Run the project's prettier/format script on the touched files."
+    }
+  ],
+  "verifications": []
+}

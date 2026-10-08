@@ -44,7 +44,7 @@ export class FilterPlugin<TData> implements IResponsiveTablePlugin<TData> {
             borderRadius: '50%',
             background: 'transparent',
             cursor: 'pointer',
-            color: '#666',
+            color: 'var(--text-color-muted, #666)',
             opacity: this.filterText ? 1 : 0,
             pointerEvents: this.filterText ? 'auto' : 'none',
             transition: 'opacity 0.15s ease',

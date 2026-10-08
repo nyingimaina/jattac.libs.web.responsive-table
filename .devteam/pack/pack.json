@@ -1,0 +1,525 @@
+{
+  "id": "react-component-library",
+  "name": "React component library (npm)",
+  "description": "A React component library for npm: TypeScript, Rollup, CSS Modules, Vitest. Built, type-checked, tested, packed and installed into a scratch project before it counts as done. Publishing is always your own step.",
+  "prerequisites": {
+    "node": {
+      "what": "Node.js, the program that builds and tests the library.",
+      "how": [
+        "Install the current LTS version from https://nodejs.org, then close and reopen the terminal. Check with:  node --version"
+      ]
+    },
+    "npm": {
+      "what": "npm, the package manager that comes with Node.js; it installs the library\u0027s tooling and builds the package that gets published.",
+      "how": [
+        "It is installed together with Node.js (see node above). Check with:  npm --version"
+      ]
+    }
+  },
+  "layout": {
+    "featureRoots": [
+      "src"
+    ],
+    "sharedRoots": [],
+    "ignore": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/coverage/**",
+      "**/test-results/**",
+      "**/*.tsbuildinfo",
+      "**/.size-limit-cache/**"
+    ]
+  },
+  "rules": [
+    {
+      "id": "SEC-001",
+      "rule": "No secrets (passwords, API keys, tokens, connection strings) in source code or committed config.",
+      "why": "Secrets in code end up in git history and leak, and cannot be un-leaked.",
+      "plain": "Passwords and keys must come from settings, never be written into the code.",
+      "appliesTo": [
+        "backend",
+        "frontend",
+        "library"
+      ],
+      "roles": [
+        "developer",
+        "reviewer",
+        "security"
+      ],
+      "severity": "blocking",
+      "overridable": false,
+      "check": "automated",
+      "good": "const token = process.env.REGISTRY_TOKEN;",
+      "bad": "const apiKey = \u0022sk_live_51Habcdef\u0022;"
+    },
+    {
+      "id": "SCOPE-001",
+      "rule": "Only files inside the design\u0027s declared scope may change.",
+      "why": "Unplanned changes are where regressions hide. Enforced by the engine on the diff.",
+      "plain": "The developer may only change the parts of the project this change is about.",
+      "appliesTo": [],
+      "roles": [
+        "architect",
+        "developer"
+      ],
+      "severity": "blocking",
+      "overridable": false,
+      "check": "engine",
+      "good": "",
+      "bad": ""
+    },
+    {
+      "id": "TEST-001",
+      "rule": "Every requirement is proven by at least one test that names it.",
+      "why": "Untested requirements are guesses. Enforced by the engine when the build report is accepted.",
+      "plain": "Everything you asked for must have a test proving it works.",
+      "appliesTo": [],
+      "roles": [
+        "developer",
+        "qa"
+      ],
+      "severity": "blocking",
+      "overridable": false,
+      "check": "engine",
+      "good": "",
+      "bad": ""
+    },
+    {
+      "id": "LIB-001",
+      "rule": "What the library exports (UI/index.ts) changes only when the design says so. A removed or changed export, prop or type is a breaking change: it is listed in docs/breaking-changes.md and the version is bumped to match.",
+      "why": "Everyone who installed the library depends on its public surface; an accidental change breaks their apps on the next update.",
+      "plain": "Changing what the library offers to other people\u0027s apps is a decision, written down, never a side effect.",
+      "appliesTo": [
+        "library"
+      ],
+      "roles": [
+        "analyst",
+        "architect",
+        "developer",
+        "reviewer"
+      ],
+      "severity": "blocking",
+      "overridable": false,
+      "check": "review",
+      "good": "",
+      "bad": ""
+    },
+    {
+      "id": "LIB-002",
+      "rule": "package.json has an \u0022exports\u0022 map with \u0022types\u0022, \u0022import\u0022 and \u0022require\u0022 entries for the files in dist/, and the types resolve under both module systems (proven by attw and publint).",
+      "why": "A library can build and pass its own tests and still be broken for the people who install it: the wrong file loads, or there are no types.",
+      "plain": "The package must work when other people install it, not just on your machine.",
+      "appliesTo": [
+        "library"
+      ],
+      "roles": [
+        "architect",
+        "developer",
+        "reviewer"
+      ],
+      "severity": "blocking",
+      "overridable": false,
+      "check": "automated",
+      "good": "",
+      "bad": ""
+    },
+    {
+      "id": "LIB-003",
+      "rule": "Only dist/ and the documents meant for readers are published (the \u0022files\u0022 list), and the packed library installs into a scratch project and imports under both CommonJS and ES modules.",
+      "why": "Tests and source files in the package leak work in progress and make installs slower; an import that only works in the repository is not a library.",
+      "plain": "What goes on npm is exactly what you meant, and it really can be installed and used.",
+      "appliesTo": [
+        "library"
+      ],
+      "roles": [
+        "developer",
+        "reviewer",
+        "qa"
+      ],
+      "severity": "blocking",
+      "overridable": false,
+      "check": "automated",
+      "good": "",
+      "bad": ""
+    },
+    {
+      "id": "LIB-004",
+      "rule": "react, react-dom and every other peer dependency are external to the bundle (including react/jsx-runtime), declared in peerDependencies with a range, and never in dependencies.",
+      "why": "A second copy of React inside the library breaks hooks in the app that uses it; a bundled JSX runtime breaks apps on another React version.",
+      "plain": "The library borrows React from the app that uses it instead of carrying its own copy.",
+      "appliesTo": [
+        "library"
+      ],
+      "roles": [
+        "architect",
+        "developer",
+        "reviewer"
+      ],
+      "severity": "blocking",
+      "overridable": false,
+      "check": "automated",
+      "good": "",
+      "bad": ""
+    },
+    {
+      "id": "LIB-005",
+      "rule": "The built bundle starts with \u0022use client\u0022 and the package is marked free of side effects (\u0022sideEffects\u0022: false, or a list of the CSS files), so Next.js App Router apps can import it and bundlers can drop what is unused.",
+      "why": "Without the banner, a component that uses state fails to import in a server component; without the flag, apps carry the whole library.",
+      "plain": "The library works in Next.js apps and does not make apps bigger than needed.",
+      "appliesTo": [
+        "library"
+      ],
+      "roles": [
+        "architect",
+        "developer",
+        "reviewer"
+      ],
+      "severity": "blocking",
+      "overridable": true,
+      "check": "automated",
+      "good": "",
+      "bad": ""
+    },
+    {
+      "id": "EFF-001",
+      "rule": "The built library stays within its size budget (.size-limit.json). Raising the budget is a decision recorded with the change, never done to make a check pass.",
+      "why": "Every kilobyte is paid by every app that installs the library, on every page load.",
+      "plain": "The library has a weight limit so it never slowly becomes heavy for the apps that use it.",
+      "appliesTo": [
+        "library"
+      ],
+      "roles": [
+        "architect",
+        "developer",
+        "reviewer"
+      ],
+      "severity": "blocking",
+      "overridable": true,
+      "check": "automated",
+      "good": "",
+      "bad": ""
+    },
+    {
+      "id": "EFF-002",
+      "rule": "Build for data that grows a hundred times: no work in render that scales with the data (sorting, filtering, mapping huge arrays) without memoization; lists that can be long are paged or virtualized; effects and listeners clean up; no state that grows without bound.",
+      "why": "Libraries are used on data the author never imagined. A component that is fine with ten rows and unusable with ten thousand is a bug in the library.",
+      "plain": "Components must stay fast when the amount of data is much larger than in your examples.",
+      "appliesTo": [
+        "library"
+      ],
+      "roles": [
+        "architect",
+        "developer",
+        "reviewer"
+      ],
+      "severity": "blocking",
+      "overridable": true,
+      "check": "review",
+      "good": "",
+      "bad": ""
+    },
+    {
+      "id": "DEP-001",
+      "rule": "Adding, removing or upgrading a dependency, a peer dependency or a tool version is a decision with a reason recorded in the design. Prefer no new dependency; if one is needed, prefer a small one that can be a peer.",
+      "why": "Dependencies are the library\u0027s weight and risk, and they are inherited by every app that installs it.",
+      "plain": "Nothing new is added to the library\u0027s dependencies without a stated reason.",
+      "appliesTo": [
+        "library"
+      ],
+      "roles": [
+        "architect",
+        "developer",
+        "reviewer"
+      ],
+      "severity": "blocking",
+      "overridable": false,
+      "check": "review",
+      "good": "",
+      "bad": ""
+    },
+    {
+      "id": "UI-001",
+      "rule": "Components support light, dark and system themes through CSS variables, size everything in rem (px only for borders), are keyboard-operable with correct ARIA roles and labels, and are designed for small screens first.",
+      "why": "A component library is judged by how it behaves in other people\u0027s apps, for every user, on every device.",
+      "plain": "Components look right in light and dark mode, work with a keyboard and a screen reader, and fit small screens.",
+      "appliesTo": [
+        "library"
+      ],
+      "roles": [
+        "analyst",
+        "architect",
+        "developer",
+        "reviewer",
+        "qa"
+      ],
+      "severity": "blocking",
+      "overridable": true,
+      "check": "review",
+      "good": "",
+      "bad": ""
+    },
+    {
+      "id": "DOC-001",
+      "rule": "Every feature, prop and breaking change is documented where readers look: README.md (a first working example), docs/examples.md (recipes), docs/features.md, docs/api.md, docs/configuration.md, docs/development.md and docs/breaking-changes.md, each linking to the previous and next page.",
+      "why": "A library nobody can figure out does not get used; documentation that lags the code is wrong documentation.",
+      "plain": "Anything new is explained in the docs with a working example, in the same change.",
+      "appliesTo": [
+        "library"
+      ],
+      "roles": [
+        "analyst",
+        "architect",
+        "developer",
+        "reviewer"
+      ],
+      "severity": "blocking",
+      "overridable": true,
+      "check": "automated",
+      "good": "",
+      "bad": ""
+    },
+    {
+      "id": "QUAL-001",
+      "rule": "No debugging leftovers (console.log, console.debug, debugger) in the library\u0027s source.",
+      "why": "Debug output leaks data into other people\u0027s consoles and cannot be switched off by the people who installed the library.",
+      "plain": "Leftover debugging code has to be removed before the change is done.",
+      "appliesTo": [
+        "library"
+      ],
+      "roles": [
+        "developer",
+        "reviewer"
+      ],
+      "severity": "blocking",
+      "overridable": true,
+      "check": "automated",
+      "good": "export function format(value: number) { return value.toFixed(2); }",
+      "bad": "console.log(\u0027rendering\u0027, props);"
+    }
+  ],
+  "checks": [
+    {
+      "id": "no-secrets",
+      "name": "No secrets in code",
+      "kind": "pattern",
+      "command": "",
+      "workingDir": ".",
+      "timeoutSeconds": 600,
+      "rules": [
+        "SEC-001"
+      ],
+      "files": [
+        "**/*.cs",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.js",
+        "**/*.mjs",
+        "**/*.cjs",
+        "**/*.json"
+      ],
+      "forbid": "(?i)(password|secret|api[_-]?key|token|connectionstring)\\s*[=:]\\s*\u0022[^\u0022]{8,}\u0022",
+      "tier": "fast",
+      "requiresEnv": [],
+      "requiresTools": [],
+      "dependsOn": []
+    },
+    {
+      "id": "no-debug-leftovers",
+      "name": "No debugging leftovers",
+      "kind": "pattern",
+      "command": "",
+      "workingDir": ".",
+      "timeoutSeconds": 600,
+      "rules": [
+        "QUAL-001"
+      ],
+      "files": [
+        "UI/**/*.ts",
+        "UI/**/*.tsx",
+        "src/**/*.ts",
+        "src/**/*.tsx"
+      ],
+      "forbid": "console\\.(log|debug)\\(|\\bdebugger\\b",
+      "tier": "fast",
+      "requiresEnv": [],
+      "requiresTools": [],
+      "dependsOn": []
+    },
+    {
+      "id": "lib-typecheck",
+      "name": "Type check (library and tests)",
+      "kind": "command",
+      "command": "npm run type-check",
+      "workingDir": ".",
+      "timeoutSeconds": 600,
+      "rules": [],
+      "files": [],
+      "tier": "fast",
+      "group": "lib",
+      "requiresEnv": [],
+      "requiresTools": [
+        "node",
+        "npm"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "lib-tests",
+      "name": "Tests, with coverage",
+      "kind": "command",
+      "command": "npm run test:coverage",
+      "workingDir": ".",
+      "timeoutSeconds": 600,
+      "rules": [],
+      "files": [],
+      "tier": "full",
+      "group": "lib",
+      "requiresEnv": [],
+      "requiresTools": [
+        "node",
+        "npm"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "lib-build",
+      "name": "Build (CommonJS, ES modules, type definitions)",
+      "kind": "command",
+      "command": "npm run build",
+      "workingDir": ".",
+      "timeoutSeconds": 600,
+      "rules": [],
+      "files": [],
+      "tier": "full",
+      "group": "lib",
+      "requiresEnv": [],
+      "requiresTools": [
+        "node",
+        "npm"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "lib-validate-package",
+      "name": "Package check (attw and publint)",
+      "kind": "command",
+      "command": "npm run validate-package",
+      "workingDir": ".",
+      "timeoutSeconds": 600,
+      "rules": [
+        "LIB-002"
+      ],
+      "files": [],
+      "tier": "full",
+      "group": "lib",
+      "requiresEnv": [],
+      "requiresTools": [
+        "node",
+        "npm"
+      ],
+      "dependsOn": [
+        "lib-build"
+      ]
+    },
+    {
+      "id": "lib-pack",
+      "name": "What would be published",
+      "kind": "command",
+      "command": "npm pack --dry-run",
+      "workingDir": ".",
+      "timeoutSeconds": 600,
+      "rules": [],
+      "files": [],
+      "tier": "full",
+      "group": "lib",
+      "requiresEnv": [],
+      "requiresTools": [
+        "node",
+        "npm"
+      ],
+      "dependsOn": [
+        "lib-build"
+      ]
+    },
+    {
+      "id": "lib-size",
+      "name": "Size budget",
+      "kind": "command",
+      "command": "echo Not set up in this project: The project has no .size-limit.json, so this check has nothing to run. \u0026\u0026 exit 78",
+      "workingDir": ".",
+      "timeoutSeconds": 600,
+      "rules": [
+        "EFF-001"
+      ],
+      "files": [],
+      "tier": "full",
+      "group": "lib",
+      "dependsOn": [
+        "lib-build"
+      ]
+    },
+    {
+      "id": "lib-consumer-smoke",
+      "name": "Install and import the packed library",
+      "kind": "command",
+      "command": "echo Not set up in this project: Nothing installs the packed library into a scratch project and imports it  no scripts/consumer-smoke.mjs . \u0026\u0026 exit 78",
+      "workingDir": ".",
+      "timeoutSeconds": 900,
+      "rules": [
+        "LIB-003",
+        "LIB-004",
+        "LIB-005"
+      ],
+      "files": [],
+      "tier": "full",
+      "group": "lib",
+      "dependsOn": [
+        "lib-build"
+      ]
+    },
+    {
+      "id": "lib-docs",
+      "name": "Documentation is complete",
+      "kind": "command",
+      "command": "echo Not set up in this project: The project has no scripts/check-docs.mjs, so this check has nothing to run. \u0026\u0026 exit 78",
+      "workingDir": ".",
+      "timeoutSeconds": 600,
+      "rules": [
+        "DOC-001"
+      ],
+      "files": [],
+      "tier": "fast",
+      "group": "lib",
+      "dependsOn": []
+    }
+  ],
+  "startup": {
+    "check": "lib-consumer-smoke",
+    "title": "The packed library installs and imports",
+    "ready": "The library was packed, installed into an empty project, and imported under both CommonJS and ES modules, with only the intended files published and React kept out of the bundle.",
+    "blocked": "The packed library does not install or import cleanly, or it would publish files it should not, or it carries its own copy of React. See what the check printed.",
+    "notRun": "The installed-library check could not run here (it is not set up in this project yet, or there is no internet connection to install into a scratch project), so the library has not been proven to work for the people who install it."
+  },
+  "coverage": [
+    {
+      "name": "Library",
+      "path": "coverage/lcov.info",
+      "format": "lcov"
+    }
+  ],
+  "testResults": [
+    {
+      "name": "Library",
+      "path": "test-results/vitest.json",
+      "format": "jest-json"
+    }
+  ],
+  "roleGuidance": {
+    "analyst": "guidance/analyst.md",
+    "architect": "guidance/architect.md",
+    "developer": "guidance/developer.md",
+    "reviewer": "guidance/reviewer.md",
+    "qa": "guidance/qa.md",
+    "security": "guidance/security.md"
+  }
+}

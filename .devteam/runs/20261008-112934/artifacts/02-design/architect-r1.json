@@ -1,0 +1,69 @@
+{
+  "summary": "Add an optional `theme` ('light' | 'dark' | 'system') prop to ResponsiveTable. A new small hook (useResolvedTheme) turns the prop plus the environment into 'light' or 'dark': explicit light/dark wins; 'system' reads matchMedia('(prefers-color-scheme: dark)') and listens for changes; with no prop it reads body.classList.contains('dark') and watches body's class attribute with a MutationObserver. The hook starts from 'light' on the server and on first client render and only switches inside an effect, so there is no hydration mismatch and no window/matchMedia access during render; listeners/observer are cleaned up on unmount. A new thin ThemeRoot wrapper component renders a div carrying a theme class (and data-rt-theme + color-scheme) and is placed around every return path of ResponsiveTable (skeleton, error, main), so the theme is applied purely by changing a class: rows, scroll position and data source are untouched (no refetch, no remount). In CSS, the existing colour variables move from `.responsiveTable` (the <table> element, which mobile cards, spinner, no-data and no-more-data do not sit inside) up to the wrapper scope, light values by default, with a dark override block; hard-coded colours (sorted header, selected row, skeleton + shimmer, spinner track, active row, detail pane tint, sort icons, no-data icon, error panel, filter clear button) are replaced by variables with AA-contrast dark values. Default stays light and existing apps see no visible change. Public API change is additive: the `theme` prop and an exported `ResponsiveTableTheme` type. Minor version bump 0.19.0 -> 0.20.0. No new dependencies; bundle grows only by the dark CSS block and ~40 lines of code. Work does not scale with data: the hook is O(1), runs two listeners per mounted table, and nothing in render touches rows. Per the composition rule, existing behaviour is extended by new files (hook, wrapper, theme CSS module) with only the minimal wiring edit in ResponsiveTable.tsx (wrap returns, read new prop) and CSS variable relocation; existing tests are untouched and a baseline test pass is run first.",
+  "impact": {
+    "touches": [
+      "src/UI/ResponsiveTable.tsx (add `theme` prop to IProps, call useResolvedTheme, wrap the three return paths in ThemeRoot, replace inline error-panel colours with class names, no-data svg fill uses currentColor)",
+      "src/Styles/ResponsiveTable.module.css (move colour variables to the theme scope, add dark override block, replace hard-coded colours with variables, mask/variable-based sort icons, error panel classes)",
+      "src/Styles/LoadingSpinner.module.css (spinner track colour via variable)",
+      "src/Styles/NoMoreDataMessage.module.css (fallbacks stay; values now come from wrapper variables)",
+      "src/Plugins/FilterPlugin.tsx (clear-button colour #666 -> var(--text-color-muted))",
+      "src/index.tsx (export ResponsiveTableTheme type)",
+      "package.json (version 0.19.0 -> 0.20.0 only; no dependency changes)",
+      "CHANGELOG.md, README.md, docs/api.md, docs/features.md, docs/examples.md, docs/configuration.md, docs/development.md, docs/breaking-changes.md (state: no breaking changes), with prev/next links kept"
+    ],
+    "reuses": [
+      "Existing CSS variable names (--table-border-color, --table-header-bg, --card-bg, --text-color, --primary-color, --rt-mobile-*, etc.) so apps overriding them keep working",
+      "Existing CSS Modules setup and rollup-plugin-postcss injection (consumers import no CSS)",
+      "Existing Jest + jsdom + React Testing Library setup, jest-setup.ts and identity-obj-proxy for tests, and the co-located *.test.tsx convention",
+      "Existing Hooks/ folder pattern (useResponsiveTable) for the new hook",
+      "Existing peer-deps-external rollup config (no change to the build)"
+    ],
+    "adds": [
+      "src/Hooks/useResolvedTheme.ts - resolves theme prop + body.dark + matchMedia to 'light' | 'dark' (SSR-safe, cleans up listeners)",
+      "src/UI/ThemeRoot.tsx - thin wrapper div applying the theme class, data-rt-theme and color-scheme",
+      "src/Styles/Theme.module.css - light and dark variable blocks scoped to the wrapper",
+      "src/Data/ResponsiveTableTheme.ts - exported union type 'light' | 'dark' | 'system'",
+      "tests: src/Hooks/useResolvedTheme.test.ts, src/UI/ResponsiveTable.theme.test.tsx (prop values, body.dark fallback, live updates, SSR render without window/matchMedia and without console errors, no data-source recall or remount on theme switch)",
+      "docs/theming.md is NOT added; theming is documented in the existing pages to keep the page chain intact"
+    ]
+  },
+  "scope": [
+    "src/UI/ResponsiveTable.tsx",
+    "src/UI/ThemeRoot.tsx",
+    "src/UI/ResponsiveTable.theme.test.tsx",
+    "src/Hooks/useResolvedTheme.ts",
+    "src/Hooks/useResolvedTheme.test.ts",
+    "src/Data/ResponsiveTableTheme.ts",
+    "src/Styles/ResponsiveTable.module.css",
+    "src/Styles/Theme.module.css",
+    "src/Styles/LoadingSpinner.module.css",
+    "src/Styles/NoMoreDataMessage.module.css",
+    "src/Plugins/FilterPlugin.tsx",
+    "src/index.tsx",
+    "package.json",
+    "CHANGELOG.md",
+    "README.md",
+    "docs/api.md",
+    "docs/features.md",
+    "docs/examples.md",
+    "docs/configuration.md",
+    "docs/development.md",
+    "docs/breaking-changes.md"
+  ],
+  "components": [
+    { "name": "ResponsiveTableTheme (type)", "path": "src/Data/ResponsiveTableTheme.ts", "requirements": ["R1", "R4"] },
+    { "name": "useResolvedTheme", "path": "src/Hooks/useResolvedTheme.ts", "requirements": ["R1", "R2"] },
+    { "name": "useResolvedTheme tests", "path": "src/Hooks/useResolvedTheme.test.ts", "requirements": ["R1", "R2"] },
+    { "name": "ThemeRoot", "path": "src/UI/ThemeRoot.tsx", "requirements": ["R1", "R2", "R3"] },
+    { "name": "ResponsiveTable (theme prop + wrapping)", "path": "src/UI/ResponsiveTable.tsx", "requirements": ["R1", "R2", "R3", "R4"] },
+    { "name": "Theme variables (light + dark)", "path": "src/Styles/Theme.module.css", "requirements": ["R1", "R2", "R3"] },
+    { "name": "ResponsiveTable styles (variables replace hard-coded colours)", "path": "src/Styles/ResponsiveTable.module.css", "requirements": ["R3"] },
+    { "name": "LoadingSpinner styles", "path": "src/Styles/LoadingSpinner.module.css", "requirements": ["R3"] },
+    { "name": "NoMoreDataMessage styles", "path": "src/Styles/NoMoreDataMessage.module.css", "requirements": ["R3"] },
+    { "name": "FilterPlugin clear button colour", "path": "src/Plugins/FilterPlugin.tsx", "requirements": ["R3"] },
+    { "name": "Public export of ResponsiveTableTheme", "path": "src/index.tsx", "requirements": ["R4"] },
+    { "name": "Theme behaviour tests", "path": "src/UI/ResponsiveTable.theme.test.tsx", "requirements": ["R1", "R2", "R3", "R4"] },
+    { "name": "Version bump 0.20.0", "path": "package.json", "requirements": ["R4"] },
+    { "name": "Docs: README, api, features, examples, configuration, development, breaking-changes, CHANGELOG", "path": "docs/*.md", "requirements": ["R4"] }
+  ]
+}

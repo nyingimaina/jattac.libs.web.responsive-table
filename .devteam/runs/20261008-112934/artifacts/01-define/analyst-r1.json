@@ -1,0 +1,28 @@
+{
+  "summary": "",
+  "requirements": [],
+  "questions": [],
+  "ask": {
+    "text": "How should the app that uses the table tell it which look to use? ZestTabs just follows a 'dark' class that the app puts on the page (body.dark) and has no setting of its own. For the table, do you want that same approach, a setting you pass to the table (for example theme=\"dark\" | \"light\" | \"system\"), or both?",
+    "why": "It decides whether the table gets a new public setting (and how apps with several tables can differ) or only reacts to something the app already does, and it decides how 'system' (follow the device's light/dark choice) is expressed.",
+    "topic": "users",
+    "options": [
+      { "label": "Both: a theme setting on the table, and when it is not given the table follows body.dark like ZestTabs", "consequence": "Apps can force one table dark/light/system, and apps that already toggle body.dark work with no code change. Existing users see no change unless they opt in.", "recommended": true },
+      { "label": "Only a theme setting on the table (light, dark, system)", "consequence": "Clear and explicit, but apps that already toggle body.dark must pass the setting to every table." },
+      { "label": "Only follow body.dark like ZestTabs (no setting)", "consequence": "Matches ZestTabs exactly, but there is no 'system' mode unless the app itself sets body.dark from the device preference." }
+    ]
+  },
+  "coverage": [
+    { "topic": "users", "status": "open", "note": "Control mechanism for the owner app not yet decided." },
+    { "topic": "data", "status": "assumed", "note": "No data stored by the library; theme choice is a prop/page state owned by the app." },
+    { "topic": "permissions", "status": "not-applicable", "note": "Presentation-only change; no records or ownership." },
+    { "topic": "validation", "status": "assumed", "note": "Unknown theme value falls back to the default; to be written up after the mechanism is chosen." },
+    { "topic": "states", "status": "assumed", "note": "Loading skeleton, empty, no-more-data, spinner and detail rows must follow the active theme." },
+    { "topic": "duplicates", "status": "not-applicable", "note": "No submissions or shared edits." },
+    { "topic": "volume", "status": "not-applicable", "note": "Styling only; no change to row counts, sorting or paging." },
+    { "topic": "deletion", "status": "not-applicable", "note": "Nothing is deleted." },
+    { "topic": "privacy", "status": "not-applicable", "note": "No personal data; the library must not store the theme choice itself." },
+    { "topic": "quality", "status": "assumed", "note": "Accessible contrast in both themes, no flash of wrong theme in Next.js, no bundle growth beyond CSS." }
+  ],
+  "assumptions": []
+}

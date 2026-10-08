@@ -1,0 +1,25 @@
+{
+  "checks": [
+    {
+      "name": "No native button (use zest-button)",
+      "kind": "pattern",
+      "files": ["src/**/*.tsx"],
+      "forbid": "<button[\\s>/]"
+    },
+    {
+      "name": "No native text input or textarea (use zest-textbox, zest-file-upload)",
+      "kind": "pattern",
+      "files": ["src/**/*.tsx"],
+      "forbid": "<(input|textarea)[\\s>/]"
+    },
+    {
+      "name": "No competing table, tabs, upload or UI-kit imports",
+      "kind": "pattern",
+      "files": ["src/**/*.ts", "src/**/*.tsx"],
+      "forbid": "from\\s+['\"](react-table|@tanstack/react-table|ag-grid-react|react-dropzone|react-tabs|@mui/material|@mui/x-data-grid|antd|react-bootstrap)(/[^'\"]*)?['\"]"
+    }
+  ],
+  "good": "import { ZestButton } from 'jattac.libs.web.zest-button';\n\nexport const Save = () => <ZestButton onClick={save}>Save</ZestButton>;",
+  "bad": "import { useTable } from 'react-table';\n\nexport const Save = () => <button onClick={save}>Save</button>;\nexport const Name = () => <input type=\"text\" />;",
+  "cannotTest": "Whether a custom-built component (e.g. a div acting as a tabs bar, side menu, overflow menu, responsive layout, or hand-written polling with setInterval) duplicates one of the listed libraries needs a reviewer. Also cannot be checked: that the listed packages are actually installed, and that a native element is used only where no listed library covers its function. Note this repo is itself the responsive-table library, so the table's own internals are a reviewer judgment."
+}
