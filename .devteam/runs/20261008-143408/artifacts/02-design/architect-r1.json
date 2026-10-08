@@ -1,0 +1,48 @@
+{
+  "summary": "The build itself (rollup -c) and type-check already pass on this tree; the only reproducible publish-gate failure is `npm run validate-package` (attw --pack . && publint), which reports the ESM entry as attw FalseCJS (\"Masquerading as CJS\") and one publint warning about the exports map. I reproduced this and confirmed the exact fix in a throwaway copy of the package. The change stays entirely inside the existing Rollup + package.json packaging definition, adds no runtime code and touches no component, prop or render output. Fix: (1) package.json exports are split so the import and require conditions each carry their own `types`: `./dist/index.d.mts` for import and the existing `./dist/index.d.ts` for require (types first in each branch), and no top-level `types` condition is left on the exports entry; the dead `./dist/*.css` subpath export (CSS is inlined via postcss extract:false, so no CSS files exist and publint warns it matches nothing) is removed; `\"type\": \"commonjs\"` is added so the `.js`/`.d.ts` CommonJS interpretation is explicit. Top-level `main`/`module`/`types` are kept unchanged, and `dist/index.js` (CJS) plus `dist/index.mjs` (ESM) keep their names, so R1's stated outputs are preserved. (2) rollup.config.js gains a tiny inline `esmTypes` plugin (no new dependency, no new file) run in `writeBundle` that reads the emitted `dist/index.d.ts` and writes `dist/index.d.mts` with every relative import/export specifier suffixed with `.js` (so `./Data/X` becomes `./Data/X.js`, which NodeNext resolves to `./Data/X.d.ts`); without the suffix attw reports InternalResolutionError on the .d.mts. The same plugin adds a `\"use client\";` banner to both outputs, satisfying LIB-005 / the stack's stated package output and needed for Next.js App Router consumers. Verified end to end in the temp copy: with the split exports, the generated .d.mts and the banner the run gives attw no problems (node16 from CJS green, node16 from ESM green, no FalseCJS) and publint with no warnings (only a pre-existing repository.url suggestion). No new dependencies, no version bump and no breaking change: no UI/index.ts export, prop or type changes, and the library renders identically. Scale and cost: build-time only, one extra file read/regex/write over a ~13-line declaration file, no runtime work, no bundle-size change beyond the ~14-byte directive; the generated .d.mts and dist remain gitignored build output. No new data paths, no state, no listeners, so EFF-002 and EFF-001 are unaffected; there is no .size-limit.json, which stays out of scope.",
+  "impact": {
+    "touches": [
+      "package.json (exports map split into import/require types conditions; remove dead ./dist/*.css subpath export; add type: commonjs)",
+      "rollup.config.js (inline esmTypes plugin: emit dist/index.d.mts with .js-extensioned relative specifiers; add use client banner to both outputs)"
+    ],
+    "reuses": [
+      "Existing dual Rollup output dist/index.js (CJS) and dist/index.mjs (ESM)",
+      "Existing @rollup/plugin-typescript declaration emission (dist/index.d.ts and its tree)",
+      "Existing npm run validate-package (attw --pack . && publint) and its installed devDependencies",
+      "Existing Build.test.ts pattern (execSync npm run build from a clean state under @jest-environment node)"
+    ],
+    "adds": [
+      "dist/index.d.mts (generated at build time, gitignored, not committed)",
+      "the esmTypes inline Rollup plugin inside the existing rollup.config.js",
+      "src/Package.test.ts: an R2 test that runs npm run build then npm run validate-package and asserts exit 0 and attw output has no FalseCJS"
+    ]
+  },
+  "scope": [
+    "package.json",
+    "rollup.config.js",
+    "src/Build.test.ts",
+    "src/Package.test.ts"
+  ],
+  "components": [
+    {
+      "name": "PackageExports",
+      "path": "package.json",
+      "requirements": ["R1", "R2"]
+    },
+    {
+      "name": "RollupBuildConfig",
+      "path": "rollup.config.js",
+      "requirements": ["R1", "R2"]
+    },
+    {
+      "name": "BuildTests",
+      "path": "src/Build.test.ts",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "PackageValidationTests",
+      "path": "src/Package.test.ts",
+      "requirements": ["R2"]
+    }
+  ]
+}

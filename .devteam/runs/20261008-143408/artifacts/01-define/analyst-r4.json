@@ -1,0 +1,126 @@
+{
+  "summary": "The builder reported that `npm run build` still fails, but the referenced npm debug log does not exist on this machine. On the current working tree `npm run build` (rollup -c), `npm run type-check` and `npm test` all pass and produce dist/index.js and dist/index.mjs, including the already-decided light/dark/system theme work. The one publish gate that actually fails is `npm run validate-package` (attw --pack . && publint): attw reports the ESM entry as \"Masquerading as CJS\" (FalseCJS), which stops `npm publish`, and the library source still carries three debug `console.log` leftovers in `src/Plugins/SortPlugin.ts` that the challenge reviewer treats as a blocking publish gate. The requirement is therefore to make the library publishable from a clean state: the build must finish green from a clean state, the package must pass its publish checks, and no debug output may remain in the library source, with no new product behaviour. The builder has reviewed and approved these requirements as they stand.",
+  "roles": [
+    "Library maintainer: runs `npm run build` and `npm run validate-package` to produce and publish the package to npm",
+    "Library consumer (developer who installs the package): receives built JavaScript and type declarations that resolve correctly for both `import` and `require`"
+  ],
+  "requirements": [
+    {
+      "id": "R1",
+      "text": "Running `npm run build` in the library root from a clean state (the dist folder deleted) finishes with exit code 0 and produces dist/index.js, dist/index.mjs and the TypeScript declaration files, with no errors.",
+      "rationale": "The builder reported a failing build, and a library that cannot be built cannot be published. Every other change, including the already-approved light/dark/system theme work, is blocked until the build is reliably green.",
+      "acceptance": [
+        "From a clean checkout (dist removed, dependencies installed), `npm run build` exits with code 0",
+        "dist/index.js and dist/index.mjs exist after the build",
+        "`npm run type-check` exits with code 0",
+        "`npm test` still passes after any change made to fix the build"
+      ],
+      "edgeCases": [
+        "The build must pass from a clean state (dist deleted), not only when an old dist folder is already present",
+        "If a build error can only be reproduced under conditions other than the current tree, for example a different Node version, the error message and cause must be recorded rather than the build declared fixed without evidence",
+        "The theme feature's CSS and TypeScript changes must not introduce build or type errors"
+      ],
+      "pitfalls": [
+        "Fixing the build must not remove or change any exported component, prop or type",
+        "The build must not be made to pass by disabling checks, type-checking or tests"
+      ],
+      "rules": ["LIB-001"]
+    },
+    {
+      "id": "R2",
+      "text": "Running `npm run validate-package` (attw --pack . && publint) finishes with exit code 0 for the packaged library, with TypeScript able to resolve correct declaration kinds for both `import` and `require` consumers and no entry reported as masquerading as another module kind.",
+      "rationale": "This is the check that actually fails today and the step that runs before publishing (`prepublishOnly`), so a developer still cannot publish even though `npm run build` passes. attw currently reports node16 (from ESM): \"Masquerading as CJS\" (FalseCJS) for the main entry, meaning an ESM import resolves the type declaration as CommonJS while the JavaScript is ESM.",
+      "acceptance": [
+        "`npm run validate-package` exits with code 0",
+        "For the `jattac.libs.web.responsive-table` entry, attw reports node16 (from ESM) and node16 (from CJS) both green (no \"Masquerading as CJS\")",
+        "`publint` reports no problems",
+        "The check stays green when run against an output built fresh from a clean state (dist deleted first)"
+      ],
+      "edgeCases": [
+        "The check must pass on a freshly built package, not only against a previously built dist folder",
+        "A fix for the ESM resolution must not regress the CommonJS entry (node16 from CJS must stay green)",
+        "The check must pass in CI as well as locally, where the working tree may start with no dist folder"
+      ],
+      "pitfalls": [
+        "Do not silence attw with ignore flags or by dropping the ESM build; that would hide a real consumer-facing problem rather than fix it",
+        "Do not change or remove any public export, prop or type to make the check pass",
+        "Do not pin or downgrade dependencies merely to dodge the check"
+      ],
+      "rules": ["LIB-001"]
+    },
+    {
+      "id": "R3",
+      "text": "The library source contains no debug output: the three `console.log` statements in `src/Plugins/SortPlugin.ts` (in the sortable-header click handler) are removed, and after the change a search of `src` for `console.log` and `debugger` finds no matches. Legitimate diagnostics that are not debug leftovers, such as the existing `console.warn` about a custom sortComparer, may stay.",
+      "rationale": "The project's blocking 'no debugging leftovers' publish gate applies to the whole library source, not only to files a change happens to touch, and the challenge reviewer confirmed run 20261008-135042 already failed the automated check on exactly these three lines. A published package must not log debug output, and the previous round could not remove them because the file was outside the declared change scope; naming the file here makes its removal part of the work rather than a scope violation.",
+      "acceptance": [
+        "A search of `src` for the literal `console.log` returns no matches",
+        "A search of `src` for `debugger` returns no matches",
+        "The legitimate `console.warn` in `src/Plugins/SortPlugin.ts` (custom sortComparer arity) is retained",
+        "`npm run build`, `npm run type-check` and `npm test` all still exit with code 0 after the removal",
+        "Removing the logs does not change sorting behaviour: clicking a sortable header still cycles the sort direction and clicking an interactive element inside a header still does not sort"
+      ],
+      "edgeCases": [
+        "Removing the log lines must not also remove the surrounding interactive-element guard (`target.closest('input, button, a, [onclick]')`) or the early return it controls: only the console output is deleted, the condition and the sorting logic stay identical",
+        "No existing test may depend on console output being produced; if one does, its expectation is corrected rather than the removal reverted",
+        "No new `console.log` or `debugger` may be added anywhere in `src` while fixing the build or the package exports"
+      ],
+      "pitfalls": [
+        "Do not satisfy the gate by disabling lint rules, adding ignore comments, or relaxing the check; the debug statements themselves must be gone",
+        "Do not change the SortPlugin's public API, its exports, its options type or its sorting behaviour while deleting the logs",
+        "Do not touch unrelated files: only the debug statements in `src/Plugins/SortPlugin.ts` are in scope for this cleanup"
+      ],
+      "rules": []
+    }
+  ],
+  "outOfScope": [
+    "Any new feature or visual change",
+    "Creating missing scaffolding such as .size-limit.json, scripts/check-docs.mjs or scripts/consumer-smoke.mjs",
+    "Upgrading dependencies beyond what is needed to make the build and package checks pass",
+    "Changing the library's public API, exports or rendered output",
+    "Refactoring or replacing other, legitimate diagnostics such as the existing console.warn in SortPlugin.ts",
+    "Excluding pre-existing *.test.d.ts files from the published dist (LIB-003 advisory from round 1; pre-existing and not required to publish)"
+  ],
+  "nonFunctional": [
+    {
+      "area": "reliability",
+      "statement": "The build and package check give the same result on repeated runs from a clean state.",
+      "acceptance": "Running `npm run build` then `npm run validate-package` twice in a row, deleting dist before the first run, exits with code 0 both times."
+    },
+    {
+      "area": "maintainability",
+      "statement": "The published library source is free of debug output.",
+      "acceptance": "A search of `src` for `console.log` and `debugger` returns no matches after the change."
+    }
+  ],
+  "risks": [
+    "The reported npm debug log does not exist on this machine, so the original failure message cannot be read; the reproducible failing publish checks are `npm run validate-package` (attw FalseCJS) and the blocking no-debug-leftovers gate on the three SortPlugin console.log lines.",
+    "The automated no-debug-leftovers check is diff-based and only fails on files a change touches, while the challenge reviewer applies it to the whole source; unless `src/Plugins/SortPlugin.ts` is inside the declared change scope the two cannot be satisfied at once (SCOPE-001 versus the debug gate). This revision widens the scope to resolve that conflict.",
+    "If the builder instead chooses to leave the debug leftovers and accept the violation, the library stays unpublishable, contradicting the request; the chosen resolution is therefore to remove them.",
+    "A narrow fix to the ESM declaration resolution could regress the CommonJS entry if both are not verified."
+  ],
+  "glossary": [
+    "Build: `rollup -c`, which bundles src/index.tsx into dist/index.js and dist/index.mjs.",
+    "validate-package: `attw --pack . && publint`, run by `prepublishOnly`; attw checks how the published package's JavaScript and type declarations resolve for common consumers.",
+    "Masquerading as CJS (FalseCJS): attw's report that an ESM import resolves to a CommonJS-style type declaration while the runtime JavaScript is ESM.",
+    "Debug leftovers: `console.log` or `debugger` statements left in the library source after development; the project's blocking gate forbids them because they would ship to consumers."
+  ],
+  "questions": [],
+  "coverage": [
+    { "topic": "users", "status": "answered", "note": "Library maintainer runs the build and publish checks; developers who install the package are the consumers. The request comes from the builder." },
+    { "topic": "data", "status": "not-applicable", "note": "No data is stored; this is a build/packaging and source-hygiene fix." },
+    { "topic": "permissions", "status": "not-applicable", "note": "No records or access control involved." },
+    { "topic": "validation", "status": "not-applicable", "note": "No end-user input; the only validation is the package and no-debug checks themselves, covered by R2 and R3." },
+    { "topic": "states", "status": "assumed", "note": "The only states are each check succeeding or failing with a readable error." },
+    { "topic": "duplicates", "status": "not-applicable", "note": "No submissions or shared records." },
+    { "topic": "volume", "status": "not-applicable", "note": "No data volume involved." },
+    { "topic": "deletion", "status": "not-applicable", "note": "Nothing is deleted by users; dist is removed only to prove a clean build, and the debug statements are deleted from source under R3." },
+    { "topic": "privacy", "status": "not-applicable", "note": "No personal or sensitive data involved." },
+    { "topic": "quality", "status": "assumed", "note": "Build and package checks are repeatable from a clean state, types resolve for both module systems, and no debug output ships in the source (R1, R2, R3)." }
+  ],
+  "assumptions": [
+    "The builder's \"npm run build still failing\" refers to the publish pipeline, whose reproducible failing steps are `npm run validate-package` (attw FalseCJS) and the blocking no-debug-leftovers gate; `npm run build` itself exits 0 today.",
+    "Success means `npm run build`, `npm run type-check`, `npm test` and `npm run validate-package` all exit 0 from a clean state and no debug leftovers remain, not a size budget or docs check, since the project has no scripts for those.",
+    "The scope conflict is resolved by widening the change's declared scope to include `src/Plugins/SortPlugin.ts` and removing the three debug console.log lines (R3), rather than having the builder accept a blocking violation that would leave the library unpublishable.",
+    "The already-decided light/dark/system theme work stays as it is; this change only makes the build and package checks green and removes the debug leftovers, without altering its behaviour."
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 0,
+  "runId": "20261008-143408",
+  "at": "2026-10-08T15:59:28.1645269+00:00",
+  "status": "Completed",
+  "feature": "npm run build still failing. See log file C:\\Users\\nying\\AppData\\Local\\npm-cache\\_logs\\2026-10-08T14_32_04_544Z-debug-0.log",
+  "testsReported": 10,
+  "checksPassed": 11,
+  "checksTotal": 14,
+  "checksNotRun": 3,
+  "bootPassed": 0,
+  "bootTotal": 0,
+  "findingsOpen": 0,
+  "findingsAdvisory": 4,
+  "findingsFixed": 3,
+  "requirementsTotal": 3,
+  "requirementsWithTests": 3,
+  "costUsd": 0.25209739200000003,
+  "seconds": 5119.9900067,
+  "coverage": [
+    {
+      "name": "Library",
+      "linePercent": 82.3,
+      "branchPercent": 69.6,
+      "changedLinePercent": 53.8,
+      "filesCovered": 19,
+      "functionPercent": 72
+    }
+  ],
+  "testsExecuted": 0,
+  "testsFailed": 0,
+  "testsSkipped": 0,
+  "verification": false
+}

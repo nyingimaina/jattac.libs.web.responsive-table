@@ -1,0 +1,65 @@
+{
+  "summary": "Revision of architect-r1: the same build/publish fix, now widened to also satisfy R3 (no debug output in the library source), which the round-1 scope could not cover. On this tree the build itself (rollup -c) and type-check already pass; the reproducible publish-gate failures are (a) `npm run validate-package` (attw --pack . && publint), which reports the ESM entry as attw FalseCJS (\"Masquerading as CJS\"), and (b) the blocking no-debug-leftovers gate on the three console.log statements in the sortable-header click handler of `src/Plugins/SortPlugin.ts`. R3 is now explicitly in scope so both can be fixed in one change; the automated gate is diff-based and only inspects files a change touches, so `src/Plugins/SortPlugin.ts` must be inside scope or the gate would fail on exactly the file that holds the leftovers. Fix, unchanged from round 1 for the packaging part: (1) `package.json` exports are split so the import and require conditions each carry their own `types`: `./dist/index.d.mts` for import and the existing `./dist/index.d.ts` for require (types first in each branch), with no top-level `types` condition left on the exports entry; the dead `./dist/*.css` subpath export is removed (CSS is inlined via postcss extract:false, so publint warns it matches nothing); `\"type\": \"commonjs\"` is added. Top-level `main`/`module`/`types` stay unchanged and `dist/index.js` (CJS) plus `dist/index.mjs` (ESM) keep their names, so R1's stated outputs are preserved. (2) `rollup.config.js` keeps its inline `esmTypes` plugin (no new dependency, no new file) that in `writeBundle` writes `dist/index.d.mts` from the emitted `dist/index.d.ts` with every relative specifier suffixed `.js` (so `./Data/X` resolves to `./Data/X.d.ts` under NodeNext; without the suffix attw reports InternalResolutionError on the .d.mts), and adds the `\"use client\";` banner to both outputs (LIB-005, needed for Next.js App Router consumers). (3) New to round 2: the three `console.log` calls in `SortPlugin.getHeaderProps`'s `onHeaderClick` are removed while the surrounding interactive-element guard (`target.closest('input, button, a, [onclick]')`) and its early return, the sort-column/direction cycling logic, the `aria-sort` and class names, and the legitimate `console.warn` about a custom sortComparer all stay byte-for-byte in behaviour. Only the console output is deleted; nothing else in the class changes. A regression test for the click handler is added so the removal is proven not to change sorting. Verified end to end in the round-1 throwaway copy: split exports + generated .d.mts + banner give attw no problems (node16 from CJS green, node16 from ESM green, no FalseCJS) and publint no problems. No new dependencies, no version bump and no breaking change: no UI/index.ts export, prop or type changes, and the library renders and sorts identically. Scale and resource cost: this is build-time and source hygiene only. The packaging fix costs one extra file read/regex/write over a short declaration file and adds no runtime work, no state, no listeners and no bundle-size change beyond the ~14-byte directive; removing three console.log calls strictly removes work on every header click. There is no data-volume path here, so EFF-002 does not apply and EFF-001 is unaffected (there is no .size-limit.json and one is not created). The generated dist and dist/index.d.mts remain gitignored build output.",
+  "impact": {
+    "touches": [
+      "package.json (exports map split into import/require types conditions; remove dead ./dist/*.css subpath export; add type: commonjs)",
+      "rollup.config.js (inline esmTypes plugin: emit dist/index.d.mts with .js-extensioned relative specifiers; add use client banner to both outputs)",
+      "src/Build.test.ts (R1 build/type-check/export tests against a clean dist)",
+      "src/Package.test.ts (R2 validate-package test against a fresh build)",
+      "src/Plugins/SortPlugin.ts (remove the three console.log debug leftovers in the header click handler; no other change)"
+    ],
+    "reuses": [
+      "Existing dual Rollup output dist/index.js (CJS) and dist/index.mjs (ESM)",
+      "Existing @rollup/plugin-typescript declaration emission (dist/index.d.ts and its tree)",
+      "Existing npm run validate-package (attw --pack . && publint) and its installed devDependencies",
+      "Existing SortPlugin class, its createSortComparers helpers, IResponsiveTablePlugin/IPluginAPI contract and the forceUpdate flow",
+      "Existing jest + ts-jest setup and the colocated *.test.ts convention already used in src (e.g. src/Hooks/*.test.ts)"
+    ],
+    "adds": [
+      "dist/index.d.mts (generated at build time, gitignored, not committed)",
+      "the esmTypes inline Rollup plugin inside the existing rollup.config.js",
+      "src/Package.test.ts: an R2 test that builds clean then runs npm run validate-package and asserts exit 0 with no attw FalseCJS",
+      "src/Plugins/SortPlugin.test.ts: an R3 regression test that clicking a sortable header cycles asc/desc/none, clicking an interactive element inside it does not sort, and the handler emits no console output"
+    ]
+  },
+  "scope": [
+    "package.json",
+    "rollup.config.js",
+    "src/Build.test.ts",
+    "src/Package.test.ts",
+    "src/Plugins/SortPlugin.ts",
+    "src/Plugins/SortPlugin.test.ts"
+  ],
+  "components": [
+    {
+      "name": "PackageExports",
+      "path": "package.json",
+      "requirements": ["R1", "R2"]
+    },
+    {
+      "name": "RollupBuildConfig",
+      "path": "rollup.config.js",
+      "requirements": ["R1", "R2"]
+    },
+    {
+      "name": "BuildTests",
+      "path": "src/Build.test.ts",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "PackageValidationTests",
+      "path": "src/Package.test.ts",
+      "requirements": ["R2"]
+    },
+    {
+      "name": "SortPlugin",
+      "path": "src/Plugins/SortPlugin.ts",
+      "requirements": ["R3"]
+    },
+    {
+      "name": "SortPluginTests",
+      "path": "src/Plugins/SortPlugin.test.ts",
+      "requirements": ["R3"]
+    }
+  ]
+}

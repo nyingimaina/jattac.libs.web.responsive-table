@@ -1,0 +1,103 @@
+{
+  "checks": [
+    {
+      "id": "no-secrets",
+      "name": "No secrets in code",
+      "status": "passed",
+      "seconds": 0.0699488,
+      "output": ""
+    },
+    {
+      "id": "no-debug-leftovers",
+      "name": "No debugging leftovers",
+      "status": "passed",
+      "seconds": 0.0411338,
+      "output": ""
+    },
+    {
+      "id": "lib-typecheck",
+      "name": "Type check (library and tests)",
+      "status": "passed",
+      "seconds": 6.2673217,
+      "output": ""
+    },
+    {
+      "id": "lib-build",
+      "name": "Build (CommonJS, ES modules, type definitions)",
+      "status": "passed",
+      "seconds": 10.0334229,
+      "output": ""
+    },
+    {
+      "id": "lib-validate-package",
+      "name": "Package check (attw and publint)",
+      "status": "passed",
+      "seconds": 25.6670231,
+      "output": ""
+    },
+    {
+      "id": "lib-pack",
+      "name": "What would be published",
+      "status": "passed",
+      "seconds": 12.8054478,
+      "output": ""
+    },
+    {
+      "id": "lib-size",
+      "name": "Size budget",
+      "status": "notrun",
+      "seconds": 0.1699293,
+      "output": "Not set up in this project: The project has no .size-limit.json, so this check has nothing to run."
+    },
+    {
+      "id": "lib-consumer-smoke",
+      "name": "Install and import the packed library",
+      "status": "notrun",
+      "seconds": 0.146412,
+      "output": "Not set up in this project: Nothing installs the packed library into a scratch project and imports it  no scripts/consumer-smoke.mjs ."
+    },
+    {
+      "id": "lib-docs",
+      "name": "Documentation is complete",
+      "status": "notrun",
+      "seconds": 0.2199846,
+      "output": "Not set up in this project: The project has no scripts/check-docs.mjs, so this check has nothing to run."
+    },
+    {
+      "id": "rule-USR-001-1",
+      "name": "No native button (use zest-button)",
+      "status": "passed",
+      "seconds": 0.0309337,
+      "output": ""
+    },
+    {
+      "id": "rule-USR-001-2",
+      "name": "No native textarea (use zest-textbox)",
+      "status": "passed",
+      "seconds": 0.0377851,
+      "output": ""
+    },
+    {
+      "id": "rule-USR-001-3",
+      "name": "No native text input (use zest-textbox)",
+      "status": "passed",
+      "seconds": 0.028846,
+      "output": ""
+    },
+    {
+      "id": "rule-USR-001-4",
+      "name": "No native file input (use zest-file-upload)",
+      "status": "passed",
+      "seconds": 0.0476572,
+      "output": ""
+    },
+    {
+      "id": "lib-tests",
+      "name": "Tests, with coverage",
+      "status": "passed",
+      "seconds": 85.6401636,
+      "output": ""
+    }
+  ],
+  "tests": []
+}

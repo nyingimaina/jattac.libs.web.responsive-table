@@ -1,0 +1,10 @@
+{
+  "findings": [],
+  "verifications": [
+    {
+      "id": "REV-1",
+      "status": "fixed",
+      "evidence": "The three debug leftovers are gone from the sortable-header click handler in src/Plugins/SortPlugin.ts (git diff: console.log lines at old 120/123/127 removed; current file lines 118-137 contain only the target.closest('input, button, a, [onclick]') guard, its early return and the unchanged sorting logic). A search of src for console\\.(log|debug)|debugger returns no matches. The legitimate console.warn (custom sortComparer arity) at src/Plugins/SortPlugin.ts:78 is retained per R3. Verified independently: `npm run build` exits 0 (dist/index.js + dist/index.mjs, banner '\"use client\";'), `npm run type-check` exits 0, `npm run validate-package` exits 0 with attw reporting node10/node16(CJS)/node16(ESM)/bundler all green and no FalseCJS, and `npx jest src/Plugins/SortPlugin.test.ts` passes 3/3."
+    }
+  ]
+}

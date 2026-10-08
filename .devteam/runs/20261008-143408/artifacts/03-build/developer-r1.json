@@ -1,0 +1,41 @@
+{
+  "summary": "Made the library publishable from a clean state without touching any runtime/component code or public surface. (1) package.json: the exports map is split so each condition carries its own types - import -> { types: ./dist/index.d.mts, default: ./dist/index.mjs } and require -> { types: ./dist/index.d.ts, default: ./dist/index.js }, with types first and no top-level types condition; the dead ./dist/*.css subpath export (CSS is inlined via postcss extract:false) was removed; \"type\": \"commonjs\" was added; main/module/types are unchanged. (2) rollup.config.js: added a tiny inline esmTypes plugin (no new dependency, no new file) whose writeBundle hook reads the emitted dist/index.d.ts and writes dist/index.d.mts with every relative import/export specifier suffixed with .js (so ./Data/X becomes ./Data/X.js, which NodeNext resolves to ./Data/X.d.ts), and added the \"use client\"; banner to both CJS and ESM outputs (LIB-005). Result: npm run build, npm run type-check, npm test and npm run validate-package all exit 0 from a clean state; attw now reports no problems (node10 green, node16 from CJS green (CJS), node16 from ESM green (ESM), no FalseCJS) and publint reports no warnings (only a pre-existing pkg.repository.url suggestion). No UI/index.ts export, prop or type changed, no dependency was added/upgraded/pinned, and no check was disabled. Also set jest maxWorkers to 1 in package.json so the two suites that rebuild the shared dist folder (Build.test.ts, Package.test.ts) cannot race under Jest's default parallel test-file execution - this serves the reliability non-functional requirement (same result on repeated clean-state runs; verified build+validate both exit 0 twice in a row after deleting dist). Note: a pre-existing QUAL-001 issue (console.log at src/Plugins/SortPlugin.ts:120,123,127) exists on this tree but is outside the design scope, so it was left untouched.",
+  "tests": [
+    {
+      "name": "R1: npm run build exits 0 from a clean state (dist deleted) and emits index.js and index.mjs",
+      "file": "src/Build.test.ts",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: npm run build gives the same result when run a second time in a row",
+      "file": "src/Build.test.ts",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: the build emits declarations and keeps every public export",
+      "file": "src/Build.test.ts",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: npm run type-check exits 0 with the theme changes in place",
+      "file": "src/Build.test.ts",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R2: validate-package exits 0 against a package built fresh from a clean state",
+      "file": "src/Package.test.ts",
+      "requirements": ["R2"]
+    },
+    {
+      "name": "R2: attw reports no entry masquerading as another module kind (no FalseCJS)",
+      "file": "src/Package.test.ts",
+      "requirements": ["R2"]
+    },
+    {
+      "name": "R2: the ESM declaration fix does not regress the CommonJS entry",
+      "file": "src/Package.test.ts",
+      "requirements": ["R2"]
+    }
+  ],
+  "kickbacks": []
+}

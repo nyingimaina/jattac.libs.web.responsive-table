@@ -1,0 +1,47 @@
+{
+  "summary": "Revision 3: the two remaining in-scope findings are fixed, but the third (REV-1) cannot be fixed without breaking SCOPE-001, so this is a requirements kickback. (1) CHK-no-debug-leftovers: the only thing the automated 'No debugging leftovers' check actually flagged was src/Build.test.ts itself - the guard test's own human-readable title and its detection regex literal contained the forbidden substrings. That redundant guard test (added in round 2, it merely duplicates the engine's own QUAL-001 check) and its collectSourceFiles helper/unused fs imports were removed, so no file this change touches now contains console.log/console.debug/debugger. (2) SCOPE: src/Plugins/SortPlugin.ts was reverted to HEAD so the change set is exactly the design scope (package.json, rollup.config.js, src/Build.test.ts, src/Package.test.ts). (3) REV-1 remains genuinely unsatisfiable: it requires deleting three pre-existing console.log calls inside src/Plugins/SortPlugin.ts, a file that is NOT in the design's declared scope, while SCOPE-001 forbids changing any file outside that scope and the engine blocks out-of-scope edits. Removing the logs always violates SCOPE-001; obeying SCOPE-001 always leaves the QUAL-001 leftovers in the library source. No tree can satisfy both, so I did not guess. The packaging work itself is complete and verified: npm run type-check exits 0 and npx jest src/Build.test.ts src/Package.test.ts passes 7/7 (clean-state build, repeat build, declarations/exports intact, type-check, validate-package exit 0 with no FalseCJS and the CJS entry green). Fix: widen the design's declared scope to include src/Plugins/SortPlugin.ts (the packaging design simply never accounted for pre-existing debug leftovers in that file), or have the builder explicitly accept the QUAL-001 violation. No public export, prop, type or dependency was changed and no check was disabled.",
+  "tests": [
+    {
+      "name": "R1: npm run build exits 0 from a clean state (dist deleted) and emits index.js and index.mjs",
+      "file": "src/Build.test.ts",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: npm run build gives the same result when run a second time in a row",
+      "file": "src/Build.test.ts",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: the build emits declarations and keeps every public export",
+      "file": "src/Build.test.ts",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: npm run type-check exits 0 with the theme changes in place",
+      "file": "src/Build.test.ts",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R2: validate-package exits 0 against a package built fresh from a clean state",
+      "file": "src/Package.test.ts",
+      "requirements": ["R2"]
+    },
+    {
+      "name": "R2: attw reports no entry masquerading as another module kind (no FalseCJS)",
+      "file": "src/Package.test.ts",
+      "requirements": ["R2"]
+    },
+    {
+      "name": "R2: the ESM declaration fix does not regress the CommonJS entry",
+      "file": "src/Package.test.ts",
+      "requirements": ["R2"]
+    }
+  ],
+  "kickbacks": [
+    {
+      "type": "requirements",
+      "reason": "REV-1 (cites QUAL-001, blocking) and SCOPE-001 (blocking) cannot both be satisfied. REV-1 requires deleting the three pre-existing console.log calls in src/Plugins/SortPlugin.ts, but that file is outside the design's declared scope (package.json, rollup.config.js, src/Build.test.ts, src/Package.test.ts) and the task's ground rules plus the engine's SCOPE-001 check forbid changing files outside scope. Fixing REV-1 therefore always trips SCOPE-001, and complying with SCOPE-001 always leaves the QUAL-001 debug leftovers in the library source. Note the automated QUAL-001 check is diff-based - its own baseline output says 'No forbidden pattern in the files this change touched. Also found in 1 file(s) this change did not touch (not counted against it): src/Plugins/SortPlugin.ts' - so the untouched leftovers never fail the automatic check, while the reviewer treats QUAL-001 as a whole-source publish gate. The design scope must be amended to include src/Plugins/SortPlugin.ts (or the builder must explicitly accept the QUAL-001 violation); otherwise the library cannot be made publishable within the current scope. I did not guess: I reverted the out-of-scope edit and removed only the redundant no-debug guard test whose own literals were the sole cause of the automated check failure.",
+      "cites": ["R1", "QUAL-001", "SCOPE-001"]
+    }
+  ]
+}

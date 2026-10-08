@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "cites": "QUAL-001",
+      "severity": "blocking",
+      "file": "src/Plugins/SortPlugin.ts",
+      "line": 120,
+      "evidence": "console.log('SortPlugin: Header clicked. Target:', target); at line 120, console.log('SortPlugin: Interactive element clicked, ignoring sort.'); at line 123 and console.log('SortPlugin: Non-interactive element clicked, proceeding with sort.'); at line 127. This is the only console.* / debugger occurrence in src (grep for console\\.(log|debug)|debugger returns exactly these three).",
+      "description": "Debug leftovers remain in the library's source, which QUAL-001 marks blocking. The developer's report acknowledges them but leaves them as 'outside the design scope'. QUAL-001 is not scoped to changed files - it applies to the library's source and is a publish gate: the DevTeam 'No debugging leftovers' check already failed on exactly these three lines (run 20261008-135042, proof-report.md lines 36-39). They must be removed (or the violation explicitly accepted by the builder) before this is publishable."
+    },
+    {
+      "cites": "LIB-003",
+      "severity": "advisory",
+      "file": "src/Package.test.ts",
+      "line": 1,
+      "evidence": "tsconfig.json includes 'src' and the Rollup @rollup/plugin-typescript config sets declaration: true with declarationDir: 'dist', so the new test is compiled into the published package: the build produces dist/Package.test.d.ts (alongside the pre-existing dist/Build.test.d.ts and every dist/**/*.test.d.ts). package.json 'files' lists 'dist', so these test declaration files ship to consumers.",
+      "description": "The new test file follows the existing placement convention, so this is not a regression introduced solely here, but it does add another test artifact to the published dist. LIB-003 says tests in the package leak work in progress; the declarations are empty so the impact is small. Excluding test files from the declaration build (or from the published files) would be the clean fix, but it is pre-existing and LIB-003's automatic check is not set up in this project, so recorded as advisory rather than blocking."
+    }
+  ],
+  "verifications": []
+}

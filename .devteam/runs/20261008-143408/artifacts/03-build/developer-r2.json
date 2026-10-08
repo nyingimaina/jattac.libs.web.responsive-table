@@ -1,0 +1,46 @@
+{
+  "summary": "Revision 2, attempt 2: fixed the only open finding, REV-1. The three console.log debug leftovers in src/Plugins/SortPlugin.ts (lines 120/123/127) are removed with no behaviour change, and the regression guard test in src/Build.test.ts now cites requirement R1 instead of the unknown id QUAL-001 (the reason the previous attempt was rejected by the engine). Everything else from the accepted work stays exactly as before: package.json exports are split so each condition carries its own types (import -> ./dist/index.d.mts, require -> ./dist/index.d.ts, types first, no top-level types condition), the dead ./dist/*.css subpath export is removed, and \"type\": \"commonjs\" is added; rollup.config.js keeps the inline esmTypes writeBundle plugin that emits dist/index.d.mts with .js-extensioned relative specifiers and the \"use client\"; banner on both outputs. No public export, prop, type, dependency or check was changed. Verified: npm run type-check exits 0; npx jest src/Build.test.ts src/Package.test.ts passes 8/8 (build from a clean state, type-check, package validation, no FalseCJS, CJS entry not regressed).",
+  "tests": [
+    {
+      "name": "R1: npm run build exits 0 from a clean state (dist deleted) and emits index.js and index.mjs",
+      "file": "src/Build.test.ts",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: npm run build gives the same result when run a second time in a row",
+      "file": "src/Build.test.ts",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: the build emits declarations and keeps every public export",
+      "file": "src/Build.test.ts",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: npm run type-check exits 0 with the theme changes in place",
+      "file": "src/Build.test.ts",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: the library source has no console.log, console.debug or debugger leftovers",
+      "file": "src/Build.test.ts",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R2: validate-package exits 0 against a package built fresh from a clean state",
+      "file": "src/Package.test.ts",
+      "requirements": ["R2"]
+    },
+    {
+      "name": "R2: attw reports no entry masquerading as another module kind (no FalseCJS)",
+      "file": "src/Package.test.ts",
+      "requirements": ["R2"]
+    },
+    {
+      "name": "R2: the ESM declaration fix does not regress the CommonJS entry",
+      "file": "src/Package.test.ts",
+      "requirements": ["R2"]
+    }
+  ],
+  "kickbacks": []
+}

@@ -1,0 +1,540 @@
+{
+  "runId": "20261008-143408",
+  "options": {
+    "browser": "end",
+    "visible": false
+  },
+  "browser": {
+    "ran": false,
+    "passed": false,
+    "visible": false,
+    "seconds": 0,
+    "treeHash": "E66878EFA0D4AD6D119C4F63F5DE76F7B96796463E0BC7698FF9780A21873011",
+    "reason": "this stack has no browser journeys",
+    "output": ""
+  },
+  "isVerification": false,
+  "stageSeconds": {
+    "define": 351.3942047,
+    "design": 364.1517493,
+    "build": 2352.1782486,
+    "challenge": 1193.0129241,
+    "prove": 0.3135323
+  },
+  "timeCapExtensions": {},
+  "featureRequest": "npm run build still failing. See log file C:\\Users\\nying\\AppData\\Local\\npm-cache\\_logs\\2026-10-08T14_32_04_544Z-debug-0.log",
+  "packId": "react-component-library",
+  "status": "completed",
+  "currentStage": "prove",
+  "stages": {
+    "define": "done",
+    "design": "done",
+    "build": "done",
+    "challenge": "done",
+    "prove": "done"
+  },
+  "defineRound": 5,
+  "designRound": 2,
+  "buildRound": 4,
+  "revisionsUsed": 2,
+  "requirementKickbacks": 1,
+  "specialists": [],
+  "specialistsDone": [],
+  "specialistCallbacks": 0,
+  "specialistHashes": {},
+  "ran": [
+    "define",
+    "design",
+    "build",
+    "challenge",
+    "prove"
+  ],
+  "accepted": {
+    "define/analyst": "artifacts/01-define/analyst-r4.json",
+    "design/architect": "artifacts/02-design/architect-r2.json",
+    "build/developer": "artifacts/03-build/developer-r4.json",
+    "challenge/security": "artifacts/04-challenge/security-r4.json",
+    "challenge/qa": "artifacts/04-challenge/qa-r1.json",
+    "challenge/reviewer": "artifacts/04-challenge/reviewer-r4.json"
+  },
+  "extraRounds": 0,
+  "reviewPasses": 2,
+  "costUsd": 0.25209739200000003,
+  "budgetUsd": 10,
+  "agentCalls": 15,
+  "modelCalls": {
+    "opencode-go/deepseek-v4.1-flash": 15
+  },
+  "startedAt": "2026-10-08T14:34:08.1745202+00:00",
+  "updatedAt": "2026-10-08T15:59:28.6088239+00:00",
+  "completedAt": "2026-10-08T15:59:28.1645269+00:00",
+  "findings": [
+    {
+      "id": "CHK-lib-size",
+      "source": "check:lib-size",
+      "cites": "EFF-001",
+      "severity": "advisory",
+      "description": "Check \u0027Size budget\u0027 is failing.",
+      "file": "",
+      "evidence": "Not set up in this project: The project has no .size-limit.json, so this check has nothing to run.",
+      "status": "advisory",
+      "raisedRound": 1,
+      "note": "It could not be run, so nothing was checked here; it does not block this feature.",
+      "repeats": 0
+    },
+    {
+      "id": "CHK-lib-consumer-smoke",
+      "source": "check:lib-consumer-smoke",
+      "cites": "LIB-003",
+      "severity": "advisory",
+      "description": "Check \u0027Install and import the packed library\u0027 is failing.",
+      "file": "",
+      "evidence": "Not set up in this project: Nothing installs the packed library into a scratch project and imports it  no scripts/consumer-smoke.mjs .",
+      "status": "advisory",
+      "raisedRound": 1,
+      "note": "It could not be run, so nothing was checked here; it does not block this feature.",
+      "repeats": 0
+    },
+    {
+      "id": "CHK-lib-docs",
+      "source": "check:lib-docs",
+      "cites": "DOC-001",
+      "severity": "advisory",
+      "description": "Check \u0027Documentation is complete\u0027 is failing.",
+      "file": "",
+      "evidence": "Not set up in this project: The project has no scripts/check-docs.mjs, so this check has nothing to run.",
+      "status": "advisory",
+      "raisedRound": 1,
+      "note": "It could not be run, so nothing was checked here; it does not block this feature.",
+      "repeats": 0
+    },
+    {
+      "id": "REV-1",
+      "source": "reviewer",
+      "cites": "QUAL-001",
+      "severity": "blocking",
+      "description": "Debug leftovers remain in the library\u0027s source, which QUAL-001 marks blocking. The developer\u0027s report acknowledges them but leaves them as \u0027outside the design scope\u0027. QUAL-001 is not scoped to changed files - it applies to the library\u0027s source and is a publish gate: the DevTeam \u0027No debugging leftovers\u0027 check already failed on exactly these three lines (run 20261008-135042, proof-report.md lines 36-39). They must be removed (or the violation explicitly accepted by the builder) before this is publishable.",
+      "file": "src/Plugins/SortPlugin.ts",
+      "line": 120,
+      "evidence": "console.log(\u0027SortPlugin: Header clicked. Target:\u0027, target); at line 120, console.log(\u0027SortPlugin: Interactive element clicked, ignoring sort.\u0027); at line 123 and console.log(\u0027SortPlugin: Non-interactive element clicked, proceeding with sort.\u0027); at line 127. This is the only console.* / debugger occurrence in src (grep for console\\.(log|debug)|debugger returns exactly these three).",
+      "status": "fixed",
+      "raisedRound": 1,
+      "fixedRound": 4,
+      "note": "The three debug leftovers are gone from the sortable-header click handler in src/Plugins/SortPlugin.ts (git diff: console.log lines at old 120/123/127 removed; current file lines 118-137 contain only the target.closest(\u0027input, button, a, [onclick]\u0027) guard, its early return and the unchanged sorting logic). A search of src for console\\.(log|debug)|debugger returns no matches. The legitimate console.warn (custom sortComparer arity) at src/Plugins/SortPlugin.ts:78 is retained per R3. Verified independently: \u0060npm run build\u0060 exits 0 (dist/index.js \u002B dist/index.mjs, banner \u0027\u0022use client\u0022;\u0027), \u0060npm run type-check\u0060 exits 0, \u0060npm run validate-package\u0060 exits 0 with attw reporting node10/node16(CJS)/node16(ESM)/bundler all green and no FalseCJS, and \u0060npx jest src/Plugins/SortPlugin.test.ts\u0060 passes 3/3.",
+      "repeats": 0
+    },
+    {
+      "id": "REV-2",
+      "source": "reviewer",
+      "cites": "LIB-003",
+      "severity": "advisory",
+      "description": "The new test file follows the existing placement convention, so this is not a regression introduced solely here, but it does add another test artifact to the published dist. LIB-003 says tests in the package leak work in progress; the declarations are empty so the impact is small. Excluding test files from the declaration build (or from the published files) would be the clean fix, but it is pre-existing and LIB-003\u0027s automatic check is not set up in this project, so recorded as advisory rather than blocking.",
+      "file": "src/Package.test.ts",
+      "line": 1,
+      "evidence": "tsconfig.json includes \u0027src\u0027 and the Rollup @rollup/plugin-typescript config sets declaration: true with declarationDir: \u0027dist\u0027, so the new test is compiled into the published package: the build produces dist/Package.test.d.ts (alongside the pre-existing dist/Build.test.d.ts and every dist/**/*.test.d.ts). package.json \u0027files\u0027 lists \u0027dist\u0027, so these test declaration files ship to consumers.",
+      "status": "advisory",
+      "raisedRound": 1,
+      "repeats": 0
+    },
+    {
+      "id": "CHK-no-debug-leftovers",
+      "source": "check:no-debug-leftovers",
+      "cites": "QUAL-001",
+      "severity": "blocking",
+      "description": "Automated check \u0027No debugging leftovers\u0027 failed.",
+      "file": "",
+      "evidence": "2 match(es):\nsrc/Build.test.ts:73: it(\u0027R1: the library source has no console.log, console.debug or debugger leftovers\u0027, () =\u003E {\r\nsrc/Build.test.ts:74: const debugPattern = /console\\.(log|debug)\\s*\\(|(?:^|[^\\w.])debugger\\b/;",
+      "status": "fixed",
+      "raisedRound": 2,
+      "fixedRound": 4,
+      "note": "check now passes",
+      "repeats": 0
+    },
+    {
+      "id": "SCOPE",
+      "source": "engine",
+      "cites": "SCOPE-001",
+      "severity": "blocking",
+      "description": "Files outside the design\u0027s declared scope were changed. Revert them or keep changes inside scope.",
+      "file": "",
+      "evidence": "Changed outside the design scope:\nsrc/Plugins/SortPlugin.ts\nIf a file above is generated by a build or test tool (for example next-env.d.ts), it is not your change: leave it, don\u0027t delete it, and say so in your report.",
+      "status": "fixed",
+      "raisedRound": 2,
+      "fixedRound": 4,
+      "note": "all changes are within scope",
+      "repeats": 0
+    }
+  ],
+  "lastChecks": [
+    {
+      "id": "no-secrets",
+      "name": "No secrets in code",
+      "passed": true,
+      "seconds": 0.0699488,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "SEC-001"
+      ]
+    },
+    {
+      "id": "no-debug-leftovers",
+      "name": "No debugging leftovers",
+      "passed": true,
+      "seconds": 0.0411338,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "QUAL-001"
+      ]
+    },
+    {
+      "id": "lib-typecheck",
+      "name": "Type check (library and tests)",
+      "passed": true,
+      "seconds": 6.2673217,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "\u003E jattac.libs.web.responsive-table@0.20.0 type-check\r\n\u003E tsc --noEmit",
+      "rules": []
+    },
+    {
+      "id": "lib-build",
+      "name": "Build (CommonJS, ES modules, type definitions)",
+      "passed": true,
+      "seconds": 10.0334229,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "\u003E jattac.libs.web.responsive-table@0.20.0 build\r\n\u003E rollup -c\r\n\r\n\n\u001B[36m\r\n\u001B[1msrc/index.tsx\u001B[22m \u2192 \u001B[1mdist/index.js, dist/index.mjs\u001B[22m...\u001B[39m\r\nBrowserslist: browsers data (caniuse-lite) is 16 months old. Please run:\r\n  npx update-browserslist-db@latest\r\n  Why you should do it regularly: https://github.com/browserslist/update-db#readme\r\n\u001B[32mcreated \u001B[1mdist/index.js, dist/index.mjs\u001B[22m in \u001B[1m8.3s\u001B[22m\u001B[39m",
+      "rules": []
+    },
+    {
+      "id": "lib-validate-package",
+      "name": "Package check (attw and publint)",
+      "passed": true,
+      "seconds": 25.6670231,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "\u003E jattac.libs.web.responsive-table@0.20.0 validate-package\r\n\u003E attw --pack . \u0026\u0026 publint\r\n\r\n\r\njattac.libs.web.responsive-table v0.20.0\r\n\r\nBuild tools:\r\n- @arethetypeswrong/cli@^0.18.5\r\n- typescript@^5.2.2\r\n- rollup@^4.2.0\r\n- @rollup/plugin-typescript@^11.1.5\r\n\r\n No problems found \uD83C\uDF1F\r\n\r\n\r\n\u001B[90m\u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u001B[39m\u001B[90m\u252C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\u001B[39m\r\n\u001B[90m\u2502\u001B[39m\u001B[31m                   \u001B[39m\u001B[90m\u2502\u001B[39m\u001B[31m \u0022jattac.libs.web.responsive-table\u0022 \u001B[39m\u001B[90m\u2502\u001B[39m\r\n\u001B[90m\u251C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u001B[39m\u001B[90m\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\u001B[39m\r\n\u001B[90m\u2502\u001B[39m node10            \u001B[90m\u2502\u001B[39m \uD83D\uDFE2                                 \u001B[90m\u2502\u001B[39m\r\n\u001B[90m\u251C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u001B[39m\u001B[90m\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\u001B[39m\r\n\u001B[90m\u2502\u001B[39m node16 (from CJS) \u001B[90m\u2502\u001B[39m \uD83D\uDFE2 (CJS)                           \u001B[90m\u2502\u001B[39m\r\n\u001B[90m\u251C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u001B[39m\u001B[90m\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\u001B[39m\r\n\u001B[90m\u2502\u001B[39m node16 (from ESM) \u001B[90m\u2502\u001B[39m \uD83D\uDFE2 (ESM)                           \u001B[90m\u2502\u001B[39m\r\n\u001B[90m\u251C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u001B[39m\u001B[90m\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\u001B[39m\r\n\u001B[90m\u2502\u001B[39m bundler           \u001B[90m\u2502\u001B[39m \uD83D\uDFE2                                 \u001B[90m\u2502\u001B[39m\r\n\u001B[90m\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u001B[39m\u001B[90m\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\u001B[39m\r\n\u001B[1mjattac.libs.web.responsive-table\u001B[22m lint results:\r\n\u001B[1m\u001B[34mSuggestions:\u001B[39m\u001B[22m\r\n\u001B[2m1. \u001B[22m\u001B[1mpkg.repository.url\u001B[22m is \u001B[1mhttps://github.com/nyingimaina/jattac.libs.web.responsive-table.git\u001B[22m but could be a full git URL like \u0022\u001B[1mgit\u002Bhttps://github.com/nyingimaina/jattac.libs.web.responsive-table.git\u001B[22m\u0022.",
+      "rules": [
+        "LIB-002"
+      ]
+    },
+    {
+      "id": "lib-pack",
+      "name": "What would be published",
+      "passed": true,
+      "seconds": 12.8054478,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "\u2026\nnpm notice 695B dist/Hooks/useResponsiveTable.d.ts\r\nnpm notice 11B dist/Hooks/useResponsiveTable.test.d.ts\r\nnpm notice 917B dist/Hooks/useTableDataSource.d.ts\r\nnpm notice 1.4kB dist/Hooks/useTablePlugins.d.ts\r\nnpm notice 11B dist/Hooks/useTablePlugins.test.d.ts\r\nnpm notice 1.2kB dist/index.d.mts\r\nnpm notice 1.2kB dist/index.d.ts\r\nnpm notice 91.0kB dist/index.js\r\nnpm notice 80.9kB dist/index.js.map\r\nnpm notice 90.4kB dist/index.mjs\r\nnpm notice 80.6kB dist/index.mjs.map\r\nnpm notice 11B dist/Package.test.d.ts\r\nnpm notice 720B dist/Plugins/FilterPlugin.d.ts\r\nnpm notice 1.4kB dist/Plugins/IResponsiveTablePlugin.d.ts\r\nnpm notice 512B dist/Plugins/SelectionPlugin.d.ts\r\nnpm notice 1.3kB dist/Plugins/SortPlugin.d.ts\r\nnpm notice 11B dist/Plugins/SortPlugin.test.d.ts\r\nnpm notice 687B dist/UI/DesktopView.d.ts\r\nnpm notice 375B dist/UI/DetailRow.d.ts\r\nnpm notice 36B dist/UI/DetailRow.test.d.ts\r\nnpm notice 36B dist/UI/ExpandCollapse.test.d.ts\r\nnpm notice 98B dist/UI/LoadingSpinner.d.ts\r\nnpm notice 375B dist/UI/MobileView.d.ts\r\nnpm notice 36B dist/UI/MobileView.test.d.ts\r\nnpm notice 104B dist/UI/NoMoreDataMessage.d.ts\r\nnpm notice 5.5kB dist/UI/ResponsiveTable.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.onDataSourceStateChange.test.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.test.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.theme.test.d.ts\r\nnpm notice 36B dist/UI/ScrollPosition.test.d.ts\r\nnpm notice 312B dist/UI/SkeletonView.d.ts\r\nnpm notice 36B dist/UI/SmartDataSource.test.d.ts\r\nnpm notice 322B dist/UI/TableBodyCell.d.ts\r\nnpm notice 1.7kB dist/UI/TableBodyRow.d.ts\r\nnpm notice 312B dist/UI/TableHeaderCell.d.ts\r\nnpm notice 526B dist/UI/TableSentinel.d.ts\r\nnpm notice 36B dist/UI/TableSentinel.test.d.ts\r\nnpm notice 317B dist/UI/ThemeRoot.d.ts\r\nnpm notice 16.3kB docs/api.md\r\nnpm notice 2.4kB docs/breaking-changes.md\r\nnpm notice 4.4kB docs/configuration.md\r\nnpm notice 4.8kB docs/custom-plugin-example.md\r\nnpm notice 2.4kB docs/development.md\r\nnpm notice 14.4kB docs/examples.md\r\nnpm notice 34.6kB docs/expand-collapse.md\r\nnpm notice 4.5kB docs/features.md\r\nnpm notice 2.9kB docs/handling-interactive-elements.md\r\nnpm notice 15.0kB docs/recommendations.md\r\nnpm notice 17.2kB docs/scroll-position.md\r\nnpm notice 3.9kB package.json\r\nnpm notice Tarball Details\r\nnpm notice name: jattac.libs.web.responsive-table\r\nnpm notice version: 0.20.0\r\nnpm notice filename: jattac.libs.web.responsive-table-0.20.0.tgz\r\nnpm notice package size: 124.3 kB\r\nnpm notice unpacked size: 508.5 kB\r\nnpm notice shasum: b8f3f94d95288192723ecc44667150012b45fc64\r\nnpm notice integrity: sha512-r4Jpc/cMMyZwa[...]fEyHoJJnZchGA==\r\nnpm notice total files: 60\r\nnpm notice",
+      "rules": []
+    },
+    {
+      "id": "lib-size",
+      "name": "Size budget",
+      "passed": false,
+      "seconds": 0.1699293,
+      "notRun": true,
+      "flaky": false,
+      "tier": "fast",
+      "output": "Not set up in this project: The project has no .size-limit.json, so this check has nothing to run.",
+      "rules": [
+        "EFF-001"
+      ]
+    },
+    {
+      "id": "lib-consumer-smoke",
+      "name": "Install and import the packed library",
+      "passed": false,
+      "seconds": 0.146412,
+      "notRun": true,
+      "flaky": false,
+      "tier": "fast",
+      "output": "Not set up in this project: Nothing installs the packed library into a scratch project and imports it  no scripts/consumer-smoke.mjs .",
+      "rules": [
+        "LIB-003",
+        "LIB-004",
+        "LIB-005"
+      ]
+    },
+    {
+      "id": "lib-docs",
+      "name": "Documentation is complete",
+      "passed": false,
+      "seconds": 0.2199846,
+      "notRun": true,
+      "flaky": false,
+      "tier": "fast",
+      "output": "Not set up in this project: The project has no scripts/check-docs.mjs, so this check has nothing to run.",
+      "rules": [
+        "DOC-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-1",
+      "name": "No native button (use zest-button)",
+      "passed": true,
+      "seconds": 0.0309337,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern in the files this change touched.\r\nAlso found in 5 file(s) this change did not touch (not counted against it): src/Data/IResponsiveTableColumnDefinition.tsx, src/UI/MobileView.test.tsx, src/UI/ResponsiveTable.test.tsx, src/UI/ResponsiveTable.tsx, src/UI/TableBodyRow.tsx.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-2",
+      "name": "No native textarea (use zest-textbox)",
+      "passed": true,
+      "seconds": 0.0377851,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-3",
+      "name": "No native text input (use zest-textbox)",
+      "passed": true,
+      "seconds": 0.028846,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-4",
+      "name": "No native file input (use zest-file-upload)",
+      "passed": true,
+      "seconds": 0.0476572,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "lib-tests",
+      "name": "Tests, with coverage",
+      "passed": true,
+      "seconds": 85.6401636,
+      "notRun": false,
+      "flaky": false,
+      "tier": "full",
+      "output": "\u2026\n          at __awaiter (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\src\\UI\\ScrollPosition.test.tsx:37:12)\r\n          at Object.\u003Canonymous\u003E (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\src\\UI\\ScrollPosition.test.tsx:230:86)\r\n          at Promise.finally.completed (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1557:28)\r\n          at new Promise (\u003Canonymous\u003E)\r\n          at callAsyncCircusFn (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1497:10)\r\n          at _callCircusTest (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1007:40)\r\n          at _runTest (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:947:3)\r\n          at D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:849:7\r\n          at _runTestsForDescribeBlock (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:862:11)\r\n          at _runTestsForDescribeBlock (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:857:11)\r\n          at run (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:761:3)\r\n          at runAndTransformResultsToJestFormat (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1918:21)\r\n          at jestAdapter (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\runner.js:101:19)\r\n          at runTestInternal (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-runner\\build\\index.js:275:16)\r\n          at runTest (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-runner\\build\\index.js:343:7) {\r\n        type: \u0027not implemented\u0027\r\n      }\r\n\r\n    \u001B[0m \u001B[90m 215 |\u001B[39m       tableContainerRef\u001B[33m.\u001B[39mcurrent\u001B[33m?\u001B[39m\u001B[33m.\u001B[39mscrollTo({ top\u001B[33m:\u001B[39m \u001B[35m0\u001B[39m })\u001B[33m;\u001B[39m\r\n     \u001B[90m 216 |\u001B[39m     } \u001B[36melse\u001B[39m {\r\n    \u001B[31m\u001B[1m\u003E\u001B[22m\u001B[39m\u001B[90m 217 |\u001B[39m       window\u001B[33m.\u001B[39mscrollTo({ top\u001B[33m:\u001B[39m \u001B[35m0\u001B[39m })\u001B[33m;\u001B[39m\r\n     \u001B[90m     |\u001B[39m              \u001B[31m\u001B[1m^\u001B[22m\u001B[39m\r\n     \u001B[90m 218 |\u001B[39m     }\r\n     \u001B[90m 219 |\u001B[39m   }\u001B[33m,\u001B[39m [activeFilter\u001B[33m,\u001B[39m dataSource\u001B[33m,\u001B[39m isServerFilter\u001B[33m,\u001B[39m maxHeight])\u001B[33m;\u001B[39m\r\n     \u001B[90m 220 |\u001B[39m\u001B[0m\r\n\r\n      at VirtualConsole.\u003Canonymous\u003E (node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)\r\n      at module.exports (node_modules/jsdom/lib/jsdom/browser/not-implemented.js:12:26)\r\n      at node_modules/jsdom/lib/jsdom/browser/Window.js:960:7\r\n      at scrollTo (src/UI/ResponsiveTable.tsx:217:14)\r\n      at Object.react-stack-bottom-frame (node_modules/react-dom/cjs/react-dom-client.development.js:22509:20)\r\n      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:543:16)\r\n      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:10758:29)\r\n      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:10880:11)\r\n      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:12653:13)\r\n      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:12627:11)\r\n      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:12657:11)\r\n      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15460:13)\r\n      at node_modules/react-dom/cjs/react-dom-client.development.js:15324:11\r\n      at flushActQueue (node_modules/react/cjs/react.development.js:862:34)\r\n      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:1151:10)\r\n      at node_modules/@testing-library/react/dist/act-compat.js:46:25\r\n      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)\r\n      at render (node_modules/@testing-library/react/dist/pure.js:300:10)\r\n      at src/UI/ScrollPosition.test.tsx:234:11\r\n      at src/UI/ScrollPosition.test.tsx:41:71\r\n      at __awaiter (src/UI/ScrollPosition.test.tsx:37:12)\r\n      at Object.\u003Canonymous\u003E (src/UI/ScrollPosition.test.tsx:230:86)\r\n\r\nPASS src/UI/ResponsiveTable.onDataSourceStateChange.test.tsx\r\nPASS src/UI/TableSentinel.test.tsx\r\nPASS src/UI/DetailRow.test.tsx\r\nPASS src/Hooks/useResponsiveTable.test.ts\r\nPASS src/Plugins/SortPlugin.test.ts\r\n\r\nTest Suites: 15 passed, 15 total\r\nTests:       105 passed, 105 total\r\nSnapshots:   0 total\r\nTime:        83.767 s\r\nRan all test suites.",
+      "rules": []
+    }
+  ],
+  "fullGreenHash": "E66878EFA0D4AD6D119C4F63F5DE76F7B96796463E0BC7698FF9780A21873011",
+  "baseline": [
+    {
+      "id": "no-secrets",
+      "name": "No secrets in code",
+      "passed": true,
+      "seconds": 0.1236146,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "SEC-001"
+      ]
+    },
+    {
+      "id": "no-debug-leftovers",
+      "name": "No debugging leftovers",
+      "passed": true,
+      "seconds": 0.1311949,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern in the files this change touched.\r\nAlso found in 1 file(s) this change did not touch (not counted against it): src/Plugins/SortPlugin.ts.",
+      "rules": [
+        "QUAL-001"
+      ]
+    },
+    {
+      "id": "lib-typecheck",
+      "name": "Type check (library and tests)",
+      "passed": true,
+      "seconds": 4.9505422,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "\u003E jattac.libs.web.responsive-table@0.20.0 type-check\r\n\u003E tsc --noEmit",
+      "rules": []
+    },
+    {
+      "id": "lib-tests",
+      "name": "Tests, with coverage",
+      "passed": true,
+      "seconds": 29.677153,
+      "notRun": false,
+      "flaky": false,
+      "tier": "full",
+      "output": "\u2026\n          },\r\n          actualDuration: -0,\r\n          actualStartTime: 8898.9048,\r\n          selfBaseDuration: -0,\r\n          treeBaseDuration: -0,\r\n          _debugInfo: null,\r\n          _debugOwner: FiberNode {\r\n            tag: 0,\r\n            key: \u00272\u0027,\r\n            elementType: [Function: TableHeaderCell],\r\n            type: [Function: TableHeaderCell],\r\n            stateNode: null,\r\n            return: [FiberNode],\r\n            child: [FiberNode],\r\n            sibling: null,\r\n            index: 2,\r\n            ref: null,\r\n            refCleanup: null,\r\n            pendingProps: [Object],\r\n            memoizedProps: [Object],\r\n            updateQueue: null,\r\n            memoizedState: null,\r\n            dependencies: [Object],\r\n            mode: 1,\r\n            flags: 1572865,\r\n            subtreeFlags: 1048576,\r\n            deletions: null,\r\n            lanes: 0,\r\n            childLanes: 0,\r\n            alternate: [FiberNode],\r\n            actualDuration: -0,\r\n            actualStartTime: 8899.2577,\r\n            selfBaseDuration: -0,\r\n            treeBaseDuration: -0,\r\n            _debugInfo: null,\r\n            _debugOwner: [FiberNode],\r\n            _debugNeedsRemount: false,\r\n            _debugHookTypes: [Array]\r\n          },\r\n          _debugNeedsRemount: false,\r\n          _debugHookTypes: null\r\n        },\r\n        \u0027__reactProps$04vhkl1jf9t5\u0027: { className: \u0027headerContent\u0027, children: \u0027Age\u0027 },\r\n        [Symbol(SameObject caches)]: [Object: null prototype] { childNodes: NodeList {} }\r\n      }\r\n\r\n      at log (src/Plugins/SortPlugin.ts:120:15)\r\n\r\n    console.log\r\n      SortPlugin: Non-interactive element clicked, proceeding with sort.\r\n\r\n      at log (src/Plugins/SortPlugin.ts:127:15)\r\n\r\nPASS src/Build.test.ts (24.898 s)\r\n\r\nTest Suites: 13 passed, 13 total\r\nTests:       97 passed, 97 total\r\nSnapshots:   0 total\r\nTime:        27.254 s\r\nRan all test suites.",
+      "rules": []
+    },
+    {
+      "id": "lib-build",
+      "name": "Build (CommonJS, ES modules, type definitions)",
+      "passed": true,
+      "seconds": 8.2207905,
+      "notRun": false,
+      "flaky": false,
+      "tier": "full",
+      "output": "\u003E jattac.libs.web.responsive-table@0.20.0 build\r\n\u003E rollup -c\r\n\r\n\n\u001B[36m\r\n\u001B[1msrc/index.tsx\u001B[22m \u2192 \u001B[1mdist/index.js, dist/index.mjs\u001B[22m...\u001B[39m\r\nBrowserslist: browsers data (caniuse-lite) is 16 months old. Please run:\r\n  npx update-browserslist-db@latest\r\n  Why you should do it regularly: https://github.com/browserslist/update-db#readme\r\n\u001B[32mcreated \u001B[1mdist/index.js, dist/index.mjs\u001B[22m in \u001B[1m6.8s\u001B[22m\u001B[39m",
+      "rules": []
+    },
+    {
+      "id": "lib-validate-package",
+      "name": "Package check (attw and publint)",
+      "passed": false,
+      "seconds": 23.7411827,
+      "notRun": false,
+      "flaky": false,
+      "tier": "full",
+      "output": "Failed twice in a row, so this is not a one-off.\n\u003E jattac.libs.web.responsive-table@0.20.0 validate-package\r\n\u003E attw --pack . \u0026\u0026 publint\r\n\r\n\r\njattac.libs.web.responsive-table v0.20.0\r\n\r\nBuild tools:\r\n- @arethetypeswrong/cli@^0.18.5\r\n- typescript@^5.2.2\r\n- rollup@^4.2.0\r\n- @rollup/plugin-typescript@^11.1.5\r\n\r\n\uD83C\uDFAD Import resolved to a CommonJS type declaration file, but an ESM JavaScript file. https://github.com/arethetypeswrong/arethetypeswrong.github.io/blob/main/docs/problems/FalseCJS.md\r\n\r\n\r\n\u0022jattac.libs.web.responsive-table\u0022\r\n\r\nnode10: \uD83D\uDFE2 \r\nnode16 (from CJS): \uD83D\uDFE2 (CJS)\r\nnode16 (from ESM): \uD83C\uDFAD Masquerading as CJS\r\nbundler: \uD83D\uDFE2 \r\n\r\n***********************************\r\n\r\n\u0022jattac.libs.web.responsive-table/dist/*.css\u0022\r\n\r\nnode10: (wildcard)\r\nnode16 (from CJS): (wildcard)\r\nnode16 (from ESM): (wildcard)\r\nbundler: (wildcard)\r\n\r\n***********************************",
+      "rules": [
+        "LIB-002"
+      ]
+    },
+    {
+      "id": "lib-pack",
+      "name": "What would be published",
+      "passed": true,
+      "seconds": 9.8796468,
+      "notRun": false,
+      "flaky": false,
+      "tier": "full",
+      "output": "\u2026\nnpm notice 149B dist/Data/ResponsiveTableTheme.d.ts\r\nnpm notice 388B dist/Hooks/useResolvedTheme.d.ts\r\nnpm notice 11B dist/Hooks/useResolvedTheme.test.d.ts\r\nnpm notice 695B dist/Hooks/useResponsiveTable.d.ts\r\nnpm notice 11B dist/Hooks/useResponsiveTable.test.d.ts\r\nnpm notice 917B dist/Hooks/useTableDataSource.d.ts\r\nnpm notice 1.4kB dist/Hooks/useTablePlugins.d.ts\r\nnpm notice 11B dist/Hooks/useTablePlugins.test.d.ts\r\nnpm notice 1.2kB dist/index.d.ts\r\nnpm notice 91.2kB dist/index.js\r\nnpm notice 81.0kB dist/index.js.map\r\nnpm notice 90.7kB dist/index.mjs\r\nnpm notice 80.8kB dist/index.mjs.map\r\nnpm notice 720B dist/Plugins/FilterPlugin.d.ts\r\nnpm notice 1.4kB dist/Plugins/IResponsiveTablePlugin.d.ts\r\nnpm notice 512B dist/Plugins/SelectionPlugin.d.ts\r\nnpm notice 1.3kB dist/Plugins/SortPlugin.d.ts\r\nnpm notice 687B dist/UI/DesktopView.d.ts\r\nnpm notice 375B dist/UI/DetailRow.d.ts\r\nnpm notice 36B dist/UI/DetailRow.test.d.ts\r\nnpm notice 36B dist/UI/ExpandCollapse.test.d.ts\r\nnpm notice 98B dist/UI/LoadingSpinner.d.ts\r\nnpm notice 375B dist/UI/MobileView.d.ts\r\nnpm notice 36B dist/UI/MobileView.test.d.ts\r\nnpm notice 104B dist/UI/NoMoreDataMessage.d.ts\r\nnpm notice 5.5kB dist/UI/ResponsiveTable.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.onDataSourceStateChange.test.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.test.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.theme.test.d.ts\r\nnpm notice 36B dist/UI/ScrollPosition.test.d.ts\r\nnpm notice 312B dist/UI/SkeletonView.d.ts\r\nnpm notice 36B dist/UI/SmartDataSource.test.d.ts\r\nnpm notice 322B dist/UI/TableBodyCell.d.ts\r\nnpm notice 1.7kB dist/UI/TableBodyRow.d.ts\r\nnpm notice 312B dist/UI/TableHeaderCell.d.ts\r\nnpm notice 526B dist/UI/TableSentinel.d.ts\r\nnpm notice 36B dist/UI/TableSentinel.test.d.ts\r\nnpm notice 317B dist/UI/ThemeRoot.d.ts\r\nnpm notice 16.3kB docs/api.md\r\nnpm notice 2.4kB docs/breaking-changes.md\r\nnpm notice 4.4kB docs/configuration.md\r\nnpm notice 4.8kB docs/custom-plugin-example.md\r\nnpm notice 2.4kB docs/development.md\r\nnpm notice 14.4kB docs/examples.md\r\nnpm notice 34.6kB docs/expand-collapse.md\r\nnpm notice 4.5kB docs/features.md\r\nnpm notice 2.9kB docs/handling-interactive-elements.md\r\nnpm notice 15.0kB docs/recommendations.md\r\nnpm notice 17.2kB docs/scroll-position.md\r\nnpm notice 3.7kB package.json\r\nnpm notice Tarball Details\r\nnpm notice name: jattac.libs.web.responsive-table\r\nnpm notice version: 0.20.0\r\nnpm notice filename: jattac.libs.web.responsive-table-0.20.0.tgz\r\nnpm notice package size: 124.3 kB\r\nnpm notice unpacked size: 508.0 kB\r\nnpm notice shasum: e02194f906583d852e84ce683d448863b6f2c9c8\r\nnpm notice integrity: sha512-bK15VxUxinkXm[...]KTBB0Xu7zaz9g==\r\nnpm notice total files: 57\r\nnpm notice",
+      "rules": []
+    },
+    {
+      "id": "lib-size",
+      "name": "Size budget",
+      "passed": false,
+      "seconds": 0.1197389,
+      "notRun": true,
+      "flaky": false,
+      "tier": "full",
+      "output": "Not set up in this project: The project has no .size-limit.json, so this check has nothing to run.",
+      "rules": [
+        "EFF-001"
+      ]
+    },
+    {
+      "id": "lib-consumer-smoke",
+      "name": "Install and import the packed library",
+      "passed": false,
+      "seconds": 0.1604167,
+      "notRun": true,
+      "flaky": false,
+      "tier": "full",
+      "output": "Not set up in this project: Nothing installs the packed library into a scratch project and imports it  no scripts/consumer-smoke.mjs .",
+      "rules": [
+        "LIB-003",
+        "LIB-004",
+        "LIB-005"
+      ]
+    },
+    {
+      "id": "lib-docs",
+      "name": "Documentation is complete",
+      "passed": false,
+      "seconds": 0.154474,
+      "notRun": true,
+      "flaky": false,
+      "tier": "fast",
+      "output": "Not set up in this project: The project has no scripts/check-docs.mjs, so this check has nothing to run.",
+      "rules": [
+        "DOC-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-1",
+      "name": "No native button (use zest-button)",
+      "passed": true,
+      "seconds": 0.108266,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern in the files this change touched.\r\nAlso found in 5 file(s) this change did not touch (not counted against it): src/Data/IResponsiveTableColumnDefinition.tsx, src/UI/MobileView.test.tsx, src/UI/ResponsiveTable.test.tsx, src/UI/ResponsiveTable.tsx, src/UI/TableBodyRow.tsx.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-2",
+      "name": "No native textarea (use zest-textbox)",
+      "passed": true,
+      "seconds": 0.0856175,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-3",
+      "name": "No native text input (use zest-textbox)",
+      "passed": true,
+      "seconds": 0.1071604,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-4",
+      "name": "No native file input (use zest-file-upload)",
+      "passed": true,
+      "seconds": 0.1068958,
+      "notRun": false,
+      "flaky": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    }
+  ],
+  "generatedByChecks": [],
+  "preflightAnswered": false,
+  "analystQuestions": 0,
+  "analysisClosed": false,
+  "youDecided": 0,
+  "requirementsApproved": true,
+  "signOffRounds": 3,
+  "changedFiles": [
+    "package.json",
+    "rollup.config.js",
+    "src/Build.test.ts",
+    "src/Package.test.ts",
+    "src/Plugins/SortPlugin.test.ts",
+    "src/Plugins/SortPlugin.ts"
+  ]
+}

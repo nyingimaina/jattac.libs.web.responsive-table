@@ -1,0 +1,93 @@
+{
+  "summary": "The builder reported that `npm run build` still fails. On this machine the file it points at does not exist, and on the current working tree `npm run build` (rollup -c), `npm run type-check` and `npm test` all pass and produce dist/index.js and dist/index.mjs including the already-decided light/dark/system theme work. The one publish-gate check that is actually failing is `npm run validate-package` (attw --pack . && publint): attw reports the ESM entry as \"Masquerading as CJS\" (FalseCJS), which would stop `npm publish`. The requirement is therefore to make the library publishable from a clean state: the build must finish green from a clean state and the package must pass its publish checks, with no new product behaviour. Only the build/publish definitions of done are requested.",
+  "roles": [
+    "Library maintainer: runs `npm run build` and `npm run validate-package` to produce and publish the package to npm",
+    "Library consumer (developer who installs the package): receives built JavaScript and type declarations that resolve correctly for both `import` and `require`"
+  ],
+  "requirements": [
+    {
+      "id": "R1",
+      "text": "Running `npm run build` in the library root from a clean state (the dist folder deleted) finishes with exit code 0 and produces dist/index.js, dist/index.mjs and the TypeScript declaration files, with no errors.",
+      "rationale": "The builder reported a failing build, and a library that cannot be built cannot be published. Every other change, including the already-approved light/dark/system theme work, is blocked until the build is reliably green.",
+      "acceptance": [
+        "From a clean checkout (dist removed, dependencies installed), `npm run build` exits with code 0",
+        "dist/index.js and dist/index.mjs exist after the build",
+        "`npm run type-check` exits with code 0",
+        "`npm test` still passes after any change made to fix the build"
+      ],
+      "edgeCases": [
+        "The build must pass from a clean state (dist deleted), not only when an old dist folder is already present",
+        "If a build error can only be reproduced under conditions other than the current tree, for example a different Node version, the error message and cause must be recorded rather than the build declared fixed without evidence",
+        "The theme feature's CSS and TypeScript changes must not introduce build or type errors"
+      ],
+      "pitfalls": [
+        "Fixing the build must not remove or change any exported component, prop or type",
+        "The build must not be made to pass by disabling checks, type-checking or tests"
+      ],
+      "rules": ["LIB-001"]
+    },
+    {
+      "id": "R2",
+      "text": "Running `npm run validate-package` (attw --pack . && publint) finishes with exit code 0 for the packaged library, with TypeScript able to resolve correct declaration kinds for both `import` and `require` consumers and no entry reported as masquerading as another module kind.",
+      "rationale": "This is the check that actually fails today and the step that runs before publishing (`prepublishOnly`), so a developer still cannot publish even though `npm run build` passes. attw currently reports node16 (from ESM): \"Masquerading as CJS\" (FalseCJS) for the main entry, meaning an ESM import resolves the type declaration as CommonJS while the JavaScript is ESM.",
+      "acceptance": [
+        "`npm run validate-package` exits with code 0",
+        "For the `jattac.libs.web.responsive-table` entry, attw reports node16 (from ESM) and node16 (from CJS) both green (no \"Masquerading as CJS\")",
+        "`publint` reports no problems",
+        "The check stays green when run against an output built fresh from a clean state (dist deleted first)"
+      ],
+      "edgeCases": [
+        "The check must pass on a freshly built package, not only against a previously built dist folder",
+        "A fix for the ESM resolution must not regress the CommonJS entry (node16 from CJS must stay green)",
+        "The check must pass in CI as well as locally, where the working tree may start with no dist folder"
+      ],
+      "pitfalls": [
+        "Do not silence attw with ignore flags or by dropping the ESM build; that would hide a real consumer-facing problem rather than fix it",
+        "Do not change or remove any public export, prop or type to make the check pass",
+        "Do not pin or downgrade dependencies merely to dodge the check"
+      ],
+      "rules": ["LIB-001"]
+    }
+  ],
+  "outOfScope": [
+    "Any new feature or visual change",
+    "Creating missing scaffolding such as .size-limit.json, scripts/check-docs.mjs or scripts/consumer-smoke.mjs",
+    "Upgrading dependencies beyond what is needed to make the build and package checks pass",
+    "Changing the library's public API, exports or rendered output"
+  ],
+  "nonFunctional": [
+    {
+      "area": "reliability",
+      "statement": "The build and package check give the same result on repeated runs from a clean state.",
+      "acceptance": "Running `npm run build` then `npm run validate-package` twice in a row, deleting dist before the first run, exits with code 0 both times."
+    }
+  ],
+  "risks": [
+    "The reported npm debug log does not exist on this machine, so the original failure message cannot be read; the only reproducible failing publish check is `npm run validate-package` (attw FalseCJS).",
+    "The previous run was marked complete while `npm run validate-package` still failed, so the packaging fix may not have been attempted; if the working tree changes are reverted, the failure returns.",
+    "A narrow fix to the ESM declaration resolution could regress the CommonJS entry if both are not verified."
+  ],
+  "glossary": [
+    "Build: `rollup -c`, which bundles src/index.tsx into dist/index.js and dist/index.mjs.",
+    "validate-package: `attw --pack . && publint`, run by `prepublishOnly`; attw checks how the published package's JavaScript and type declarations resolve for common consumers.",
+    "Masquerading as CJS (FalseCJS): attw's report that an ESM import resolves to a CommonJS-style type declaration while the runtime JavaScript is ESM."
+  ],
+  "questions": [],
+  "coverage": [
+    { "topic": "users", "status": "answered", "note": "Library maintainer runs the build and publish checks; developers who install the package are the consumers. The request comes from the builder." },
+    { "topic": "data", "status": "not-applicable", "note": "No data is stored; this is a build/packaging fix." },
+    { "topic": "permissions", "status": "not-applicable", "note": "No records or access control involved." },
+    { "topic": "validation", "status": "not-applicable", "note": "No end-user input; the only validation is the package check itself, covered by R2." },
+    { "topic": "states", "status": "assumed", "note": "The only states are each check succeeding or failing with a readable error." },
+    { "topic": "duplicates", "status": "not-applicable", "note": "No submissions or shared records." },
+    { "topic": "volume", "status": "not-applicable", "note": "No data volume involved." },
+    { "topic": "deletion", "status": "not-applicable", "note": "Nothing is deleted by users; dist is removed only to prove a clean build." },
+    { "topic": "privacy", "status": "not-applicable", "note": "No personal or sensitive data involved." },
+    { "topic": "quality", "status": "assumed", "note": "Reliability and packaging correctness only: build and package checks are repeatable from a clean state and types resolve for both module systems." }
+  ],
+  "assumptions": [
+    "The builder's \"npm run build still failing\" refers to the publish pipeline, whose reproducible failing step is `npm run validate-package`; `npm run build` itself exits 0 today.",
+    "Success means `npm run build`, `npm run type-check`, `npm test` and `npm run validate-package` all exit 0 from a clean state, not a size budget or docs check, since the project has no scripts for those.",
+    "The already-decided light/dark/system theme work stays as it is; this change only makes the build and package checks green without altering its behaviour."
+  ]
+}
