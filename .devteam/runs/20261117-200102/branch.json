@@ -35,8 +35,8 @@
     "coverage/lcov-report/src/UI/MobileDetailChrome.tsx.html"
   ],
   "MadeRepository": false,
-  "Finished": false,
-  "Merged": false,
-  "MergeCommit": null,
+  "Finished": true,
+  "Merged": true,
+  "MergeCommit": "106e6b56f53175bb1e94a26bd1e7717357a71a60",
   "BranchDeleted": false
 }

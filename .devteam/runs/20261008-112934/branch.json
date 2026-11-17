@@ -73,8 +73,8 @@
     "src/UI/ThemeRoot.tsx"
   ],
   "MadeRepository": false,
-  "Finished": false,
-  "Merged": false,
-  "MergeCommit": null,
+  "Finished": true,
+  "Merged": true,
+  "MergeCommit": "142283553b915be1efa788d8570a3727f7f4942b",
   "BranchDeleted": false
 }
