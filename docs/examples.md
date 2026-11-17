@@ -1,3 +1,9 @@
+---
+title: Technical Implementation Guide
+covers: src/UI/ResponsiveTable.tsx, src/Context/TableContext.tsx, src/Data/IResponsiveTableColumnDefinition.tsx, src/Data/ResponsiveTableTheme.ts, src/Plugins/IResponsiveTablePlugin.ts
+covers-hash: e304ad825554209454c5
+---
+
 # Technical Implementation Guide
 ## Implementation Patterns for the ResponsiveTable Component
 

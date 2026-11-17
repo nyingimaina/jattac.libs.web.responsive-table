@@ -1,3 +1,9 @@
+---
+title: Recommendations and Pitfalls
+covers: src/UI/ResponsiveTable.tsx, src/Plugins/IResponsiveTablePlugin.ts, src/UI/DesktopView.tsx, src/UI/MobileView.tsx, src/Data/IResponsiveTableColumnDefinition.tsx, package.json
+covers-hash: 014e337d98fbb8add0a2
+---
+
 # Recommendations and Pitfalls
 ## Best Practices, Anti-Patterns, and Module Compatibility
 

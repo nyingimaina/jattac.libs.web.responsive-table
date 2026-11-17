@@ -1,3 +1,9 @@
+---
+title: Configuration Specification
+covers: src/UI/ResponsiveTable.tsx, src/UI/SkeletonView.tsx, src/Styles/ResponsiveTable.module.css, src/Styles/Theme.module.css, src/Data/ResponsiveTableTheme.ts
+covers-hash: 5f215582139f4ca21bd8
+---
+
 # Configuration Specification
 ## Parameter Tuning and Interface Customization
 

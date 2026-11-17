@@ -1,3 +1,9 @@
+---
+title: Handling Interactive Elements
+covers: src/UI/MobileView.tsx, src/UI/DesktopView.tsx, src/UI/TableBodyRow.tsx
+covers-hash: a2f1ea799c56de248ab9
+---
+
 # Handling Interactive Elements
 
 When using the `onRowClick` prop, clicking any element within a row will trigger the callback. This can be problematic if you have interactive elements like buttons, links, or custom inputs inside your cells.

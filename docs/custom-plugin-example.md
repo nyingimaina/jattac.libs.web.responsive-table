@@ -1,3 +1,9 @@
+---
+title: Building a Custom Row Selection Plugin
+covers: src/Plugins/IResponsiveTablePlugin.ts, src/Plugins/SelectionPlugin.ts, src/Context/TableContext.tsx, src/UI/ResponsiveTable.tsx, src/Styles/ResponsiveTable.module.css
+covers-hash: fc62a4cc5f168c0c6aba
+---
+
 # Building a Custom Row Selection Plugin
 
 While `ResponsiveTable` provides built-in plugins for common functionalities like sorting and filtering, its extensible plugin system allows you to create custom plugins for highly specific needs, such as a bespoke row selection mechanism. This guide outlines the steps to build and integrate your own row selection plugin.

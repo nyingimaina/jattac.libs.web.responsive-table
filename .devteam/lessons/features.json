@@ -1,0 +1,41 @@
+{
+  "runs": [
+    {
+      "runId": "20261008-112934",
+      "feature": "I want to add dark, light and system modes that can be controlled by owner app, sort of\u2026",
+      "areas": [
+        "docs",
+        "(project root)",
+        "src/Styles",
+        "src/UI",
+        "src/Hooks",
+        "src/Data"
+      ]
+    },
+    {
+      "runId": "20261008-135629",
+      "feature": "npm run build fails. see the run log C:\\Users\\nying\\AppData\\Local\\npm-cache\\_logs\\2026-10-\u2026",
+      "areas": [
+        "src"
+      ]
+    },
+    {
+      "runId": "20261008-143408",
+      "feature": "npm run build still failing. See log file C:\\Users\\nying\\AppData\\Local\\npm-cache\\_logs\\202\u2026",
+      "areas": [
+        "(project root)",
+        "src",
+        "src/Plugins"
+      ]
+    },
+    {
+      "runId": "20261117-200102",
+      "feature": "Move mobile chevron row below the card body (and 2 more)",
+      "areas": [
+        "src/UI",
+        "docs",
+        "src/Styles"
+      ]
+    }
+  ]
+}

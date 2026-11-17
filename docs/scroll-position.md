@@ -1,3 +1,9 @@
+---
+title: Scroll Position Control
+covers: src/UI/ResponsiveTable.tsx, src/Hooks/useResponsiveTable.ts
+covers-hash: 4851266c5594fe5e6c09
+---
+
 # Scroll Position Control
 ## Saving and Restoring the Table's Scroll Offset
 

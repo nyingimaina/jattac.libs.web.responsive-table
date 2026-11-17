@@ -1,0 +1,19 @@
+{
+  "summary": "The expand/collapse documentation already describes the chevron row as the last row of the mobile card with a top border separator and the panel below it, matching the built code, so no rewrite was needed. I fixed the wiki metadata by adding title/covers front matter to the nine existing pages that lacked it, naming the source files each page describes.",
+  "pages": [
+    "docs/breaking-changes.md",
+    "docs/configuration.md",
+    "docs/custom-plugin-example.md",
+    "docs/development.md",
+    "docs/examples.md",
+    "docs/features.md",
+    "docs/handling-interactive-elements.md",
+    "docs/recommendations.md",
+    "docs/scroll-position.md"
+  ],
+  "notes": [
+    "docs/expand-collapse.md and docs/api.md already described the mobile chevron row at the bottom of the card above the detail panel with a top border separator, matching src/UI/MobileView.tsx and src/Styles/ResponsiveTable.module.css, so they were left unchanged.",
+    "The 0.25rem spacing of the moved chevron row was not verified visually; the request itself flags this as unchecked.",
+    "The covers file lists for the nine pages were inferred from what each page's prose and examples describe, not from an explicit mapping in the repo."
+  ]
+}

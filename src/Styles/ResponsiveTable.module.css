@@ -555,14 +555,14 @@
   outline-offset: 2px;
 }
 
-/* Mobile expand chevron row (top of card) */
+/* Mobile expand chevron row (last row of the card, above the detail panel) */
 .mobileExpandRow {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   padding: 0 0 0.25rem 0;
-  margin-bottom: 0.25rem;
-  border-bottom: 1px solid var(--table-border-color);
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--table-border-color);
 }
 /* ---- Mobile expanded-section chrome: rail + sticky breadcrumb header + footer ---- */
 

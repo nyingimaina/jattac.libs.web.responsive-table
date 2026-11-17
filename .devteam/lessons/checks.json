@@ -1,0 +1,158 @@
+{
+  "checks": [
+    {
+      "checkId": "no-secrets",
+      "name": "No secrets in code",
+      "failures": 0,
+      "secondsLost": 0,
+      "runsRun": [
+        "20261117-200102"
+      ],
+      "runsFailed": [],
+      "lastTail": "",
+      "lastAt": "0001-01-01T00:00:00+00:00",
+      "fixed": 0,
+      "fixFiles": {}
+    },
+    {
+      "checkId": "no-debug-leftovers",
+      "name": "No debugging leftovers",
+      "failures": 0,
+      "secondsLost": 0,
+      "runsRun": [
+        "20261117-200102"
+      ],
+      "runsFailed": [],
+      "lastTail": "",
+      "lastAt": "0001-01-01T00:00:00+00:00",
+      "fixed": 0,
+      "fixFiles": {}
+    },
+    {
+      "checkId": "rule-USR-001-1",
+      "name": "No native button (use zest-button)",
+      "failures": 0,
+      "secondsLost": 0,
+      "runsRun": [
+        "20261117-200102"
+      ],
+      "runsFailed": [],
+      "lastTail": "",
+      "lastAt": "0001-01-01T00:00:00+00:00",
+      "fixed": 0,
+      "fixFiles": {}
+    },
+    {
+      "checkId": "rule-USR-001-2",
+      "name": "No native textarea (use zest-textbox)",
+      "failures": 0,
+      "secondsLost": 0,
+      "runsRun": [
+        "20261117-200102"
+      ],
+      "runsFailed": [],
+      "lastTail": "",
+      "lastAt": "0001-01-01T00:00:00+00:00",
+      "fixed": 0,
+      "fixFiles": {}
+    },
+    {
+      "checkId": "rule-USR-001-3",
+      "name": "No native text input (use zest-textbox)",
+      "failures": 0,
+      "secondsLost": 0,
+      "runsRun": [
+        "20261117-200102"
+      ],
+      "runsFailed": [],
+      "lastTail": "",
+      "lastAt": "0001-01-01T00:00:00+00:00",
+      "fixed": 0,
+      "fixFiles": {}
+    },
+    {
+      "checkId": "rule-USR-001-4",
+      "name": "No native file input (use zest-file-upload)",
+      "failures": 0,
+      "secondsLost": 0,
+      "runsRun": [
+        "20261117-200102"
+      ],
+      "runsFailed": [],
+      "lastTail": "",
+      "lastAt": "0001-01-01T00:00:00+00:00",
+      "fixed": 0,
+      "fixFiles": {}
+    },
+    {
+      "checkId": "lib-typecheck",
+      "name": "Type check (library and tests)",
+      "failures": 0,
+      "secondsLost": 0,
+      "runsRun": [
+        "20261117-200102"
+      ],
+      "runsFailed": [],
+      "lastTail": "",
+      "lastAt": "0001-01-01T00:00:00+00:00",
+      "fixed": 0,
+      "fixFiles": {}
+    },
+    {
+      "checkId": "lib-tests",
+      "name": "Tests, with coverage",
+      "failures": 0,
+      "secondsLost": 0,
+      "runsRun": [
+        "20261117-200102"
+      ],
+      "runsFailed": [],
+      "lastTail": "",
+      "lastAt": "0001-01-01T00:00:00+00:00",
+      "fixed": 0,
+      "fixFiles": {}
+    },
+    {
+      "checkId": "lib-build",
+      "name": "Build (CommonJS, ES modules, type definitions)",
+      "failures": 0,
+      "secondsLost": 0,
+      "runsRun": [
+        "20261117-200102"
+      ],
+      "runsFailed": [],
+      "lastTail": "",
+      "lastAt": "0001-01-01T00:00:00+00:00",
+      "fixed": 0,
+      "fixFiles": {}
+    },
+    {
+      "checkId": "lib-validate-package",
+      "name": "Package check (attw and publint)",
+      "failures": 0,
+      "secondsLost": 0,
+      "runsRun": [
+        "20261117-200102"
+      ],
+      "runsFailed": [],
+      "lastTail": "",
+      "lastAt": "0001-01-01T00:00:00+00:00",
+      "fixed": 0,
+      "fixFiles": {}
+    },
+    {
+      "checkId": "lib-pack",
+      "name": "What would be published",
+      "failures": 0,
+      "secondsLost": 0,
+      "runsRun": [
+        "20261117-200102"
+      ],
+      "runsFailed": [],
+      "lastTail": "",
+      "lastAt": "0001-01-01T00:00:00+00:00",
+      "fixed": 0,
+      "fixFiles": {}
+    }
+  ]
+}

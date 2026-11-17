@@ -173,24 +173,6 @@ function MobileView<TData>(props: MobileViewProps) {
               if (onRowClick) onRowClick(row);
             }}
           >
-            {expandRowRenderer && rowHasContent && (
-              <div
-                className={styles.mobileExpandRow}
-                style={{ '--row-idx': rowIndex } as React.CSSProperties}
-              >
-                <span
-                  className={chevronClasses}
-                  role="button"
-                  tabIndex={0}
-                  aria-expanded={isExpanded}
-                  onClick={(e) => { e.stopPropagation(); toggleExpanded(rowId); }}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpanded(rowId); } }}
-                  data-rt-ignore-row-click
-                >
-                  <MdArrowDropDown />
-                </span>
-              </div>
-            )}
             <div className={styles['card-body']}>
               {visibleColumns.map((columnDefinition, colIndex) => {
                 const colDef = getColumnDefinition(columnDefinition, rowIndex);
@@ -233,6 +215,24 @@ function MobileView<TData>(props: MobileViewProps) {
                 );
               })}
             </div>
+            {expandRowRenderer && rowHasContent && (
+              <div
+                className={styles.mobileExpandRow}
+                style={{ '--row-idx': rowIndex } as React.CSSProperties}
+              >
+                <span
+                  className={chevronClasses}
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={isExpanded}
+                  onClick={(e) => { e.stopPropagation(); toggleExpanded(rowId); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpanded(rowId); } }}
+                  data-rt-ignore-row-click
+                >
+                  <MdArrowDropDown />
+                </span>
+              </div>
+            )}
           </div>
           {expandRowRenderer && rowHasContent && (
             <MobileDetailSection

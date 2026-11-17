@@ -37,8 +37,8 @@
     "src/Package.test.ts"
   ],
   "MadeRepository": false,
-  "Finished": false,
-  "Merged": false,
-  "MergeCommit": null,
+  "Finished": true,
+  "Merged": true,
+  "MergeCommit": "03972bde7f88929dabec036725a477516dd3a03b",
   "BranchDeleted": false
 }

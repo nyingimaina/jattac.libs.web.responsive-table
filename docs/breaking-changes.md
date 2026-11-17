@@ -1,3 +1,9 @@
+---
+title: Version Transition Guide
+covers: src/Hooks/useTablePlugins.ts, src/UI/DesktopView.tsx, src/UI/ThemeRoot.tsx, src/Hooks/useResolvedTheme.ts, src/Styles/Theme.module.css
+covers-hash: 636cd9006df2ad8c056d
+---
+
 # Version Transition Guide
 ## Management of Breaking Changes and Migration Pathways
 

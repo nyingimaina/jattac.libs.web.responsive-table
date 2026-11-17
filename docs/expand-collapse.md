@@ -1,7 +1,13 @@
+---
+title: Row Expansion and Collapse
+covers: src/UI/MobileView.tsx, src/UI/DesktopView.tsx, src/UI/DetailRow.tsx, src/UI/MobileDetailChrome.tsx, src/Hooks/useFirstRowAutoExpand.ts, src/Styles/ResponsiveTable.module.css
+covers-hash: e2b971268bc714614d33
+---
+
 # Row Expansion and Collapse
 ## Progressive Disclosure of Row Detail
 
-Expandable rows reveal arbitrary content below any row on demand. A chevron in a dedicated 2rem left column indicates state (▶ collapsed, ▾ expanded). The feature is surface-agnostic — it behaves identically in the desktop table layout and the mobile card layout — and composes transparently with all other table features: sorting, filtering, selection, `onRowClick`, and `dataSource`.
+Expandable rows reveal arbitrary content below any row on demand. On the desktop table layout a chevron in a dedicated 2rem left column indicates state (▶ collapsed, ▾ expanded). On the mobile card layout each card shows a chevron row as its last row, directly above the detail panel it opens. Both layouts compose transparently with all other table features: sorting, filtering, selection, `onRowClick`, and `dataSource`.
 
 ---
 
@@ -82,7 +88,7 @@ The renderer function is called for every row on each render pass. The return va
 
 | Return value | Effect |
 | :--- | :--- |
-| A `ReactNode` | Chevron appears in the expand column. Content is shown when expanded. |
+| A `ReactNode` | A toggle appears: the chevron in the desktop expand column, or the chevron row at the bottom of the mobile card. Content is shown when expanded. |
 | `null` or `undefined` | No chevron is rendered for that row. The row renders flat with no visual affordance. |
 
 ### All Rows Expandable
@@ -254,7 +260,9 @@ Chevrons are subtle. `firstRowDefaultOpen` opens the first expandable row once, 
 
 ## Mobile Orientation Chrome
 
-In the mobile card layout an expanded section shows three tappable signals so the user always knows they are inside a detail view and can leave it fast:
+In the mobile card layout the expand control is a chevron row rendered as the card's last row — after every data row and inside the card, so it sits directly above the detail panel that opens immediately below the card. It keeps a `0.25rem` top margin and a `1px` top border (`var(--table-border-color)`) to separate it from the data above, has no bottom border or bottom margin, and stays left-aligned. A card whose `expandRowRenderer` returns `null` or `undefined` renders no chevron row at all.
+
+An expanded section also shows three tappable signals so the user always knows they are inside a detail view and can leave it fast:
 
 - **Rail** — a full-height line down the left edge that indents the content. Tapping it collapses the section.
 - **Breadcrumb header** — a sticky "Title › Details" bar (44px tall) at the top of the section; tapping it collapses. The title comes from `mobileExpandTitle(row)`, falling back to the first column's value.
@@ -266,7 +274,7 @@ Accessibility: the header is the exposed control (`aria-expanded`); the rail is 
 
 The header's stickiness relies on `overflow: clip` (Chrome 90+, Safari 16+, Firefox 81+); on older browsers it simply scrolls with the content.
 
-Desktop is unchanged — the persistent chevron column already provides the signal.
+This chrome is mobile-only. On desktop the persistent chevron column already provides the signal.
 
 ---
 
@@ -392,7 +400,7 @@ const [openId, setOpenId] = useState<string | null>(null);
 
 ## Accessibility and Keyboard Navigation
 
-The chevron in the expand column is fully accessible without any additional configuration.
+The chevron is fully accessible in both layouts without any additional configuration.
 
 | Attribute / Behaviour | Detail |
 | :--- | :--- |
@@ -402,7 +410,7 @@ The chevron in the expand column is fully accessible without any additional conf
 | **Enter** / **Space** | Toggles the panel from the keyboard. Default scroll behaviour is suppressed on Space. |
 | `data-rt-ignore-row-click` | Chevron is excluded from the `onRowClick` event chain. Activating the toggle never fires the row click handler. |
 
-The chevron is a separate focusable element from the row itself. When `onRowClick` is also present, both the row and the chevron are keyboard-focusable independently: Tab reaches the row, Tab again reaches the chevron in the expand column.
+The chevron is a separate focusable element from the row itself. When `onRowClick` is also present, both the row and the chevron are keyboard-focusable independently: Tab reaches the row, Tab again reaches the chevron — in the desktop expand column, or in the chevron row at the bottom of the mobile card.
 
 ---
 
@@ -897,7 +905,9 @@ setTimeout(() => {
 
 ## Visual Anatomy
 
-When `expandRowRenderer` returns content for a row, the following structure is rendered (desktop shown; mobile uses the same visual model in card layout):
+When `expandRowRenderer` returns content for a row, the two layouts render the expand control in different places.
+
+**Desktop** — the chevron is a cell in a dedicated 2rem expand column:
 
 ```
 ┌─── expand column (2rem) ──┬── data columns ───────────────────────────────┐
@@ -912,9 +922,27 @@ When `expandRowRenderer` returns content for a row, the following structure is r
    └────────────────────────────────────────────────────────────────────┘
 ```
 
-The expand column is a dedicated `<th>`/`<td>` — the first column in the table — ensuring the chevron is always left-aligned and never overlaps data cells.
+**Mobile** — the card stacks the data rows, then the chevron row, and the detail panel opens below the card:
 
-**State summary:**
+```
+┌── mobile card ─────────────────────────────────────┐
+│  NAME                                              │
+│  Alice                                             │
+│  EMAIL                                             │
+│  alice@example.com                                 │
+│  ROLE                                              │
+│  Admin                                             │
+├────────────────────────────────────────────────────┤
+│  ▾  chevron row (last row, left-aligned)           │
+└────────────────────────────────────────────────────┘
+   ┌── detail panel (below the card) ────────────────┐
+   │  [rendered detail content]                      │
+   └─────────────────────────────────────────────────┘
+```
+
+The desktop expand column is a dedicated `<th>`/`<td>` — the first column in the table — ensuring the chevron is always left-aligned and never overlaps data cells. On mobile the chevron row is the last element inside the card, also left-aligned, so the control sits next to the panel it opens.
+
+**Desktop state summary:**
 
 | State | Chevron | Toggle bar | Detail panel |
 | :--- | :--- | :--- | :--- |
@@ -963,7 +991,7 @@ The following CSS module classes govern the expand/collapse visual system. They 
 
 | Class | Element | Key properties |
 | :--- | :--- | :--- |
-| `.expandColumn` | `<th>` / `<td>` for the dedicated chevron column | `width: 2rem`, `min-width: 2rem`, `padding: 0`, `text-align: center` |
+| `.expandColumn` | Desktop `<th>` / `<td>` for the dedicated chevron column | `width: 2rem`, `min-width: 2rem`, `padding: 0`, `text-align: center` |
 | `.expandChevron` | Chevron `<span>` | `opacity: 0.25`, `transform: rotate(-90deg)`, `transition: opacity 0.15s, transform 0.25s` |
 | `.expandChevronGreeting` | Applied during mount greeting | `animation: chevronGreeting 2.2s ease-out forwards`, delay via `--row-idx` |
 | `.expandChevronHovered` | Applied on row hover | `opacity: 0.6` |
@@ -977,7 +1005,7 @@ The following CSS module classes govern the expand/collapse visual system. They 
 | `.detailContentWrapper` | Grid container for the detail content | `grid-template-rows: 0fr`, transitions to `1fr` on expand |
 | `.detailContentInner` | Inner content container | `overflow: hidden`, `padding-left: 1.5rem` |
 | `.mobileDetailOuter` | Wrapper for toggle bar + content in mobile view | `overflow: hidden`, `background: rgba(0,0,0,0.012)` |
-| `.mobileExpandRow` | Chevron row at top of mobile card | Flex container, chevron left-aligned, bottom border separator |
+| `.mobileExpandRow` | Chevron row at bottom of mobile card, above the detail panel | Flex container, chevron left-aligned, top border separator |
 
 To apply brand colors across the entire expand/collapse system (chevron, border indicator, and selection highlights simultaneously), override the `--primary-color` variable in your global stylesheet:
 
@@ -990,3 +1018,12 @@ To apply brand colors across the entire expand/collapse system (chevron, border 
 ---
 
 **Previous:** [Technical Implementation Guide](./examples.md) | **Next:** [API Reference](./api.md)
+
+---
+
+## See also
+
+- [API Reference](./api.md) — the full prop list, including `expandRowRenderer` and `expandChevronClassName`.
+- [Technical Implementation Guide](./examples.md) — runnable examples of expandable rows.
+- [Functional Capabilities](./features.md) — how expansion fits with the other table features.
+- [Recommendations and Pitfalls](./recommendations.md) — common mistakes with the chevron and detail panels.

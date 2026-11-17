@@ -1,3 +1,9 @@
+---
+title: Architecture and Contribution Guide
+covers: src/UI/ResponsiveTable.tsx, src/Hooks/useTablePlugins.ts, src/UI/DesktopView.tsx, src/UI/MobileView.tsx, src/UI/SkeletonView.tsx, src/UI/ThemeRoot.tsx, src/Hooks/useResolvedTheme.ts, src/Styles/Theme.module.css, package.json
+covers-hash: 671487058190a6947e33
+---
+
 # Architecture and Contribution Guide
 ## Internal System Design and Development Workflows
 

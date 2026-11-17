@@ -1,0 +1,188 @@
+{
+  "summary": "In the responsive table\u0027s mobile card layout, move each card\u0027s expand/collapse chevron row from the top of the card to the bottom, after the card\u0027s data rows and directly above the detail panel it opens. The chevron row stays left-aligned as it is today. The desktop table layout, the chevron\u0027s existing behaviour and the detail panel\u0027s content stay unchanged. This puts the expand control next to the content it reveals, as the developer asked.",
+  "requirements": [
+    {
+      "id": "R1",
+      "text": "In mobile card view, each card\u0027s expand/collapse chevron row appears at the bottom of the card, after all of the card\u0027s data rows, instead of before them at the top. The row stays left-aligned within the card as it is today; it does not become a full-width footer bar.",
+      "acceptance": [
+        "On a mobile viewport, the chevron row is rendered below every data row inside the card and not above the first data row.",
+        "A card that contains only one data row still shows its chevron row below that row.",
+        "Tapping the chevron opens the detail panel for the same card it did before the move.",
+        "The chevron row remains left-aligned within the card, as it is today."
+      ],
+      "rationale": "The developer asked for the expand chevrons to be at the bottom of the card in mobile mode rather than at the top, and asked for them to stay left-aligned as they are now.",
+      "derivedFrom": "",
+      "edgeCases": [
+        "A card with many or tall data rows keeps the chevron row after the last row.",
+        "A row without expandable content still shows no chevron row.",
+        "Moving the chevron row must not detach it from its card or make it expand a different card."
+      ],
+      "pitfalls": [
+        "Moving the row in the DOM must not leave it outside the card or render a duplicate chevron.",
+        "The chevron must remain inside the card\u0027s click handling so its own click still stops the row click."
+      ],
+      "rules": [],
+      "facts": []
+    },
+    {
+      "id": "R2",
+      "text": "The mobile chevron row\u0027s spacing and separator reflect its new position as the last row of the card: the separator that currently sits below the chevron row and the bottom margin that assumed a top row are removed or moved to the top edge of the row.",
+      "acceptance": [
+        "The chevron row no longer has a bottom border or bottom margin that separates it from the card body.",
+        "The chevron row reads visually as the last row of the card, separated from the last data row above it."
+      ],
+      "rationale": "The current CSS gives the row a bottom margin and a bottom border because it assumes the row is at the top; left unchanged, the moved row would look like a header pressed against the detail panel.",
+      "derivedFrom": "",
+      "edgeCases": [
+        "The styling change applies only in mobile card view and does not restyle the desktop chevron column.",
+        "A card with a single data row keeps clear visual separation between that row and the chevron row."
+      ],
+      "pitfalls": [
+        "Do not introduce a double border between the card and the detail panel below it."
+      ],
+      "rules": [],
+      "facts": []
+    },
+    {
+      "id": "R3",
+      "text": "Expanding a mobile card still opens its detail panel immediately below that card, with the chevron row directly above the panel.",
+      "acceptance": [
+        "With a card collapsed, no detail panel is visible; with it expanded, the panel appears below the card.",
+        "When expanded, the chevron row sits between the card\u0027s last data row and the detail panel.",
+        "Collapsing from the chevron or from the panel\u0027s collapse control closes the same panel."
+      ],
+      "rationale": "The detail section already renders outside and after the card, so a bottom chevron should sit right above the panel it opens; this is the arrangement the move is meant to produce.",
+      "derivedFrom": "",
+      "edgeCases": [
+        "With more than one card expanded, each panel appears below its own card and that card\u0027s chevron sits above its own panel."
+      ],
+      "pitfalls": [
+        "The chevron must not move into the detail panel or become part of the panel\u0027s chrome."
+      ],
+      "rules": [],
+      "facts": []
+    },
+    {
+      "id": "R4",
+      "text": "Desktop view is unchanged: its expand/collapse chevron remains in the first column of the table row, not at the bottom of a card.",
+      "acceptance": [
+        "On a desktop viewport, the chevron appears in the first column of the row as it did before.",
+        "Resizing from mobile to desktop shows the desktop chevron placement, and resizing back to mobile shows the bottom-of-card placement."
+      ],
+      "rationale": "The request covers mobile mode only; desktop already has its own chevron placement in the row\u0027s first column.",
+      "derivedFrom": "",
+      "edgeCases": [
+        "CSS classes shared between the mobile and desktop views must not move or restyle the desktop chevron."
+      ],
+      "pitfalls": [
+        "A global style change to the chevron row could leak into the desktop table layout."
+      ],
+      "rules": [],
+      "facts": []
+    },
+    {
+      "id": "R5",
+      "text": "The documentation that describes the mobile chevron as a top-of-card row is updated to describe it as a bottom-of-card row.",
+      "acceptance": [
+        "The documentation no longer describes the mobile chevron row as being at the top of the card.",
+        "The documentation describes the chevron row as sitting at the bottom of the card, above the detail panel."
+      ],
+      "rationale": "docs/expand-collapse.md currently encodes the old top-of-card position and would be wrong after the change.",
+      "derivedFrom": "",
+      "edgeCases": [
+        "Any other reference to the chevron\u0027s position in the same documentation is consistent with bottom placement."
+      ],
+      "pitfalls": [
+        "Do not leave stale screenshots or captions that show the chevron at the top of the card."
+      ],
+      "rules": [],
+      "facts": []
+    }
+  ],
+  "questions": [],
+  "coverage": [
+    {
+      "topic": "users",
+      "status": "not-applicable",
+      "note": "The change applies to every viewer of the mobile card layout; no roles or permissions differ."
+    },
+    {
+      "topic": "data",
+      "status": "not-applicable",
+      "note": "No fields, formats, limits or stored data are involved."
+    },
+    {
+      "topic": "permissions",
+      "status": "not-applicable",
+      "note": "No record ownership, sharing or access rules are involved."
+    },
+    {
+      "topic": "validation",
+      "status": "not-applicable",
+      "note": "The change introduces no user input to validate."
+    },
+    {
+      "topic": "states",
+      "status": "not-applicable",
+      "note": "The chevron row only renders for rows that have expandable content; empty, loading and error states are unaffected."
+    },
+    {
+      "topic": "duplicates",
+      "status": "not-applicable",
+      "note": "There is no submit or save action; the only interaction is expanding and collapsing a card."
+    },
+    {
+      "topic": "volume",
+      "status": "assumed",
+      "note": "A card may contain any number of data rows; the chevron row always follows the last one."
+    },
+    {
+      "topic": "deletion",
+      "status": "not-applicable",
+      "note": "Nothing is deleted by this change."
+    },
+    {
+      "topic": "privacy",
+      "status": "not-applicable",
+      "note": "No personal or sensitive data is read, shown differently or retained differently."
+    },
+    {
+      "topic": "quality",
+      "status": "assumed",
+      "note": "Existing keyboard and screen-reader behaviour is preserved; the developer did not discuss it explicitly."
+    }
+  ],
+  "assumptions": [
+    "The chevron row keeps its existing icon, keyboard handling and aria-expanded behaviour; only its vertical position and separator styling change.",
+    "A card may contain any number of data rows; the chevron row always follows the last one.",
+    "The detail panel continues to render outside and after the card, as it does today."
+  ],
+  "roles": [
+    "Mobile user: views table rows as cards and expands a card to see its detail",
+    "Desktop user: views the table layout and is unaffected by this change"
+  ],
+  "outOfScope": [
+    "Changing the chevron icon, colour, size or horizontal alignment",
+    "Changing the content, animation or chrome of the detail panel",
+    "Changing the desktop table layout",
+    "Changing which rows are expandable or what data a card shows"
+  ],
+  "nonFunctional": [
+    {
+      "area": "accessibility",
+      "statement": "The moved chevron keeps its current keyboard and assistive-technology behaviour: it is focusable, toggles on Enter or Space, and reports its expanded state.",
+      "acceptance": "Tab reaches the chevron in its new position, Enter and Space toggle it, and aria-expanded matches the panel\u0027s state."
+    }
+  ],
+  "risks": [
+    "The mobile and desktop views may share CSS, so a bottom-row style change could leak into the desktop chevron column.",
+    "Changing DOM order changes tab and screen-reader order; the chevron must remain reachable and still control the same card.",
+    "The documentation or screenshots may still describe the chevron as top-of-card after the code has moved."
+  ],
+  "tensions": [],
+  "glossary": [
+    "Mobile card view: the responsive table layout used on narrow screens, where each data row is rendered as a card.",
+    "Expand chevron: the control on a mobile card that opens and closes that card\u0027s detail panel.",
+    "Detail panel: the expanded section rendered directly below a mobile card."
+  ]
+}

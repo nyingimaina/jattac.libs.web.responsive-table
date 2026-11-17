@@ -1,0 +1,70 @@
+{
+  "rules": [
+    {
+      "rule": "QUAL-001",
+      "count": 1,
+      "runs": [
+        "20261008-143408"
+      ],
+      "lastDescription": "Debug leftovers remain in the library\u0027s source, which QUAL-001 marks blocking. The developer\u0027s report acknowledges them but leaves them as \u0027outside the design scope\u0027. QUAL-001 is not scoped to changed files - it applies to the library\u0027s sou",
+      "lastFile": "src/Plugins/SortPlugin.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/Styles/Theme.module.css",
+      "count": 1,
+      "runs": [
+        "20261008-112934"
+      ],
+      "lastDescription": "Upgrading changes the look for apps that pass no theme. An app that overrides the colour variables on :root (as the docs advise) now loses those overrides for the mobile cards, spinner and messages, because the wrapper redefines every varia",
+      "lastRule": ""
+    },
+    {
+      "path": "docs/breaking-changes.md",
+      "count": 1,
+      "runs": [
+        "20261008-112934"
+      ],
+      "lastDescription": "The migration advice does not run as written: following the \u0027:root\u0027 option leaves the app\u0027s colours unchanged. The note also treats a visible behaviour change as \u0027additive, no breaking changes\u0027. Fix the advice, or fix the CSS so :root reall",
+      "lastRule": ""
+    },
+    {
+      "path": "src/UI/ThemeRoot.tsx",
+      "count": 1,
+      "runs": [
+        "20261008-112934"
+      ],
+      "lastDescription": "The theme change must not alter layout. The wrapper should be layout-neutral (for example display: contents, or pass-through width/height/flex) and a test should cover it. Without that, upgrading can change layout for apps that opt into not",
+      "lastRule": ""
+    },
+    {
+      "path": "src/UI/ResponsiveTable.theme.test.tsx",
+      "count": 2,
+      "runs": [
+        "20261008-112934",
+        "20261008-135629"
+      ],
+      "lastDescription": "R1 (build passes from clean state, produces dist/index.js and dist/index.mjs) has no automated test that could fail if the build were broken. Add a test that removes dist, runs the build, asserts exit 0 and that both outputs exist, naming R",
+      "lastRule": ""
+    },
+    {
+      "path": "src/Plugins/SortPlugin.ts",
+      "count": 1,
+      "runs": [
+        "20261008-143408"
+      ],
+      "lastDescription": "Debug leftovers remain in the library\u0027s source, which QUAL-001 marks blocking. The developer\u0027s report acknowledges them but leaves them as \u0027outside the design scope\u0027. QUAL-001 is not scoped to changed files - it applies to the library\u0027s sou",
+      "lastRule": "QUAL-001"
+    }
+  ],
+  "absorbed": [
+    "20261008-112934",
+    "20261008-135042",
+    "20261008-135629",
+    "20261008-143408",
+    "20261008-160538",
+    "20261117-200102"
+  ],
+  "promotionAsked": {}
+}

@@ -1,3 +1,9 @@
+---
+title: Functional Capabilities
+covers: src/UI/ResponsiveTable.tsx, src/UI/DesktopView.tsx, src/UI/MobileView.tsx, src/UI/DetailRow.tsx, src/UI/MobileDetailChrome.tsx, src/Hooks/useTablePlugins.ts, src/UI/ThemeRoot.tsx, src/Styles/ResponsiveTable.module.css
+covers-hash: 18664074c55822329bd8
+---
+
 # Functional Capabilities
 ## Architectural Features of the ResponsiveTable Component
 

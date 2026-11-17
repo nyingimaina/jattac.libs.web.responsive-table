@@ -1,0 +1,66 @@
+{
+  "summary": "The change is a local reorder inside the existing mobile card renderer (src/UI/MobileView.tsx) plus a rule swap on the existing .mobileExpandRow CSS module class, and a one-row documentation correction. No new component, hook, prop, type or dependency is introduced: the chevron keeps its existing <span role=\"button\"> with tabIndex, aria-expanded, Enter/Space handler and data-rt-ignore-row-click, and simply moves from before the card-body div to after it, still inside the same .card div and still under the same `expandRowRenderer && rowHasContent` guard. Because MobileDetailSection already renders immediately after the card under the same guard, the moved row lands directly above the panel it opens with no empty row and no change to open/close behaviour. Left alignment comes from the existing justify-content: flex-start, so it is untouched. R2 is satisfied by changing margin-bottom/border-bottom to margin-top/border-top in .mobileExpandRow, keeping display:flex, align-items:center, justify-content:flex-start and padding: 0 0 0.25rem 0. R4 is satisfied by construction: .mobileExpandRow is referenced only by MobileView, and the desktop chevron cell (DesktopView expandColumn) shares no class with it, so the CSS edit cannot leak into desktop. Cost and scale: no new dependencies, no state, no effects, no listeners, no data-shaped work (the DOM order change adds and removes nothing), so render cost, memory, network, storage and startup time are unchanged; the desktop table, virtualization and paging paths are untouched, so behaviour with a hundred times more rows is identical. Public surface (UI/index.ts exports, props and types) is unchanged, so no version bump or breaking-change entry is needed. Verification: a new co-located Jest/RTL test file pins the current chevron behaviour first (characterization), then asserts the new order, the desktop placement and the CSS separator contract, since the repo maps CSS modules to identity-obj-proxy and CSS values can only be checked by reading the module file (the pattern used by src/Build.test.ts).",
+  "impact": {
+    "touches": [
+      "src/UI/MobileView.tsx (mobile card chevron row DOM order)",
+      "src/Styles/ResponsiveTable.module.css (.mobileExpandRow separator and margin)",
+      "docs/expand-collapse.md (CSS customization reference row for .mobileExpandRow)",
+      "src/UI/MobileChevronPlacement.test.tsx (new characterization and regression tests)"
+    ],
+    "reuses": [
+      "existing MobileView card renderer, chevron span props/handlers and MobileDetailSection/MobileDetailChrome expand/collapse path",
+      "existing .card, .card-body and .card-row CSS module classes and the .mobileExpandRow class",
+      "existing CSS variables (--table-border-color) and rem-based spacing",
+      "existing Jest + ts-jest + @testing-library/react setup (package.json jest config, identity-obj-proxy, jest-setup.ts) and the viewport-resize mobile test pattern from MobileExpandChrome.test.tsx",
+      "existing react-icons/md MdArrowDropDown chevron icon"
+    ],
+    "adds": [
+      "src/UI/MobileChevronPlacement.test.tsx — one co-located test file with characterization tests for the current chevron behaviour and regression tests for bottom-of-card order, separator CSS contract and unchanged desktop placement"
+    ]
+  },
+  "scope": [
+    "src/UI/MobileView.tsx",
+    "src/Styles/ResponsiveTable.module.css",
+    "src/UI/MobileChevronPlacement.test.tsx",
+    "docs/expand-collapse.md"
+  ],
+  "components": [
+    {
+      "name": "MobileView",
+      "path": "src/UI/MobileView.tsx",
+      "requirements": ["R1", "R3"]
+    },
+    {
+      "name": "ResponsiveTableStyles",
+      "path": "src/Styles/ResponsiveTable.module.css",
+      "requirements": ["R2", "R4"]
+    },
+    {
+      "name": "MobileChevronPlacementTests",
+      "path": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R1", "R2", "R3", "R4", "A1"]
+    },
+    {
+      "name": "ExpandCollapseDocs",
+      "path": "docs/expand-collapse.md",
+      "requirements": ["R5"]
+    }
+  ],
+  "additions": [
+    {
+      "id": "A1",
+      "title": "Pin the chevron's position and keyboard behaviour with tests",
+      "why": "Nothing currently fails if the chevron row silently moves back to the top of the card, loses its keyboard toggle, or the desktop chevron column changes, so tests are added to lock the behaviour down before and after the move.",
+      "parent": "R1",
+      "kind": "enabling",
+      "touches": ["tests", "ui"],
+      "acceptance": [
+        "Characterization tests pass on the current code and describe today's chevron behaviour (one chevron per expandable card, aria-expanded false/true, Enter and Space toggle, no chevron when expandRowRenderer returns null).",
+        "After the change, a mobile test asserts the chevron row is the last element inside the .card div, after every .card-row, including a card with a single data row.",
+        "After the change, a mobile test asserts clicking the chevron opens the detail panel immediately after the same card and that collapsing from the panel's chrome control closes it.",
+        "A desktop test asserts the chevron renders in the first table cell and no .mobileExpandRow element exists.",
+        "A CSS contract test asserts the .mobileExpandRow block has border-top and margin-top and no border-bottom or margin-bottom, and keeps justify-content: flex-start and rem spacing."
+      ]
+    }
+  ]
+}

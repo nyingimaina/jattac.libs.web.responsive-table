@@ -1,0 +1,21 @@
+{
+  "summary": "Mostly consistent, but R5 has no test that names it (so TEST-001 cannot pass) and R2's second acceptance line is a visual judgement no automated test can prove.",
+  "conflicts": [
+    {
+      "requirement": "R5",
+      "against": "TEST-001",
+      "kind": "check",
+      "owner": "design",
+      "why": "The design's only test component covers R1, R2, R3, R4 and A1, and docs/expand-collapse.md is listed separately with R5 and no test, so no automated test names R5 and TEST-001 ('every requirement is proven by at least one test that names it') fails as the plan stands. A doc-assertion test in the new test file would fix it without changing any requirement.",
+      "evidence": "TEST-001: 'Every requirement is proven by at least one test that names it.' Design components: {\"name\": \"MobileChevronPlacementTests\", ... \"requirements\": [\"R1\", \"R2\", \"R3\", \"R4\", \"A1\"]} and {\"name\": \"ExpandCollapseDocs\", \"path\": \"docs/expand-collapse.md\", \"requirements\": [\"R5\"]}. R5: 'The documentation that describes the mobile chevron as a top-of-card row is updated to describe it as a bottom-of-card row.'"
+    },
+    {
+      "requirement": "R2",
+      "against": "design",
+      "kind": "untestable",
+      "owner": "requirements",
+      "why": "R2's second acceptance line is a visual judgement ('reads visually as the last row') that no automated test can prove; the design's substitute is a CSS contract test that only asserts the presence of border-top/margin-top in the text of the module.css file (CSS values cannot be read through computed styles because CSS is mapped to identity-obj-proxy), so QA could never accept that line on evidence. The acceptance line needs rewording to something provable (e.g. the row has border-top/margin-top and its top border is adjacent to the last data row), or the requirement must say how it is accepted.",
+      "evidence": "R2 acceptance: 'The chevron row reads visually as the last row of the card, separated from the last data row above it.' Design A1: 'A CSS contract test asserts the .mobileExpandRow block has border-top and margin-top and no border-bottom or margin-bottom, and keeps justify-content: flex-start and rem spacing.' Project note: 'moduleNameMapper maps CSS to identity-obj-proxy, so CSS values cannot be asserted through computed styles - a CSS contract test must read the module.css file'."
+    }
+  ]
+}

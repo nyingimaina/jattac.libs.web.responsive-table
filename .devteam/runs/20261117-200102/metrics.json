@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 0,
+  "runId": "20261117-200102",
+  "at": "2026-11-17T20:37:57.4336246+00:00",
+  "status": "Completed",
+  "feature": "Move mobile chevron row below the card body (and 2 more)",
+  "testsReported": 17,
+  "checksPassed": 11,
+  "checksTotal": 14,
+  "checksNotRun": 3,
+  "bootPassed": 0,
+  "bootTotal": 0,
+  "findingsOpen": 0,
+  "findingsAdvisory": 6,
+  "findingsFixed": 0,
+  "requirementsTotal": 5,
+  "requirementsWithTests": 5,
+  "costUsd": 0.14925882000000001,
+  "seconds": 2215.1248075,
+  "coverage": [
+    {
+      "name": "Library",
+      "linePercent": 83.7,
+      "branchPercent": 71.5,
+      "changedLinePercent": 89.5,
+      "filesCovered": 21,
+      "functionPercent": 75.7
+    }
+  ],
+  "testsExecuted": 0,
+  "testsFailed": 0,
+  "testsSkipped": 0,
+  "verification": false
+}

@@ -1,0 +1,5 @@
+{"at":"2026-11-17T20:06:03.69607+00:00","event":"spawned","runId":"20261117-200102","args":"resume","pid":0,"exitCode":null,"note":""}
+{"at":"2026-11-17T20:06:04.2028989+00:00","event":"started","runId":"20261117-200102","args":"resume","pid":38348,"exitCode":null,"note":"the run was running"}
+{"at":"2026-11-17T20:09:28.3523454+00:00","event":"exited","runId":"20261117-200102","args":"resume","pid":38348,"exitCode":2,"note":"ended with the run awaitingdecision"}
+{"at":"2026-11-17T20:09:43.1087551+00:00","event":"spawned","runId":"20261117-200102","args":"resume","pid":0,"exitCode":null,"note":""}
+{"at":"2026-11-17T20:09:43.5816644+00:00","event":"started","runId":"20261117-200102","args":"resume","pid":45568,"exitCode":null,"note":"the run was running"}

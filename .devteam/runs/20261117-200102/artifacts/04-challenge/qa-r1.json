@@ -1,0 +1,29 @@
+{
+  "findings": [
+    {
+      "cites": "R5",
+      "severity": "advisory",
+      "file": "docs/expand-collapse.md",
+      "line": 4,
+      "evidence": "Line 4 still says 'A chevron in a dedicated 2rem left column indicates state ... The feature is surface-agnostic - it behaves identically in the desktop table layout and the mobile card layout', and the Visual Anatomy caption at line 900 says 'desktop shown; mobile uses the same visual model in card layout' (with an ASCII diagram of the chevron column above the toggle bar). Both now contradict the bottom-of-card chevron row. The R5 test (src/UI/MobileChevronPlacement.test.tsx:196-205) only scans the single line containing '.mobileExpandRow', so these stale position references would not fail it.",
+      "description": "R5's edge case 'any other reference to the chevron's position in the same documentation is consistent with bottom placement' is not proven: the doc intro and visual-anatomy caption still place the chevron in the left column / mirror desktop. Acceptance lines themselves are tested (the .mobileExpandRow row is correct), so this is advisory, but the doc is now internally inconsistent."
+    },
+    {
+      "cites": "R1",
+      "severity": "advisory",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "line": 128,
+      "evidence": "The accessibility acceptance for R1 asks that 'Tab reaches the chevron in its new position'. The test only asserts expect(chevron).toHaveAttribute('tabindex', '0') and then fires keyDown directly; no tab traversal (userEvent.tab / focusedElement) is exercised, so a regression where the chevron stays in the DOM but becomes unreachable by tab order would not be noticed.",
+      "description": "Keyboard reach of the moved chevron is asserted indirectly (tabindex) rather than by tabbing to it. Enter/Space and aria-expanded are properly covered; this is a proof-strength advisory, not a missing behaviour."
+    },
+    {
+      "cites": "R4",
+      "severity": "advisory",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "line": 211,
+      "evidence": "The desktop tests assert DOM placement (td.expandColumn in the first cell, no .mobileExpandRow in the desktop tree) but read no CSS for the shared classes. .expandChevron (src/Styles/ResponsiveTable.module.css:436) is used by both mobile and desktop chevrons, and .expandColumn already carries border-bottom; a new top border/margin added to either shared class would not fail any test, even though R4's edge case requires shared CSS not to restyle the desktop chevron.",
+      "description": "R4's edge case about shared CSS leaking into the desktop chevron is covered only by class scoping (mobile-only .mobileExpandRow), not by an assertion on the shared .expandChevron/.expandColumn rules. Advisory: placement is proven."
+    }
+  ],
+  "verifications": []
+}

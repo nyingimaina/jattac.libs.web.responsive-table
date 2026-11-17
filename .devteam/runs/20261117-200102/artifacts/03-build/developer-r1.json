@@ -1,0 +1,91 @@
+{
+  "summary": "Moved the mobile card's expand chevron row to the bottom of the card (after .card-body, still the last child of .card and inside the row-click guard), flipped .mobileExpandRow from margin-bottom/border-bottom to margin-top/border-top with a corrected comment, and updated the .mobileExpandRow row in docs/expand-collapse.md to describe bottom-of-card placement above the detail panel. Added src/UI/MobileChevronPlacement.test.tsx covering R1-R5 (DOM order, single/many rows, no-content rows, click/keyboard behaviour, CSS separator contract, panel-below-card behaviour, desktop first-column placement and resize, docs wording).",
+  "tests": [
+    {
+      "name": "R1: renders the chevron row after every data row, as the last child of the card",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: a card with a single data row still shows the chevron row below that row",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: a card with many tall data rows keeps the chevron row after the last row",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: a row without expandable content shows no chevron row",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: tapping the chevron opens the detail panel for its own card only",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: the chevron stays inside the card and its click does not trigger the row click",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R1: Enter and Space toggle the chevron and aria-expanded follows the panel",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R1"]
+    },
+    {
+      "name": "R2: no bottom border or bottom margin separates the chevron row from the card body",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R2"]
+    },
+    {
+      "name": "R2: the chevron row is separated from the data above it by a top border and top margin",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R2"]
+    },
+    {
+      "name": "R2: the chevron row keeps left alignment and its flex layout",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R2"]
+    },
+    {
+      "name": "R3: a collapsed card shows no panel and an expanded card shows its panel below the card",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R3"]
+    },
+    {
+      "name": "R3: the chevron row sits between the card data and the panel it opens",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R3"]
+    },
+    {
+      "name": "R3: with two cards expanded each chevron sits above its own panel",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R3"]
+    },
+    {
+      "name": "R3: collapsing from the panel chrome closes the same panel",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R3"]
+    },
+    {
+      "name": "R5: the expand-collapse docs describe the chevron row at the bottom of the card",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R5"]
+    },
+    {
+      "name": "R4: the chevron stays in the first column of the table row and no mobile chevron row renders",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R4"]
+    },
+    {
+      "name": "R4: resizing mobile to desktop and back switches between bottom-of-card and first-column placement",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "requirements": ["R4"]
+    }
+  ],
+  "kickbacks": []
+}

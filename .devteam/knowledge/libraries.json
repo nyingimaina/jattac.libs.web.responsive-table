@@ -1,0 +1,398 @@
+{
+  "at": "2026-11-17T20:28:47.5649557+00:00",
+  "entries": [
+    {
+      "kind": "npm",
+      "name": "tslib",
+      "version": "2.8.1",
+      "key": "c6753e906098929dfd4e92a5",
+      "own": false,
+      "source": "npm:tslib@2.8.1",
+      "size": 1219,
+      "ticks": 638913827194588629
+    },
+    {
+      "kind": "npm",
+      "name": "@arethetypeswrong/cli",
+      "version": "0.18.5",
+      "key": "52a7fafed8cc5e2ec6e2419c",
+      "own": false,
+      "source": "npm:@arethetypeswrong/cli@0.18.5",
+      "size": 1597,
+      "ticks": 639258284540950029
+    },
+    {
+      "kind": "npm",
+      "name": "@rollup/plugin-commonjs",
+      "version": "25.0.8",
+      "key": "8281dffa3b8473695e2f21c9",
+      "own": false,
+      "source": "npm:@rollup/plugin-commonjs@25.0.8",
+      "size": 2321,
+      "ticks": 638913827199484870
+    },
+    {
+      "kind": "npm",
+      "name": "@rollup/plugin-node-resolve",
+      "version": "15.3.1",
+      "key": "ed3e1dab8cf241d6ff046203",
+      "own": false,
+      "source": "npm:@rollup/plugin-node-resolve@15.3.1",
+      "size": 2337,
+      "ticks": 638913827198501687
+    },
+    {
+      "kind": "npm",
+      "name": "@rollup/plugin-terser",
+      "version": "0.4.4",
+      "key": "9ce0f0a4e2e5dfea8d294329",
+      "own": false,
+      "source": "npm:@rollup/plugin-terser@0.4.4",
+      "size": 1926,
+      "ticks": 638913827192968583
+    },
+    {
+      "kind": "npm",
+      "name": "@rollup/plugin-typescript",
+      "version": "11.1.6",
+      "key": "2b151d245bce07e3ec1e8ef7",
+      "own": false,
+      "source": "npm:@rollup/plugin-typescript@11.1.6",
+      "size": 2009,
+      "ticks": 638913827198527128
+    },
+    {
+      "kind": "npm",
+      "name": "@size-limit/preset-small-lib",
+      "version": "10.0.3",
+      "key": "70a419a3ce5096ee40ca0943",
+      "own": false,
+      "source": "npm:@size-limit/preset-small-lib@10.0.3",
+      "size": 631,
+      "ticks": 638913827190098382
+    },
+    {
+      "kind": "npm",
+      "name": "@testing-library/dom",
+      "version": "10.0.0",
+      "key": "21b1893975247bda850e083c",
+      "own": false,
+      "source": "npm:@testing-library/dom@10.0.0",
+      "size": 3345,
+      "ticks": 639258248083859953
+    },
+    {
+      "kind": "npm",
+      "name": "@testing-library/jest-dom",
+      "version": "6.9.1",
+      "key": "0ed3e43d21b123f833fe61cf",
+      "own": false,
+      "source": "npm:@testing-library/jest-dom@6.9.1",
+      "size": 3906,
+      "ticks": 639034761099726700
+    },
+    {
+      "kind": "npm",
+      "name": "@testing-library/react",
+      "version": "16.3.3",
+      "key": "935733dd191c5880306bf75c",
+      "own": false,
+      "source": "npm:@testing-library/react@16.3.3",
+      "size": 3469,
+      "ticks": 639258248070912680
+    },
+    {
+      "kind": "npm",
+      "name": "@types/jest",
+      "version": "30.0.0",
+      "key": "16da06dba7c026be907f63e6",
+      "own": false,
+      "source": "npm:@types/jest@30.0.0",
+      "size": 4473,
+      "ticks": 639034760117415186
+    },
+    {
+      "kind": "npm",
+      "name": "@types/react",
+      "version": "19.0.0",
+      "key": "e29b9f3241840f4f9e2c25c7",
+      "own": false,
+      "source": "npm:@types/react@19.0.0",
+      "size": 6108,
+      "ticks": 639258248079558184
+    },
+    {
+      "kind": "npm",
+      "name": "@types/react-dom",
+      "version": "19.0.0",
+      "key": "bc3abe95d5b57767dd4e4103",
+      "own": false,
+      "source": "npm:@types/react-dom@19.0.0",
+      "size": 2393,
+      "ticks": 639258248079064884
+    },
+    {
+      "kind": "npm",
+      "name": "@types/react-window",
+      "version": "1.8.8",
+      "key": "cbed367fbc84787ac534b67e",
+      "own": false,
+      "source": "npm:@types/react-window@1.8.8",
+      "size": 1142,
+      "ticks": 638913827191627080
+    },
+    {
+      "kind": "npm",
+      "name": "@typescript-eslint/eslint-plugin",
+      "version": "6.21.0",
+      "key": "58e007707e5152f65ec8ab73",
+      "own": false,
+      "source": "npm:@typescript-eslint/eslint-plugin@6.21.0",
+      "size": 3061,
+      "ticks": 638913827216834025
+    },
+    {
+      "kind": "npm",
+      "name": "@typescript-eslint/parser",
+      "version": "6.21.0",
+      "key": "ba6efc74448ac5d0855767df",
+      "own": false,
+      "source": "npm:@typescript-eslint/parser@6.21.0",
+      "size": 2078,
+      "ticks": 638913827191627080
+    },
+    {
+      "kind": "npm",
+      "name": "eslint",
+      "version": "8.57.1",
+      "key": "cb3eb0b9246ff4cf36d7f00b",
+      "own": false,
+      "source": "npm:eslint@8.57.1",
+      "size": 5699,
+      "ticks": 638913827223029416
+    },
+    {
+      "kind": "npm",
+      "name": "eslint-config-prettier",
+      "version": "9.1.0",
+      "key": "5774a378a35139266fa1765b",
+      "own": false,
+      "source": "npm:eslint-config-prettier@9.1.0",
+      "size": 384,
+      "ticks": 638913827199327608
+    },
+    {
+      "kind": "npm",
+      "name": "eslint-plugin-prettier",
+      "version": "5.5.1",
+      "key": "8b9530ac7edf9603615cea40",
+      "own": false,
+      "source": "npm:eslint-plugin-prettier@5.5.1",
+      "size": 1519,
+      "ticks": 638913827189975745
+    },
+    {
+      "kind": "npm",
+      "name": "eslint-plugin-react",
+      "version": "7.37.5",
+      "key": "f284a8b5f3a1b4e0c89e90fa",
+      "own": false,
+      "source": "npm:eslint-plugin-react@7.37.5",
+      "size": 3970,
+      "ticks": 638913827214476511
+    },
+    {
+      "kind": "npm",
+      "name": "identity-obj-proxy",
+      "version": "3.0.0",
+      "key": "c0c16f4088115bf751f3b7cb",
+      "own": false,
+      "source": "npm:identity-obj-proxy@3.0.0",
+      "size": 1401,
+      "ticks": 638913827187533412
+    },
+    {
+      "kind": "npm",
+      "name": "jattac.libs.web.zest-textbox",
+      "version": "0.5.5",
+      "key": "63aa2245b352b55a4477eb35",
+      "own": false,
+      "source": "npm:jattac.libs.web.zest-textbox@0.5.5",
+      "size": 1798,
+      "ticks": 639155817667185872
+    },
+    {
+      "kind": "npm",
+      "name": "jest",
+      "version": "30.2.0",
+      "key": "a1f3620db64ce7ea9b9ffd78",
+      "own": false,
+      "source": "npm:jest@30.2.0",
+      "size": 1467,
+      "ticks": 639034760116375802
+    },
+    {
+      "kind": "npm",
+      "name": "jest-environment-jsdom",
+      "version": "30.2.0",
+      "key": "b59f9dc9fb7f41cd2f148465",
+      "own": false,
+      "source": "npm:jest-environment-jsdom@30.2.0",
+      "size": 1073,
+      "ticks": 639034760115518558
+    },
+    {
+      "kind": "npm",
+      "name": "postcss",
+      "version": "8.5.6",
+      "key": "39c3953bfe36255086e22886",
+      "own": false,
+      "source": "npm:postcss@8.5.6",
+      "size": 2496,
+      "ticks": 638913827205089033
+    },
+    {
+      "kind": "npm",
+      "name": "prettier",
+      "version": "3.6.2",
+      "key": "8c11d4a5cde7b27514e9c083",
+      "own": false,
+      "source": "npm:prettier@3.6.2",
+      "size": 6304,
+      "ticks": 638913827208811503
+    },
+    {
+      "kind": "npm",
+      "name": "publint",
+      "version": "0.3.0",
+      "key": "5d86eb0e2481e1f9904b573d",
+      "own": false,
+      "source": "npm:publint@0.3.0",
+      "size": 1242,
+      "ticks": 639258272252460101
+    },
+    {
+      "kind": "npm",
+      "name": "react",
+      "version": "19.0.0",
+      "key": "9000ced5f7bfae3479981149",
+      "own": false,
+      "source": "npm:react@19.0.0",
+      "size": 1248,
+      "ticks": 639258248080918880
+    },
+    {
+      "kind": "npm",
+      "name": "react-dom",
+      "version": "19.0.0",
+      "key": "cc4fb5f07997d43a095bdae4",
+      "own": false,
+      "source": "npm:react-dom@19.0.0",
+      "size": 3063,
+      "ticks": 639258248085131753
+    },
+    {
+      "kind": "npm",
+      "name": "react-icons",
+      "version": "5.6.0",
+      "key": "07970a5cc398bf2c7f0e06f7",
+      "own": false,
+      "source": "npm:react-icons@5.6.0",
+      "size": 5865,
+      "ticks": 639155817674156857
+    },
+    {
+      "kind": "npm",
+      "name": "rollup",
+      "version": "4.44.1",
+      "key": "7fd03a58618348a375221699",
+      "own": false,
+      "source": "npm:rollup@4.44.1",
+      "size": 11632,
+      "ticks": 638913827208215675
+    },
+    {
+      "kind": "npm",
+      "name": "rollup-plugin-copy",
+      "version": "3.5.0",
+      "key": "922b3e4d98fc92c3d8a080cd",
+      "own": false,
+      "source": "npm:rollup-plugin-copy@3.5.0",
+      "size": 1465,
+      "ticks": 638913827190230919
+    },
+    {
+      "kind": "npm",
+      "name": "rollup-plugin-delete",
+      "version": "2.2.0",
+      "key": "fe96918da18e00c85ed368c2",
+      "own": false,
+      "source": "npm:rollup-plugin-delete@2.2.0",
+      "size": 1331,
+      "ticks": 638913827188523229
+    },
+    {
+      "kind": "npm",
+      "name": "rollup-plugin-generate-package-json",
+      "version": "3.2.0",
+      "key": "8bad00580f7e32548d3eede7",
+      "own": false,
+      "source": "npm:rollup-plugin-generate-package-json@3.2.0",
+      "size": 1283,
+      "ticks": 638913827190219689
+    },
+    {
+      "kind": "npm",
+      "name": "rollup-plugin-peer-deps-external",
+      "version": "2.2.4",
+      "key": "a87175763a2b37823040aaa0",
+      "own": false,
+      "source": "npm:rollup-plugin-peer-deps-external@2.2.4",
+      "size": 1608,
+      "ticks": 638913827197947277
+    },
+    {
+      "kind": "npm",
+      "name": "rollup-plugin-postcss",
+      "version": "4.0.2",
+      "key": "38f1b20910b81e29fd63b396",
+      "own": false,
+      "source": "npm:rollup-plugin-postcss@4.0.2",
+      "size": 2387,
+      "ticks": 638913827190472678
+    },
+    {
+      "kind": "npm",
+      "name": "size-limit",
+      "version": "10.0.3",
+      "key": "4b66e1413113a11615abcd86",
+      "own": false,
+      "source": "npm:size-limit@10.0.3",
+      "size": 675,
+      "ticks": 638913827200539940
+    },
+    {
+      "kind": "npm",
+      "name": "ts-jest",
+      "version": "29.4.6",
+      "key": "359c7c27f525c877ae316959",
+      "own": false,
+      "source": "npm:ts-jest@29.4.6",
+      "size": 4484,
+      "ticks": 639034760129018361
+    },
+    {
+      "kind": "npm",
+      "name": "typescript",
+      "version": "5.8.3",
+      "key": "ebb0ce176c85ac13ce82f5be",
+      "own": false,
+      "source": "npm:typescript@5.8.3",
+      "size": 3615,
+      "ticks": 638913827219570790
+    }
+  ],
+  "missing": [],
+  "incomplete": false,
+  "newlyRead": 0
+}

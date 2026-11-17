@@ -1,0 +1,699 @@
+{
+  "runId": "20261117-200102",
+  "options": {
+    "browser": "end",
+    "visible": false,
+    "document": true,
+    "referenceFolders": [],
+    "grantedFolders": []
+  },
+  "browser": {
+    "ran": false,
+    "passed": false,
+    "visible": false,
+    "document": false,
+    "seconds": 0,
+    "treeHash": "BD5D726E69A61AED75885C3199574458EE448A6140FCD8C0F720329C341F2810",
+    "reason": "this stack has no browser journeys",
+    "output": ""
+  },
+  "isVerification": false,
+  "stageSeconds": {
+    "define": 0.1038549,
+    "design": 202.9590715,
+    "build": 511.6701186,
+    "challenge": 626.4528568,
+    "prove": 550.4802407
+  },
+  "timeCapExtensions": {},
+  "stageClockStart": {
+    "design": 0,
+    "build": 0,
+    "challenge": 0,
+    "prove": 0
+  },
+  "featureRequest": "# Move mobile chevron row below the card body (and 2 more)\r\n\r\nThis request comes from a conversation with the developer about their app.\r\nAnything marked suspected or not checked is a guess: confirm it in the code before building on it.\r\n\r\n## What this is about\r\nIn mobile card view the expand chevron row sits above the data rows, at the top of the card. The developer wants it at the bottom of the card, still left-aligned, so it sits directly above the detail panel it opens. The move is a JSX reorder plus flipping the row\u0027s separator from a bottom border/margin to a top border/margin, and a one-line docs correction; no tests assert the current position and desktop is unaffected.\r\n\r\n## What to build or fix\r\n\r\n### 1. Move mobile chevron row below the card body (confirmed)\r\nIn src/UI/MobileView.tsx, move the mobileExpandRow block (lines 176-193, the div containing the MdArrowDropDown chevron span) so it renders after the card-body div (currently starts at line 194) and before the card div closes at line 236. Keep it conditional exactly as now (expandRowRenderer \u0026\u0026 rowHasContent) and keep all existing props, classes, role/tabIndex, aria-expanded, click handlers, keyboard handlers and data-rt-ignore-row-click unchanged \u2014 only the order in the DOM changes. Ordering is safe: the MobileDetailSection already renders after the card (lines 237-252) under the same condition, so the bottom chevron sits directly above the panel it opens, and no empty row appears when there is no content. Left alignment needs no change: it comes from justify-content: flex-start in the CSS. Do not change desktop (its chevron is the expandColumn cell at src/UI/DesktopView.tsx:144-169).\r\n\r\nEvidence:\r\n- src/UI/MobileView.tsx:176-193 (mobileExpandRow with MdArrowDropDown span)\r\n- src/UI/MobileView.tsx:194 (card-body div follows it)\r\n- src/UI/MobileView.tsx:236-252 (card div closes, then MobileDetailSection under the same condition)\r\n- src/UI/DesktopView.tsx:144-169 (expandColumn cell with the chevron, desktop unaffected)\r\n- grep for card-body / mobileExpandRow in *.test.tsx returned no files \u2014 no test asserts the current order\r\n\r\n### 2. Flip mobileExpandRow separator from bottom to top (confirmed)\r\nIn src/Styles/ResponsiveTable.module.css (.mobileExpandRow, lines 558-566) the row currently has margin-bottom: 0.25rem and border-bottom: 1px solid var(--table-border-color), which at the bottom of the card would draw a stray line along the card\u0027s lower edge. Change it to margin-top: 0.25rem and border-top: 1px solid var(--table-border-color) so the chevron sits under a line separating it from the data above. Keep display: flex, align-items: center, justify-content: flex-start (the requested left alignment) and padding: 0 0 0.25rem 0. Also fix the comment on line 558, which says \u0027(top of card)\u0027. The values 0.25rem are being kept as-is, mirroring current spacing; they were not checked visually.\r\n\r\nEvidence:\r\n- src/Styles/ResponsiveTable.module.css:558 (comment \u0027Mobile expand chevron row (top of card)\u0027)\r\n- src/Styles/ResponsiveTable.module.css:559-566 (margin-bottom: 0.25rem; border-bottom: 1px solid var(--table-border-color); justify-content: flex-start)\r\n- src/UI/MobileView.tsx:236 (card div closes here, so a bottom border would land on the card\u0027s lower edge)\r\n\r\n### 3. Correct the expand-collapse docs (confirmed)\r\nIn docs/expand-collapse.md:980 the .mobileExpandRow table row describes it as \u0027Chevron row at top of mobile card\u0027 with a \u0027bottom border separator\u0027. Update the description to say the chevron row is at the bottom of the mobile card with a top border separator, keeping the rest of the wording (flex container, chevron left-aligned).\r\n\r\nEvidence:\r\n- docs/expand-collapse.md:980 \u2014 \u0027| \u0060.mobileExpandRow\u0060 | Chevron row at top of mobile card | Flex container, chevron left-aligned, bottom border separator |\u0027\r\n\r\n## Not part of this\r\n- Chevron horizontal alignment: the developer explicitly chose to keep it left-aligned as now, so do not centre or right-align it.\r\n- Desktop view: its chevron is the first column of the table row (src/UI/DesktopView.tsx:144-169) and is not touched.\r\n- Any change to the expand/collapse condition, open/close behaviour, detail pane, or the row-click/keyboard handling of the chevron.\r\n\r\n## Not settled yet (do not treat as fact)\r\n- The exact vertical spacing of the moved row (kept at 0.25rem margin) has not been verified visually at the bottom of the card; adjust only if it looks wrong.\r\n\r\n## Requirements agreed in the conversation\r\n\r\nThe developer and the assistant already agreed these while talking. Build on them; do not ask again what they settle.\r\n\r\n- **R1**: In mobile card view, each card\u0027s expand/collapse chevron row appears at the bottom of the card, after all of the card\u0027s data rows, instead of before them at the top. The row stays left-aligned within the card as it is today; it does not become a full-width footer bar.\r\n  - Done when: On a mobile viewport, the chevron row is rendered below every data row inside the card and not above the first data row.\r\n  - Done when: A card that contains only one data row still shows its chevron row below that row.\r\n  - Done when: Tapping the chevron opens the detail panel for the same card it did before the move.\r\n  - Done when: The chevron row remains left-aligned within the card, as it is today.\r\n- **R2**: The mobile chevron row\u0027s spacing and separator reflect its new position as the last row of the card: the separator that currently sits below the chevron row and the bottom margin that assumed a top row are removed or moved to the top edge of the row.\r\n  - Done when: The chevron row no longer has a bottom border or bottom margin that separates it from the card body.\r\n  - Done when: The chevron row reads visually as the last row of the card, separated from the last data row above it.\r\n- **R3**: Expanding a mobile card still opens its detail panel immediately below that card, with the chevron row directly above the panel.\r\n  - Done when: With a card collapsed, no detail panel is visible; with it expanded, the panel appears below the card.\r\n  - Done when: When expanded, the chevron row sits between the card\u0027s last data row and the detail panel.\r\n  - Done when: Collapsing from the chevron or from the panel\u0027s collapse control closes the same panel.\r\n- **R4**: Desktop view is unchanged: its expand/collapse chevron remains in the first column of the table row, not at the bottom of a card.\r\n  - Done when: On a desktop viewport, the chevron appears in the first column of the row as it did before.\r\n  - Done when: Resizing from mobile to desktop shows the desktop chevron placement, and resizing back to mobile shows the bottom-of-card placement.\r\n- **R5**: The documentation that describes the mobile chevron as a top-of-card row is updated to describe it as a bottom-of-card row.\r\n  - Done when: The documentation no longer describes the mobile chevron row as being at the top of the card.\r\n  - Done when: The documentation describes the chevron row as sitting at the bottom of the card, above the detail panel.\r\n\r\nNot part of this: Changing the chevron icon, colour, size or horizontal alignment; Changing the content, animation or chrome of the detail panel; Changing the desktop table layout; Changing which rows are expandable or what data a card shows\r\n\r\n\u003C!--devteam-requirements:eyJzdW1tYXJ5IjoiSW4gdGhlIHJlc3BvbnNpdmUgdGFibGVcdTAwMjdzIG1vYmlsZSBjYXJkIGxheW91dCwgbW92ZSBlYWNoIGNhcmRcdTAwMjdzIGV4cGFuZC9jb2xsYXBzZSBjaGV2cm9uIHJvdyBmcm9tIHRoZSB0b3Agb2YgdGhlIGNhcmQgdG8gdGhlIGJvdHRvbSwgYWZ0ZXIgdGhlIGNhcmRcdTAwMjdzIGRhdGEgcm93cyBhbmQgZGlyZWN0bHkgYWJvdmUgdGhlIGRldGFpbCBwYW5lbCBpdCBvcGVucy4gVGhlIGNoZXZyb24gcm93IHN0YXlzIGxlZnQtYWxpZ25lZCBhcyBpdCBpcyB0b2RheS4gVGhlIGRlc2t0b3AgdGFibGUgbGF5b3V0LCB0aGUgY2hldnJvblx1MDAyN3MgZXhpc3RpbmcgYmVoYXZpb3VyIGFuZCB0aGUgZGV0YWlsIHBhbmVsXHUwMDI3cyBjb250ZW50IHN0YXkgdW5jaGFuZ2VkLiBUaGlzIHB1dHMgdGhlIGV4cGFuZCBjb250cm9sIG5leHQgdG8gdGhlIGNvbnRlbnQgaXQgcmV2ZWFscywgYXMgdGhlIGRldmVsb3BlciBhc2tlZC4iLCJyZXF1aXJlbWVudHMiOlt7ImlkIjoiUjEiLCJ0ZXh0IjoiSW4gbW9iaWxlIGNhcmQgdmlldywgZWFjaCBjYXJkXHUwMDI3cyBleHBhbmQvY29sbGFwc2UgY2hldnJvbiByb3cgYXBwZWFycyBhdCB0aGUgYm90dG9tIG9mIHRoZSBjYXJkLCBhZnRlciBhbGwgb2YgdGhlIGNhcmRcdTAwMjdzIGRhdGEgcm93cywgaW5zdGVhZCBvZiBiZWZvcmUgdGhlbSBhdCB0aGUgdG9wLiBUaGUgcm93IHN0YXlzIGxlZnQtYWxpZ25lZCB3aXRoaW4gdGhlIGNhcmQgYXMgaXQgaXMgdG9kYXk7IGl0IGRvZXMgbm90IGJlY29tZSBhIGZ1bGwtd2lkdGggZm9vdGVyIGJhci4iLCJhY2NlcHRhbmNlIjpbIk9uIGEgbW9iaWxlIHZpZXdwb3J0LCB0aGUgY2hldnJvbiByb3cgaXMgcmVuZGVyZWQgYmVsb3cgZXZlcnkgZGF0YSByb3cgaW5zaWRlIHRoZSBjYXJkIGFuZCBub3QgYWJvdmUgdGhlIGZpcnN0IGRhdGEgcm93LiIsIkEgY2FyZCB0aGF0IGNvbnRhaW5zIG9ubHkgb25lIGRhdGEgcm93IHN0aWxsIHNob3dzIGl0cyBjaGV2cm9uIHJvdyBiZWxvdyB0aGF0IHJvdy4iLCJUYXBwaW5nIHRoZSBjaGV2cm9uIG9wZW5zIHRoZSBkZXRhaWwgcGFuZWwgZm9yIHRoZSBzYW1lIGNhcmQgaXQgZGlkIGJlZm9yZSB0aGUgbW92ZS4iLCJUaGUgY2hldnJvbiByb3cgcmVtYWlucyBsZWZ0LWFsaWduZWQgd2l0aGluIHRoZSBjYXJkLCBhcyBpdCBpcyB0b2RheS4iXSwicmF0aW9uYWxlIjoiVGhlIGRldmVsb3BlciBhc2tlZCBmb3IgdGhlIGV4cGFuZCBjaGV2cm9ucyB0byBiZSBhdCB0aGUgYm90dG9tIG9mIHRoZSBjYXJkIGluIG1vYmlsZSBtb2RlIHJhdGhlciB0aGFuIGF0IHRoZSB0b3AsIGFuZCBhc2tlZCBmb3IgdGhlbSB0byBzdGF5IGxlZnQtYWxpZ25lZCBhcyB0aGV5IGFyZSBub3cuIiwiZGVyaXZlZEZyb20iOiIiLCJlZGdlQ2FzZXMiOlsiQSBjYXJkIHdpdGggbWFueSBvciB0YWxsIGRhdGEgcm93cyBrZWVwcyB0aGUgY2hldnJvbiByb3cgYWZ0ZXIgdGhlIGxhc3Qgcm93LiIsIkEgcm93IHdpdGhvdXQgZXhwYW5kYWJsZSBjb250ZW50IHN0aWxsIHNob3dzIG5vIGNoZXZyb24gcm93LiIsIk1vdmluZyB0aGUgY2hldnJvbiByb3cgbXVzdCBub3QgZGV0YWNoIGl0IGZyb20gaXRzIGNhcmQgb3IgbWFrZSBpdCBleHBhbmQgYSBkaWZmZXJlbnQgY2FyZC4iXSwicGl0ZmFsbHMiOlsiTW92aW5nIHRoZSByb3cgaW4gdGhlIERPTSBtdXN0IG5vdCBsZWF2ZSBpdCBvdXRzaWRlIHRoZSBjYXJkIG9yIHJlbmRlciBhIGR1cGxpY2F0ZSBjaGV2cm9uLiIsIlRoZSBjaGV2cm9uIG11c3QgcmVtYWluIGluc2lkZSB0aGUgY2FyZFx1MDAyN3MgY2xpY2sgaGFuZGxpbmcgc28gaXRzIG93biBjbGljayBzdGlsbCBzdG9wcyB0aGUgcm93IGNsaWNrLiJdLCJydWxlcyI6W10sImZhY3RzIjpbXX0seyJpZCI6IlIyIiwidGV4dCI6IlRoZSBtb2JpbGUgY2hldnJvbiByb3dcdTAwMjdzIHNwYWNpbmcgYW5kIHNlcGFyYXRvciByZWZsZWN0IGl0cyBuZXcgcG9zaXRpb24gYXMgdGhlIGxhc3Qgcm93IG9mIHRoZSBjYXJkOiB0aGUgc2VwYXJhdG9yIHRoYXQgY3VycmVudGx5IHNpdHMgYmVsb3cgdGhlIGNoZXZyb24gcm93IGFuZCB0aGUgYm90dG9tIG1hcmdpbiB0aGF0IGFzc3VtZWQgYSB0b3Agcm93IGFyZSByZW1vdmVkIG9yIG1vdmVkIHRvIHRoZSB0b3AgZWRnZSBvZiB0aGUgcm93LiIsImFjY2VwdGFuY2UiOlsiVGhlIGNoZXZyb24gcm93IG5vIGxvbmdlciBoYXMgYSBib3R0b20gYm9yZGVyIG9yIGJvdHRvbSBtYXJnaW4gdGhhdCBzZXBhcmF0ZXMgaXQgZnJvbSB0aGUgY2FyZCBib2R5LiIsIlRoZSBjaGV2cm9uIHJvdyByZWFkcyB2aXN1YWxseSBhcyB0aGUgbGFzdCByb3cgb2YgdGhlIGNhcmQsIHNlcGFyYXRlZCBmcm9tIHRoZSBsYXN0IGRhdGEgcm93IGFib3ZlIGl0LiJdLCJyYXRpb25hbGUiOiJUaGUgY3VycmVudCBDU1MgZ2l2ZXMgdGhlIHJvdyBhIGJvdHRvbSBtYXJnaW4gYW5kIGEgYm90dG9tIGJvcmRlciBiZWNhdXNlIGl0IGFzc3VtZXMgdGhlIHJvdyBpcyBhdCB0aGUgdG9wOyBsZWZ0IHVuY2hhbmdlZCwgdGhlIG1vdmVkIHJvdyB3b3VsZCBsb29rIGxpa2UgYSBoZWFkZXIgcHJlc3NlZCBhZ2FpbnN0IHRoZSBkZXRhaWwgcGFuZWwuIiwiZGVyaXZlZEZyb20iOiIiLCJlZGdlQ2FzZXMiOlsiVGhlIHN0eWxpbmcgY2hhbmdlIGFwcGxpZXMgb25seSBpbiBtb2JpbGUgY2FyZCB2aWV3IGFuZCBkb2VzIG5vdCByZXN0eWxlIHRoZSBkZXNrdG9wIGNoZXZyb24gY29sdW1uLiIsIkEgY2FyZCB3aXRoIGEgc2luZ2xlIGRhdGEgcm93IGtlZXBzIGNsZWFyIHZpc3VhbCBzZXBhcmF0aW9uIGJldHdlZW4gdGhhdCByb3cgYW5kIHRoZSBjaGV2cm9uIHJvdy4iXSwicGl0ZmFsbHMiOlsiRG8gbm90IGludHJvZHVjZSBhIGRvdWJsZSBib3JkZXIgYmV0d2VlbiB0aGUgY2FyZCBhbmQgdGhlIGRldGFpbCBwYW5lbCBiZWxvdyBpdC4iXSwicnVsZXMiOltdLCJmYWN0cyI6W119LHsiaWQiOiJSMyIsInRleHQiOiJFeHBhbmRpbmcgYSBtb2JpbGUgY2FyZCBzdGlsbCBvcGVucyBpdHMgZGV0YWlsIHBhbmVsIGltbWVkaWF0ZWx5IGJlbG93IHRoYXQgY2FyZCwgd2l0aCB0aGUgY2hldnJvbiByb3cgZGlyZWN0bHkgYWJvdmUgdGhlIHBhbmVsLiIsImFjY2VwdGFuY2UiOlsiV2l0aCBhIGNhcmQgY29sbGFwc2VkLCBubyBkZXRhaWwgcGFuZWwgaXMgdmlzaWJsZTsgd2l0aCBpdCBleHBhbmRlZCwgdGhlIHBhbmVsIGFwcGVhcnMgYmVsb3cgdGhlIGNhcmQuIiwiV2hlbiBleHBhbmRlZCwgdGhlIGNoZXZyb24gcm93IHNpdHMgYmV0d2VlbiB0aGUgY2FyZFx1MDAyN3MgbGFzdCBkYXRhIHJvdyBhbmQgdGhlIGRldGFpbCBwYW5lbC4iLCJDb2xsYXBzaW5nIGZyb20gdGhlIGNoZXZyb24gb3IgZnJvbSB0aGUgcGFuZWxcdTAwMjdzIGNvbGxhcHNlIGNvbnRyb2wgY2xvc2VzIHRoZSBzYW1lIHBhbmVsLiJdLCJyYXRpb25hbGUiOiJUaGUgZGV0YWlsIHNlY3Rpb24gYWxyZWFkeSByZW5kZXJzIG91dHNpZGUgYW5kIGFmdGVyIHRoZSBjYXJkLCBzbyBhIGJvdHRvbSBjaGV2cm9uIHNob3VsZCBzaXQgcmlnaHQgYWJvdmUgdGhlIHBhbmVsIGl0IG9wZW5zOyB0aGlzIGlzIHRoZSBhcnJhbmdlbWVudCB0aGUgbW92ZSBpcyBtZWFudCB0byBwcm9kdWNlLiIsImRlcml2ZWRGcm9tIjoiIiwiZWRnZUNhc2VzIjpbIldpdGggbW9yZSB0aGFuIG9uZSBjYXJkIGV4cGFuZGVkLCBlYWNoIHBhbmVsIGFwcGVhcnMgYmVsb3cgaXRzIG93biBjYXJkIGFuZCB0aGF0IGNhcmRcdTAwMjdzIGNoZXZyb24gc2l0cyBhYm92ZSBpdHMgb3duIHBhbmVsLiJdLCJwaXRmYWxscyI6WyJUaGUgY2hldnJvbiBtdXN0IG5vdCBtb3ZlIGludG8gdGhlIGRldGFpbCBwYW5lbCBvciBiZWNvbWUgcGFydCBvZiB0aGUgcGFuZWxcdTAwMjdzIGNocm9tZS4iXSwicnVsZXMiOltdLCJmYWN0cyI6W119LHsiaWQiOiJSNCIsInRleHQiOiJEZXNrdG9wIHZpZXcgaXMgdW5jaGFuZ2VkOiBpdHMgZXhwYW5kL2NvbGxhcHNlIGNoZXZyb24gcmVtYWlucyBpbiB0aGUgZmlyc3QgY29sdW1uIG9mIHRoZSB0YWJsZSByb3csIG5vdCBhdCB0aGUgYm90dG9tIG9mIGEgY2FyZC4iLCJhY2NlcHRhbmNlIjpbIk9uIGEgZGVza3RvcCB2aWV3cG9ydCwgdGhlIGNoZXZyb24gYXBwZWFycyBpbiB0aGUgZmlyc3QgY29sdW1uIG9mIHRoZSByb3cgYXMgaXQgZGlkIGJlZm9yZS4iLCJSZXNpemluZyBmcm9tIG1vYmlsZSB0byBkZXNrdG9wIHNob3dzIHRoZSBkZXNrdG9wIGNoZXZyb24gcGxhY2VtZW50LCBhbmQgcmVzaXppbmcgYmFjayB0byBtb2JpbGUgc2hvd3MgdGhlIGJvdHRvbS1vZi1jYXJkIHBsYWNlbWVudC4iXSwicmF0aW9uYWxlIjoiVGhlIHJlcXVlc3QgY292ZXJzIG1vYmlsZSBtb2RlIG9ubHk7IGRlc2t0b3AgYWxyZWFkeSBoYXMgaXRzIG93biBjaGV2cm9uIHBsYWNlbWVudCBpbiB0aGUgcm93XHUwMDI3cyBmaXJzdCBjb2x1bW4uIiwiZGVyaXZlZEZyb20iOiIiLCJlZGdlQ2FzZXMiOlsiQ1NTIGNsYXNzZXMgc2hhcmVkIGJldHdlZW4gdGhlIG1vYmlsZSBhbmQgZGVza3RvcCB2aWV3cyBtdXN0IG5vdCBtb3ZlIG9yIHJlc3R5bGUgdGhlIGRlc2t0b3AgY2hldnJvbi4iXSwicGl0ZmFsbHMiOlsiQSBnbG9iYWwgc3R5bGUgY2hhbmdlIHRvIHRoZSBjaGV2cm9uIHJvdyBjb3VsZCBsZWFrIGludG8gdGhlIGRlc2t0b3AgdGFibGUgbGF5b3V0LiJdLCJydWxlcyI6W10sImZhY3RzIjpbXX0seyJpZCI6IlI1IiwidGV4dCI6IlRoZSBkb2N1bWVudGF0aW9uIHRoYXQgZGVzY3JpYmVzIHRoZSBtb2JpbGUgY2hldnJvbiBhcyBhIHRvcC1vZi1jYXJkIHJvdyBpcyB1cGRhdGVkIHRvIGRlc2NyaWJlIGl0IGFzIGEgYm90dG9tLW9mLWNhcmQgcm93LiIsImFjY2VwdGFuY2UiOlsiVGhlIGRvY3VtZW50YXRpb24gbm8gbG9uZ2VyIGRlc2NyaWJlcyB0aGUgbW9iaWxlIGNoZXZyb24gcm93IGFzIGJlaW5nIGF0IHRoZSB0b3Agb2YgdGhlIGNhcmQuIiwiVGhlIGRvY3VtZW50YXRpb24gZGVzY3JpYmVzIHRoZSBjaGV2cm9uIHJvdyBhcyBzaXR0aW5nIGF0IHRoZSBib3R0b20gb2YgdGhlIGNhcmQsIGFib3ZlIHRoZSBkZXRhaWwgcGFuZWwuIl0sInJhdGlvbmFsZSI6ImRvY3MvZXhwYW5kLWNvbGxhcHNlLm1kIGN1cnJlbnRseSBlbmNvZGVzIHRoZSBvbGQgdG9wLW9mLWNhcmQgcG9zaXRpb24gYW5kIHdvdWxkIGJlIHdyb25nIGFmdGVyIHRoZSBjaGFuZ2UuIiwiZGVyaXZlZEZyb20iOiIiLCJlZGdlQ2FzZXMiOlsiQW55IG90aGVyIHJlZmVyZW5jZSB0byB0aGUgY2hldnJvblx1MDAyN3MgcG9zaXRpb24gaW4gdGhlIHNhbWUgZG9jdW1lbnRhdGlvbiBpcyBjb25zaXN0ZW50IHdpdGggYm90dG9tIHBsYWNlbWVudC4iXSwicGl0ZmFsbHMiOlsiRG8gbm90IGxlYXZlIHN0YWxlIHNjcmVlbnNob3RzIG9yIGNhcHRpb25zIHRoYXQgc2hvdyB0aGUgY2hldnJvbiBhdCB0aGUgdG9wIG9mIHRoZSBjYXJkLiJdLCJydWxlcyI6W10sImZhY3RzIjpbXX1dLCJxdWVzdGlvbnMiOltdLCJjb3ZlcmFnZSI6W3sidG9waWMiOiJ1c2VycyIsInN0YXR1cyI6Im5vdC1hcHBsaWNhYmxlIiwibm90ZSI6IlRoZSBjaGFuZ2UgYXBwbGllcyB0byBldmVyeSB2aWV3ZXIgb2YgdGhlIG1vYmlsZSBjYXJkIGxheW91dDsgbm8gcm9sZXMgb3IgcGVybWlzc2lvbnMgZGlmZmVyLiJ9LHsidG9waWMiOiJkYXRhIiwic3RhdHVzIjoibm90LWFwcGxpY2FibGUiLCJub3RlIjoiTm8gZmllbGRzLCBmb3JtYXRzLCBsaW1pdHMgb3Igc3RvcmVkIGRhdGEgYXJlIGludm9sdmVkLiJ9LHsidG9waWMiOiJwZXJtaXNzaW9ucyIsInN0YXR1cyI6Im5vdC1hcHBsaWNhYmxlIiwibm90ZSI6Ik5vIHJlY29yZCBvd25lcnNoaXAsIHNoYXJpbmcgb3IgYWNjZXNzIHJ1bGVzIGFyZSBpbnZvbHZlZC4ifSx7InRvcGljIjoidmFsaWRhdGlvbiIsInN0YXR1cyI6Im5vdC1hcHBsaWNhYmxlIiwibm90ZSI6IlRoZSBjaGFuZ2UgaW50cm9kdWNlcyBubyB1c2VyIGlucHV0IHRvIHZhbGlkYXRlLiJ9LHsidG9waWMiOiJzdGF0ZXMiLCJzdGF0dXMiOiJub3QtYXBwbGljYWJsZSIsIm5vdGUiOiJUaGUgY2hldnJvbiByb3cgb25seSByZW5kZXJzIGZvciByb3dzIHRoYXQgaGF2ZSBleHBhbmRhYmxlIGNvbnRlbnQ7IGVtcHR5LCBsb2FkaW5nIGFuZCBlcnJvciBzdGF0ZXMgYXJlIHVuYWZmZWN0ZWQuIn0seyJ0b3BpYyI6ImR1cGxpY2F0ZXMiLCJzdGF0dXMiOiJub3QtYXBwbGljYWJsZSIsIm5vdGUiOiJUaGVyZSBpcyBubyBzdWJtaXQgb3Igc2F2ZSBhY3Rpb247IHRoZSBvbmx5IGludGVyYWN0aW9uIGlzIGV4cGFuZGluZyBhbmQgY29sbGFwc2luZyBhIGNhcmQuIn0seyJ0b3BpYyI6InZvbHVtZSIsInN0YXR1cyI6ImFzc3VtZWQiLCJub3RlIjoiQSBjYXJkIG1heSBjb250YWluIGFueSBudW1iZXIgb2YgZGF0YSByb3dzOyB0aGUgY2hldnJvbiByb3cgYWx3YXlzIGZvbGxvd3MgdGhlIGxhc3Qgb25lLiJ9LHsidG9waWMiOiJkZWxldGlvbiIsInN0YXR1cyI6Im5vdC1hcHBsaWNhYmxlIiwibm90ZSI6Ik5vdGhpbmcgaXMgZGVsZXRlZCBieSB0aGlzIGNoYW5nZS4ifSx7InRvcGljIjoicHJpdmFjeSIsInN0YXR1cyI6Im5vdC1hcHBsaWNhYmxlIiwibm90ZSI6Ik5vIHBlcnNvbmFsIG9yIHNlbnNpdGl2ZSBkYXRhIGlzIHJlYWQsIHNob3duIGRpZmZlcmVudGx5IG9yIHJldGFpbmVkIGRpZmZlcmVudGx5LiJ9LHsidG9waWMiOiJxdWFsaXR5Iiwic3RhdHVzIjoiYXNzdW1lZCIsIm5vdGUiOiJFeGlzdGluZyBrZXlib2FyZCBhbmQgc2NyZWVuLXJlYWRlciBiZWhhdmlvdXIgaXMgcHJlc2VydmVkOyB0aGUgZGV2ZWxvcGVyIGRpZCBub3QgZGlzY3VzcyBpdCBleHBsaWNpdGx5LiJ9XSwiYXNzdW1wdGlvbnMiOlsiVGhlIGNoZXZyb24gcm93IGtlZXBzIGl0cyBleGlzdGluZyBpY29uLCBrZXlib2FyZCBoYW5kbGluZyBhbmQgYXJpYS1leHBhbmRlZCBiZWhhdmlvdXI7IG9ubHkgaXRzIHZlcnRpY2FsIHBvc2l0aW9uIGFuZCBzZXBhcmF0b3Igc3R5bGluZyBjaGFuZ2UuIiwiQSBjYXJkIG1heSBjb250YWluIGFueSBudW1iZXIgb2YgZGF0YSByb3dzOyB0aGUgY2hldnJvbiByb3cgYWx3YXlzIGZvbGxvd3MgdGhlIGxhc3Qgb25lLiIsIlRoZSBkZXRhaWwgcGFuZWwgY29udGludWVzIHRvIHJlbmRlciBvdXRzaWRlIGFuZCBhZnRlciB0aGUgY2FyZCwgYXMgaXQgZG9lcyB0b2RheS4iXSwicm9sZXMiOlsiTW9iaWxlIHVzZXI6IHZpZXdzIHRhYmxlIHJvd3MgYXMgY2FyZHMgYW5kIGV4cGFuZHMgYSBjYXJkIHRvIHNlZSBpdHMgZGV0YWlsIiwiRGVza3RvcCB1c2VyOiB2aWV3cyB0aGUgdGFibGUgbGF5b3V0IGFuZCBpcyB1bmFmZmVjdGVkIGJ5IHRoaXMgY2hhbmdlIl0sIm91dE9mU2NvcGUiOlsiQ2hhbmdpbmcgdGhlIGNoZXZyb24gaWNvbiwgY29sb3VyLCBzaXplIG9yIGhvcml6b250YWwgYWxpZ25tZW50IiwiQ2hhbmdpbmcgdGhlIGNvbnRlbnQsIGFuaW1hdGlvbiBvciBjaHJvbWUgb2YgdGhlIGRldGFpbCBwYW5lbCIsIkNoYW5naW5nIHRoZSBkZXNrdG9wIHRhYmxlIGxheW91dCIsIkNoYW5naW5nIHdoaWNoIHJvd3MgYXJlIGV4cGFuZGFibGUgb3Igd2hhdCBkYXRhIGEgY2FyZCBzaG93cyJdLCJub25GdW5jdGlvbmFsIjpbeyJhcmVhIjoiYWNjZXNzaWJpbGl0eSIsInN0YXRlbWVudCI6IlRoZSBtb3ZlZCBjaGV2cm9uIGtlZXBzIGl0cyBjdXJyZW50IGtleWJvYXJkIGFuZCBhc3Npc3RpdmUtdGVjaG5vbG9neSBiZWhhdmlvdXI6IGl0IGlzIGZvY3VzYWJsZSwgdG9nZ2xlcyBvbiBFbnRlciBvciBTcGFjZSwgYW5kIHJlcG9ydHMgaXRzIGV4cGFuZGVkIHN0YXRlLiIsImFjY2VwdGFuY2UiOiJUYWIgcmVhY2hlcyB0aGUgY2hldnJvbiBpbiBpdHMgbmV3IHBvc2l0aW9uLCBFbnRlciBhbmQgU3BhY2UgdG9nZ2xlIGl0LCBhbmQgYXJpYS1leHBhbmRlZCBtYXRjaGVzIHRoZSBwYW5lbFx1MDAyN3Mgc3RhdGUuIn1dLCJyaXNrcyI6WyJUaGUgbW9iaWxlIGFuZCBkZXNrdG9wIHZpZXdzIG1heSBzaGFyZSBDU1MsIHNvIGEgYm90dG9tLXJvdyBzdHlsZSBjaGFuZ2UgY291bGQgbGVhayBpbnRvIHRoZSBkZXNrdG9wIGNoZXZyb24gY29sdW1uLiIsIkNoYW5naW5nIERPTSBvcmRlciBjaGFuZ2VzIHRhYiBhbmQgc2NyZWVuLXJlYWRlciBvcmRlcjsgdGhlIGNoZXZyb24gbXVzdCByZW1haW4gcmVhY2hhYmxlIGFuZCBzdGlsbCBjb250cm9sIHRoZSBzYW1lIGNhcmQuIiwiVGhlIGRvY3VtZW50YXRpb24gb3Igc2NyZWVuc2hvdHMgbWF5IHN0aWxsIGRlc2NyaWJlIHRoZSBjaGV2cm9uIGFzIHRvcC1vZi1jYXJkIGFmdGVyIHRoZSBjb2RlIGhhcyBtb3ZlZC4iXSwidGVuc2lvbnMiOltdLCJnbG9zc2FyeSI6WyJNb2JpbGUgY2FyZCB2aWV3OiB0aGUgcmVzcG9uc2l2ZSB0YWJsZSBsYXlvdXQgdXNlZCBvbiBuYXJyb3cgc2NyZWVucywgd2hlcmUgZWFjaCBkYXRhIHJvdyBpcyByZW5kZXJlZCBhcyBhIGNhcmQuIiwiRXhwYW5kIGNoZXZyb246IHRoZSBjb250cm9sIG9uIGEgbW9iaWxlIGNhcmQgdGhhdCBvcGVucyBhbmQgY2xvc2VzIHRoYXQgY2FyZFx1MDAyN3MgZGV0YWlsIHBhbmVsLiIsIkRldGFpbCBwYW5lbDogdGhlIGV4cGFuZGVkIHNlY3Rpb24gcmVuZGVyZWQgZGlyZWN0bHkgYmVsb3cgYSBtb2JpbGUgY2FyZC4iXX0=--\u003E",
+  "packId": "react-component-library",
+  "status": "completed",
+  "currentStage": "prove",
+  "stages": {
+    "define": "done",
+    "design": "done",
+    "build": "done",
+    "challenge": "done",
+    "prove": "done"
+  },
+  "defineRound": 2,
+  "designRound": 1,
+  "buildRound": 1,
+  "slicesDone": 0,
+  "sliceReports": [],
+  "documentedRound": 1,
+  "revisionsUsed": 0,
+  "requirementKickbacks": 0,
+  "planReviewRounds": 0,
+  "planConflictHashes": [
+    "65BBE42363C03E02"
+  ],
+  "sizeApproved": false,
+  "lastPlanConflicts": [
+    {
+      "requirement": "R5",
+      "against": "TEST-001",
+      "kind": "check",
+      "owner": "design",
+      "why": "The design\u0027s only test component covers R1, R2, R3, R4 and A1, and docs/expand-collapse.md is listed separately with R5 and no test, so no automated test names R5 and TEST-001 (\u0027every requirement is proven by at least one test that names it\u0027) fails as the plan stands. A doc-assertion test in the new test file would fix it without changing any requirement.",
+      "evidence": "TEST-001: \u0027Every requirement is proven by at least one test that names it.\u0027 Design components: {\u0022name\u0022: \u0022MobileChevronPlacementTests\u0022, ... \u0022requirements\u0022: [\u0022R1\u0022, \u0022R2\u0022, \u0022R3\u0022, \u0022R4\u0022, \u0022A1\u0022]} and {\u0022name\u0022: \u0022ExpandCollapseDocs\u0022, \u0022path\u0022: \u0022docs/expand-collapse.md\u0022, \u0022requirements\u0022: [\u0022R5\u0022]}. R5: \u0027The documentation that describes the mobile chevron as a top-of-card row is updated to describe it as a bottom-of-card row.\u0027"
+    },
+    {
+      "requirement": "R2",
+      "against": "design",
+      "kind": "untestable",
+      "owner": "requirements",
+      "why": "R2\u0027s second acceptance line is a visual judgement (\u0027reads visually as the last row\u0027) that no automated test can prove; the design\u0027s substitute is a CSS contract test that only asserts the presence of border-top/margin-top in the text of the module.css file (CSS values cannot be read through computed styles because CSS is mapped to identity-obj-proxy), so QA could never accept that line on evidence. The acceptance line needs rewording to something provable (e.g. the row has border-top/margin-top and its top border is adjacent to the last data row), or the requirement must say how it is accepted.",
+      "evidence": "R2 acceptance: \u0027The chevron row reads visually as the last row of the card, separated from the last data row above it.\u0027 Design A1: \u0027A CSS contract test asserts the .mobileExpandRow block has border-top and margin-top and no border-bottom or margin-bottom, and keeps justify-content: flex-start and rem spacing.\u0027 Project note: \u0027moduleNameMapper maps CSS to identity-obj-proxy, so CSS values cannot be asserted through computed styles - a CSS contract test must read the module.css file\u0027."
+    }
+  ],
+  "planRounds": [
+    {
+      "number": 1,
+      "at": "2026-11-17T20:09:28.1620552+00:00",
+      "outcome": "conflicts",
+      "conflicts": [
+        {
+          "requirement": "R5",
+          "against": "TEST-001",
+          "kind": "check",
+          "owner": "design",
+          "why": "The design\u0027s only test component covers R1, R2, R3, R4 and A1, and docs/expand-collapse.md is listed separately with R5 and no test, so no automated test names R5 and TEST-001 (\u0027every requirement is proven by at least one test that names it\u0027) fails as the plan stands. A doc-assertion test in the new test file would fix it without changing any requirement.",
+          "evidence": "TEST-001: \u0027Every requirement is proven by at least one test that names it.\u0027 Design components: {\u0022name\u0022: \u0022MobileChevronPlacementTests\u0022, ... \u0022requirements\u0022: [\u0022R1\u0022, \u0022R2\u0022, \u0022R3\u0022, \u0022R4\u0022, \u0022A1\u0022]} and {\u0022name\u0022: \u0022ExpandCollapseDocs\u0022, \u0022path\u0022: \u0022docs/expand-collapse.md\u0022, \u0022requirements\u0022: [\u0022R5\u0022]}. R5: \u0027The documentation that describes the mobile chevron as a top-of-card row is updated to describe it as a bottom-of-card row.\u0027"
+        },
+        {
+          "requirement": "R2",
+          "against": "design",
+          "kind": "untestable",
+          "owner": "requirements",
+          "why": "R2\u0027s second acceptance line is a visual judgement (\u0027reads visually as the last row\u0027) that no automated test can prove; the design\u0027s substitute is a CSS contract test that only asserts the presence of border-top/margin-top in the text of the module.css file (CSS values cannot be read through computed styles because CSS is mapped to identity-obj-proxy), so QA could never accept that line on evidence. The acceptance line needs rewording to something provable (e.g. the row has border-top/margin-top and its top border is adjacent to the last data row), or the requirement must say how it is accepted.",
+          "evidence": "R2 acceptance: \u0027The chevron row reads visually as the last row of the card, separated from the last data row above it.\u0027 Design A1: \u0027A CSS contract test asserts the .mobileExpandRow block has border-top and margin-top and no border-bottom or margin-bottom, and keeps justify-content: flex-start and rem spacing.\u0027 Project note: \u0027moduleNameMapper maps CSS to identity-obj-proxy, so CSS values cannot be asserted through computed styles - a CSS contract test must read the module.css file\u0027."
+        }
+      ],
+      "resolution": "You chose: Keep the requirement, and relax TEST-001 for this feature"
+    }
+  ],
+  "planCheck": "conflicts",
+  "planWaivedRules": [
+    "TEST-001"
+  ],
+  "setAsideRequirements": [],
+  "reusedChecks": {},
+  "tensionPair": [],
+  "tensionDiagnoses": {},
+  "specialists": [],
+  "specialistsDone": [],
+  "specialistCallbacks": 0,
+  "specialistHashes": {},
+  "ran": [
+    "define",
+    "design",
+    "build",
+    "challenge",
+    "prove"
+  ],
+  "accepted": {
+    "define/analyst": "artifacts/01-define/analyst-r1.json",
+    "design/architect": "artifacts/02-design/architect-r1.json",
+    "design/planchecker": "artifacts/02-design/planchecker-r1.json",
+    "build/developer": "artifacts/03-build/developer-r1.json",
+    "challenge/security": "artifacts/04-challenge/security-r1.json",
+    "challenge/reviewer": "artifacts/04-challenge/reviewer-r1.json",
+    "challenge/qa": "artifacts/04-challenge/qa-r1.json",
+    "prove/documenter": "artifacts/05-prove/documenter-r1.json"
+  },
+  "extraRounds": 0,
+  "queueIds": [],
+  "itemShift": 0,
+  "passStamps": {
+    "docs/expand-collapse.md": "38702:639305431654402022",
+    "src/Styles/ResponsiveTable.module.css": "16455:639305431640591134",
+    "src/UI/MobileChevronPlacement.test.tsx": "11066:639305431491392486",
+    "src/UI/MobileView.tsx": "11143:639305431621723443"
+  },
+  "scopeRestored": [],
+  "configStamp": "639270727973616472",
+  "scopePush": false,
+  "acceptCut": false,
+  "hostStamps": {},
+  "verifying": [],
+  "settled": 0,
+  "confirmedSettles": 0,
+  "falseSettles": 0,
+  "preflightCalls": 0,
+  "groupRiders": [],
+  "groupHits": 0,
+  "groupMisses": 0,
+  "fullChecksRequired": [],
+  "provedTreeHash": "BD5D726E69A61AED75885C3199574458EE448A6140FCD8C0F720329C341F2810",
+  "scopedChecks": [],
+  "scopedFiles": 0,
+  "provedChecks": [
+    "no-secrets",
+    "no-debug-leftovers",
+    "lib-typecheck",
+    "lib-build",
+    "lib-validate-package",
+    "lib-pack",
+    "rule-USR-001-1",
+    "rule-USR-001-2",
+    "rule-USR-001-3",
+    "rule-USR-001-4",
+    "lib-tests"
+  ],
+  "buildRanSincePass": false,
+  "fixFiles": {},
+  "acceptedByYou": [],
+  "appAcceptsLoaded": true,
+  "claimedBuilt": [],
+  "confirmedBuilt": 0,
+  "builtWrong": 0,
+  "canaryPasses": 0,
+  "parked": [],
+  "reviewPasses": 1,
+  "costUsd": 0.14925882000000001,
+  "budgetUsd": 10,
+  "agentCalls": 8,
+  "modelCalls": {
+    "opencode-go/deepseek-v4.1-flash": 8
+  },
+  "startedAt": "2026-11-17T20:01:02.3088171+00:00",
+  "updatedAt": "2026-11-17T20:37:58.7204139+00:00",
+  "completedAt": "2026-11-17T20:37:57.4336246+00:00",
+  "findings": [
+    {
+      "id": "CHK-lib-size",
+      "source": "check:lib-size",
+      "cites": "EFF-001",
+      "severity": "advisory",
+      "description": "Check \u0027Size budget\u0027 is failing.",
+      "file": "",
+      "evidence": "Not set up in this project: The project has no .size-limit.json, so this check has nothing to run.",
+      "status": "advisory",
+      "raisedRound": 1,
+      "note": "It could not be run, so nothing was checked here; it does not block this feature.",
+      "repeats": 0
+    },
+    {
+      "id": "CHK-lib-consumer-smoke",
+      "source": "check:lib-consumer-smoke",
+      "cites": "LIB-003",
+      "severity": "advisory",
+      "description": "Check \u0027Install and import the packed library\u0027 is failing.",
+      "file": "",
+      "evidence": "Not set up in this project: Nothing installs the packed library into a scratch project and imports it  no scripts/consumer-smoke.mjs .",
+      "status": "advisory",
+      "raisedRound": 1,
+      "note": "It could not be run, so nothing was checked here; it does not block this feature.",
+      "repeats": 0
+    },
+    {
+      "id": "CHK-lib-docs",
+      "source": "check:lib-docs",
+      "cites": "DOC-001",
+      "severity": "advisory",
+      "description": "Check \u0027Documentation is complete\u0027 is failing.",
+      "file": "",
+      "evidence": "Not set up in this project: The project has no scripts/check-docs.mjs, so this check has nothing to run.",
+      "status": "advisory",
+      "raisedRound": 1,
+      "note": "It could not be run, so nothing was checked here; it does not block this feature.",
+      "repeats": 0
+    },
+    {
+      "id": "QA-1",
+      "source": "qa",
+      "cites": "R5",
+      "severity": "advisory",
+      "description": "R5\u0027s edge case \u0027any other reference to the chevron\u0027s position in the same documentation is consistent with bottom placement\u0027 is not proven: the doc intro and visual-anatomy caption still place the chevron in the left column / mirror desktop. Acceptance lines themselves are tested (the .mobileExpandRow row is correct), so this is advisory, but the doc is now internally inconsistent.",
+      "file": "docs/expand-collapse.md",
+      "line": 4,
+      "evidence": "Line 4 still says \u0027A chevron in a dedicated 2rem left column indicates state ... The feature is surface-agnostic - it behaves identically in the desktop table layout and the mobile card layout\u0027, and the Visual Anatomy caption at line 900 says \u0027desktop shown; mobile uses the same visual model in card layout\u0027 (with an ASCII diagram of the chevron column above the toggle bar). Both now contradict the bottom-of-card chevron row. The R5 test (src/UI/MobileChevronPlacement.test.tsx:196-205) only scans the single line containing \u0027.mobileExpandRow\u0027, so these stale position references would not fail it.",
+      "status": "advisory",
+      "raisedRound": 1,
+      "repeats": 0
+    },
+    {
+      "id": "QA-2",
+      "source": "qa",
+      "cites": "R1",
+      "severity": "advisory",
+      "description": "Keyboard reach of the moved chevron is asserted indirectly (tabindex) rather than by tabbing to it. Enter/Space and aria-expanded are properly covered; this is a proof-strength advisory, not a missing behaviour.",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "line": 128,
+      "evidence": "The accessibility acceptance for R1 asks that \u0027Tab reaches the chevron in its new position\u0027. The test only asserts expect(chevron).toHaveAttribute(\u0027tabindex\u0027, \u00270\u0027) and then fires keyDown directly; no tab traversal (userEvent.tab / focusedElement) is exercised, so a regression where the chevron stays in the DOM but becomes unreachable by tab order would not be noticed.",
+      "status": "advisory",
+      "raisedRound": 1,
+      "repeats": 0
+    },
+    {
+      "id": "QA-3",
+      "source": "qa",
+      "cites": "R4",
+      "severity": "advisory",
+      "description": "R4\u0027s edge case about shared CSS leaking into the desktop chevron is covered only by class scoping (mobile-only .mobileExpandRow), not by an assertion on the shared .expandChevron/.expandColumn rules. Advisory: placement is proven.",
+      "file": "src/UI/MobileChevronPlacement.test.tsx",
+      "line": 211,
+      "evidence": "The desktop tests assert DOM placement (td.expandColumn in the first cell, no .mobileExpandRow in the desktop tree) but read no CSS for the shared classes. .expandChevron (src/Styles/ResponsiveTable.module.css:436) is used by both mobile and desktop chevrons, and .expandColumn already carries border-bottom; a new top border/margin added to either shared class would not fail any test, even though R4\u0027s edge case requires shared CSS not to restyle the desktop chevron.",
+      "status": "advisory",
+      "raisedRound": 1,
+      "repeats": 0
+    }
+  ],
+  "lastChecks": [
+    {
+      "id": "no-secrets",
+      "name": "No secrets in code",
+      "passed": true,
+      "seconds": 0.1841001,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "SEC-001"
+      ]
+    },
+    {
+      "id": "no-debug-leftovers",
+      "name": "No debugging leftovers",
+      "passed": true,
+      "seconds": 0.0570864,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "QUAL-001"
+      ]
+    },
+    {
+      "id": "lib-typecheck",
+      "name": "Type check (library and tests)",
+      "passed": true,
+      "seconds": 6.2073399,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "\u003E jattac.libs.web.responsive-table@0.21.0 type-check\r\n\u003E tsc --noEmit",
+      "rules": []
+    },
+    {
+      "id": "lib-build",
+      "name": "Build (CommonJS, ES modules, type definitions)",
+      "passed": true,
+      "seconds": 11.5291651,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "\u003E jattac.libs.web.responsive-table@0.21.0 build\r\n\u003E rollup -c\r\n\r\n\n\r\nsrc/index.tsx \u2192 dist/index.js, dist/index.mjs...\r\nBrowserslist: browsers data (caniuse-lite) is 17 months old. Please run:\r\n  npx update-browserslist-db@latest\r\n  Why you should do it regularly: https://github.com/browserslist/update-db#readme\r\ncreated dist/index.js, dist/index.mjs in 9.9s",
+      "rules": []
+    },
+    {
+      "id": "lib-validate-package",
+      "name": "Package check (attw and publint)",
+      "passed": true,
+      "seconds": 29.9736458,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "\u003E jattac.libs.web.responsive-table@0.21.0 validate-package\r\n\u003E attw --pack . \u0026\u0026 publint\r\n\r\n\r\njattac.libs.web.responsive-table v0.21.0\r\n\r\nBuild tools:\r\n- @arethetypeswrong/cli@^0.18.5\r\n- typescript@^5.2.2\r\n- rollup@^4.2.0\r\n- @rollup/plugin-typescript@^11.1.5\r\n\r\n No problems found \uD83C\uDF1F\r\n\r\n\r\n\u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\r\n\u2502                   \u2502 \u0022jattac.libs.web.responsive-table\u0022 \u2502\r\n\u251C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\r\n\u2502 node10            \u2502 \uD83D\uDFE2                                 \u2502\r\n\u251C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\r\n\u2502 node16 (from CJS) \u2502 \uD83D\uDFE2 (CJS)                           \u2502\r\n\u251C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\r\n\u2502 node16 (from ESM) \u2502 \uD83D\uDFE2 (ESM)                           \u2502\r\n\u251C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\r\n\u2502 bundler           \u2502 \uD83D\uDFE2                                 \u2502\r\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\r\njattac.libs.web.responsive-table lint results:\r\nSuggestions:\r\n1. pkg.repository.url is https://github.com/nyingimaina/jattac.libs.web.responsive-table.git but could be a full git URL like \u0022git\u002Bhttps://github.com/nyingimaina/jattac.libs.web.responsive-table.git\u0022.",
+      "rules": [
+        "LIB-002"
+      ]
+    },
+    {
+      "id": "lib-pack",
+      "name": "What would be published",
+      "passed": true,
+      "seconds": 12.744593,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "\u2026\nnpm notice 1.2kB dist/index.d.mts\r\nnpm notice 1.2kB dist/index.d.ts\r\nnpm notice 101.1kB dist/index.js\r\nnpm notice 85.7kB dist/index.js.map\r\nnpm notice 100.5kB dist/index.mjs\r\nnpm notice 85.4kB dist/index.mjs.map\r\nnpm notice 11B dist/Package.test.d.ts\r\nnpm notice 720B dist/Plugins/FilterPlugin.d.ts\r\nnpm notice 1.4kB dist/Plugins/IResponsiveTablePlugin.d.ts\r\nnpm notice 512B dist/Plugins/SelectionPlugin.d.ts\r\nnpm notice 1.3kB dist/Plugins/SortPlugin.d.ts\r\nnpm notice 11B dist/Plugins/SortPlugin.test.d.ts\r\nnpm notice 687B dist/UI/DesktopView.d.ts\r\nnpm notice 375B dist/UI/DetailRow.d.ts\r\nnpm notice 36B dist/UI/DetailRow.test.d.ts\r\nnpm notice 36B dist/UI/ExpandCollapse.test.d.ts\r\nnpm notice 36B dist/UI/FirstRowDefaultOpen.test.d.ts\r\nnpm notice 98B dist/UI/LoadingSpinner.d.ts\r\nnpm notice 36B dist/UI/MobileChevronPlacement.test.d.ts\r\nnpm notice 1.0kB dist/UI/MobileDetailChrome.d.ts\r\nnpm notice 36B dist/UI/MobileExpandChrome.test.d.ts\r\nnpm notice 375B dist/UI/MobileView.d.ts\r\nnpm notice 36B dist/UI/MobileView.test.d.ts\r\nnpm notice 104B dist/UI/NoMoreDataMessage.d.ts\r\nnpm notice 6.6kB dist/UI/ResponsiveTable.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.onDataSourceStateChange.test.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.test.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.theme.test.d.ts\r\nnpm notice 36B dist/UI/ScrollPosition.test.d.ts\r\nnpm notice 312B dist/UI/SkeletonView.d.ts\r\nnpm notice 36B dist/UI/SmartDataSource.test.d.ts\r\nnpm notice 11B dist/UI/SortIconHidden.test.d.ts\r\nnpm notice 322B dist/UI/TableBodyCell.d.ts\r\nnpm notice 1.7kB dist/UI/TableBodyRow.d.ts\r\nnpm notice 312B dist/UI/TableHeaderCell.d.ts\r\nnpm notice 526B dist/UI/TableSentinel.d.ts\r\nnpm notice 36B dist/UI/TableSentinel.test.d.ts\r\nnpm notice 317B dist/UI/ThemeRoot.d.ts\r\nnpm notice 17.0kB docs/api.md\r\nnpm notice 2.4kB docs/breaking-changes.md\r\nnpm notice 4.4kB docs/configuration.md\r\nnpm notice 4.8kB docs/custom-plugin-example.md\r\nnpm notice 2.4kB docs/development.md\r\nnpm notice 14.4kB docs/examples.md\r\nnpm notice 38.7kB docs/expand-collapse.md\r\nnpm notice 4.5kB docs/features.md\r\nnpm notice 2.9kB docs/handling-interactive-elements.md\r\nnpm notice 15.0kB docs/recommendations.md\r\nnpm notice 17.2kB docs/scroll-position.md\r\nnpm notice 3.9kB package.json\r\nnpm notice Tarball Details\r\nnpm notice name: jattac.libs.web.responsive-table\r\nnpm notice version: 0.21.0\r\nnpm notice filename: jattac.libs.web.responsive-table-0.21.0.tgz\r\nnpm notice package size: 134.7 kB\r\nnpm notice unpacked size: 548.2 kB\r\nnpm notice shasum: 6ef5b956cd1e06ee5472597ac0adca19a9940e03\r\nnpm notice integrity: sha512-phcVAuMur6nDS[...]Gq5/CTrfx6Ykg==\r\nnpm notice total files: 66\r\nnpm notice",
+      "rules": []
+    },
+    {
+      "id": "lib-size",
+      "name": "Size budget",
+      "passed": false,
+      "seconds": 0.0918595,
+      "notRun": true,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "Not set up in this project: The project has no .size-limit.json, so this check has nothing to run.",
+      "rules": [
+        "EFF-001"
+      ]
+    },
+    {
+      "id": "lib-consumer-smoke",
+      "name": "Install and import the packed library",
+      "passed": false,
+      "seconds": 0.1169029,
+      "notRun": true,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "Not set up in this project: Nothing installs the packed library into a scratch project and imports it  no scripts/consumer-smoke.mjs .",
+      "rules": [
+        "LIB-003",
+        "LIB-004",
+        "LIB-005"
+      ]
+    },
+    {
+      "id": "lib-docs",
+      "name": "Documentation is complete",
+      "passed": false,
+      "seconds": 0.1122916,
+      "notRun": true,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "Not set up in this project: The project has no scripts/check-docs.mjs, so this check has nothing to run.",
+      "rules": [
+        "DOC-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-1",
+      "name": "No native button (use zest-button)",
+      "passed": true,
+      "seconds": 0.0471363,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "No forbidden pattern in the files this change touched.\r\nAlso found in 5 file(s) this change did not touch (not counted against it): src/Data/IResponsiveTableColumnDefinition.tsx, src/UI/MobileView.test.tsx, src/UI/ResponsiveTable.test.tsx, src/UI/ResponsiveTable.tsx, src/UI/TableBodyRow.tsx.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-2",
+      "name": "No native textarea (use zest-textbox)",
+      "passed": true,
+      "seconds": 0.0536638,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-3",
+      "name": "No native text input (use zest-textbox)",
+      "passed": true,
+      "seconds": 0.0529783,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-4",
+      "name": "No native file input (use zest-file-upload)",
+      "passed": true,
+      "seconds": 0.054251,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "lib-tests",
+      "name": "Tests, with coverage",
+      "passed": true,
+      "seconds": 107.256293,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "full",
+      "output": "\u2026\n      97 |     } finally {\r\n      98 |       setIsLoading(false);\r\n      99 |       setIsFetchingMore(false);\r\n\r\n      at error (src/Hooks/useTableDataSource.ts:96:15)\r\n          at Generator.throw (\u003Canonymous\u003E)\r\n      at rejected (src/Hooks/useTableDataSource.ts:1995:32)\r\n\r\n    console.error\r\n      Error fetching data from dataSource: Error: Network error\r\n          at D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\src\\UI\\SmartDataSource.test.tsx:292:30\r\n          at Generator.next (\u003Canonymous\u003E)\r\n          at D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\src\\UI\\SmartDataSource.test.tsx:8:71\r\n          at new Promise (\u003Canonymous\u003E)\r\n          at __awaiter (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\src\\UI\\SmartDataSource.test.tsx:4:12)\r\n          at Object.\u003Canonymous\u003E (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\src\\UI\\SmartDataSource.test.tsx:290:63)\r\n          at Promise.finally.completed (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1557:28)\r\n          at new Promise (\u003Canonymous\u003E)\r\n          at callAsyncCircusFn (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1497:10)\r\n          at _callCircusTest (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1007:40)\r\n          at _runTest (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:947:3)\r\n          at D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:849:7\r\n          at _runTestsForDescribeBlock (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:862:11)\r\n          at _runTestsForDescribeBlock (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:857:11)\r\n          at run (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:761:3)\r\n          at runAndTransformResultsToJestFormat (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1918:21)\r\n          at jestAdapter (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\runner.js:101:19)\r\n          at runTestInternal (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-runner\\build\\index.js:275:16)\r\n          at runTest (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-runner\\build\\index.js:343:7)\r\n\r\n      94 |       setError(err as Error);\r\n      95 |       setHasMore(false);\r\n    \u003E 96 |       console.error(\u0027Error fetching data from dataSource:\u0027, err);\r\n         |               ^\r\n      97 |     } finally {\r\n      98 |       setIsLoading(false);\r\n      99 |       setIsFetchingMore(false);\r\n\r\n      at error (src/Hooks/useTableDataSource.ts:96:15)\r\n          at Generator.throw (\u003Canonymous\u003E)\r\n      at rejected (src/Hooks/useTableDataSource.ts:1995:32)\r\n\r\nPASS src/UI/MobileChevronPlacement.test.tsx\r\nPASS src/UI/TableSentinel.test.tsx\r\nPASS src/UI/MobileExpandChrome.test.tsx\r\nPASS src/UI/ResponsiveTable.onDataSourceStateChange.test.tsx\r\nPASS src/UI/ExpandCollapse.test.tsx\r\nPASS src/Hooks/useTablePlugins.test.ts\r\nPASS src/UI/MobileView.test.tsx\r\nPASS src/Hooks/useResponsiveTable.test.ts\r\nPASS src/Hooks/useResolvedTheme.test.ts\r\nPASS src/UI/DetailRow.test.tsx\r\nPASS src/UI/SortIconHidden.test.tsx\r\nPASS src/Plugins/SortPlugin.test.ts\r\n\r\nTest Suites: 19 passed, 19 total\r\nTests:       169 passed, 169 total\r\nSnapshots:   0 total\r\nTime:        104.757 s\r\nRan all test suites.",
+      "rules": []
+    }
+  ],
+  "fullGreenHash": "85060C1C9DE5C924240D094A7B933AE91A416F598C486204B24A06B1D79CFC15",
+  "baseline": [
+    {
+      "id": "no-secrets",
+      "name": "No secrets in code",
+      "passed": true,
+      "seconds": 0.1432363,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "SEC-001"
+      ]
+    },
+    {
+      "id": "no-debug-leftovers",
+      "name": "No debugging leftovers",
+      "passed": true,
+      "seconds": 0.0443545,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "QUAL-001"
+      ]
+    },
+    {
+      "id": "lib-typecheck",
+      "name": "Type check (library and tests)",
+      "passed": true,
+      "seconds": 16.6618314,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "\u003E jattac.libs.web.responsive-table@0.21.0 type-check\r\n\u003E tsc --noEmit",
+      "rules": []
+    },
+    {
+      "id": "lib-tests",
+      "name": "Tests, with coverage",
+      "passed": true,
+      "seconds": 218.2403161,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "full",
+      "output": "\u2026\n          at new Promise (\u003Canonymous\u003E)\r\n          at callAsyncCircusFn (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1497:10)\r\n          at _callCircusTest (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1007:40)\r\n          at _runTest (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:947:3)\r\n          at D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:849:7\r\n          at _runTestsForDescribeBlock (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:862:11)\r\n          at _runTestsForDescribeBlock (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:857:11)\r\n          at run (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:761:3)\r\n          at runAndTransformResultsToJestFormat (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1918:21)\r\n          at jestAdapter (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-circus\\build\\runner.js:101:19)\r\n          at runTestInternal (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-runner\\build\\index.js:275:16)\r\n          at runTest (D:\\work\\nyingi\\code\\systems\\jattac-web-libs\\Jattac.Libs.Web.ResponsiveTable\\node_modules\\jest-runner\\build\\index.js:343:7) {\r\n        type: \u0027not implemented\u0027\r\n      }\r\n\r\n      238 |       tableContainerRef.current?.scrollTo({ top: 0 });\r\n      239 |     } else {\r\n    \u003E 240 |       window.scrollTo({ top: 0 });\r\n          |              ^\r\n      241 |     }\r\n      242 |   }, [activeFilter, dataSource, isServerFilter, maxHeight]);\r\n      243 |\r\n\r\n      at VirtualConsole.\u003Canonymous\u003E (node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)\r\n      at module.exports (node_modules/jsdom/lib/jsdom/browser/not-implemented.js:12:26)\r\n      at node_modules/jsdom/lib/jsdom/browser/Window.js:960:7\r\n      at scrollTo (src/UI/ResponsiveTable.tsx:240:14)\r\n      at Object.react-stack-bottom-frame (node_modules/react-dom/cjs/react-dom-client.development.js:22509:20)\r\n      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:543:16)\r\n      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:10758:29)\r\n      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:10880:11)\r\n      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:12653:13)\r\n      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:12627:11)\r\n      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:12657:11)\r\n      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15460:13)\r\n      at node_modules/react-dom/cjs/react-dom-client.development.js:15324:11\r\n      at flushActQueue (node_modules/react/cjs/react.development.js:862:34)\r\n      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:1151:10)\r\n      at node_modules/@testing-library/react/dist/act-compat.js:46:25\r\n      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)\r\n      at render (node_modules/@testing-library/react/dist/pure.js:300:10)\r\n      at src/UI/ScrollPosition.test.tsx:234:11\r\n      at src/UI/ScrollPosition.test.tsx:41:71\r\n      at __awaiter (src/UI/ScrollPosition.test.tsx:37:12)\r\n      at Object.\u003Canonymous\u003E (src/UI/ScrollPosition.test.tsx:230:86)\r\n\r\nPASS src/UI/MobileView.test.tsx\r\nPASS src/UI/TableSentinel.test.tsx\r\nPASS src/Hooks/useTablePlugins.test.ts\r\nPASS src/UI/ResponsiveTable.onDataSourceStateChange.test.tsx\r\nPASS src/Hooks/useResolvedTheme.test.ts\r\nPASS src/Hooks/useResponsiveTable.test.ts\r\nPASS src/UI/DetailRow.test.tsx\r\nPASS src/Plugins/SortPlugin.test.ts\r\n\r\nTest Suites: 18 passed, 18 total\r\nTests:       152 passed, 152 total\r\nSnapshots:   0 total\r\nTime:        203.492 s\r\nRan all test suites.",
+      "rules": []
+    },
+    {
+      "id": "lib-build",
+      "name": "Build (CommonJS, ES modules, type definitions)",
+      "passed": true,
+      "seconds": 10.313142,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "full",
+      "output": "\u003E jattac.libs.web.responsive-table@0.21.0 build\r\n\u003E rollup -c\r\n\r\n\n\r\nsrc/index.tsx \u2192 dist/index.js, dist/index.mjs...\r\nBrowserslist: browsers data (caniuse-lite) is 17 months old. Please run:\r\n  npx update-browserslist-db@latest\r\n  Why you should do it regularly: https://github.com/browserslist/update-db#readme\r\ncreated dist/index.js, dist/index.mjs in 8.6s",
+      "rules": []
+    },
+    {
+      "id": "lib-validate-package",
+      "name": "Package check (attw and publint)",
+      "passed": true,
+      "seconds": 28.0922869,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "full",
+      "output": "\u003E jattac.libs.web.responsive-table@0.21.0 validate-package\r\n\u003E attw --pack . \u0026\u0026 publint\r\n\r\n\r\njattac.libs.web.responsive-table v0.21.0\r\n\r\nBuild tools:\r\n- @arethetypeswrong/cli@^0.18.5\r\n- typescript@^5.2.2\r\n- rollup@^4.2.0\r\n- @rollup/plugin-typescript@^11.1.5\r\n\r\n No problems found \uD83C\uDF1F\r\n\r\n\r\n\u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\r\n\u2502                   \u2502 \u0022jattac.libs.web.responsive-table\u0022 \u2502\r\n\u251C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\r\n\u2502 node10            \u2502 \uD83D\uDFE2                                 \u2502\r\n\u251C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\r\n\u2502 node16 (from CJS) \u2502 \uD83D\uDFE2 (CJS)                           \u2502\r\n\u251C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\r\n\u2502 node16 (from ESM) \u2502 \uD83D\uDFE2 (ESM)                           \u2502\r\n\u251C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\r\n\u2502 bundler           \u2502 \uD83D\uDFE2                                 \u2502\r\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\r\njattac.libs.web.responsive-table lint results:\r\nSuggestions:\r\n1. pkg.repository.url is https://github.com/nyingimaina/jattac.libs.web.responsive-table.git but could be a full git URL like \u0022git\u002Bhttps://github.com/nyingimaina/jattac.libs.web.responsive-table.git\u0022.",
+      "rules": [
+        "LIB-002"
+      ]
+    },
+    {
+      "id": "lib-pack",
+      "name": "What would be published",
+      "passed": true,
+      "seconds": 11.3444938,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "full",
+      "output": "\u2026\nnpm notice 11B dist/Hooks/useTablePlugins.test.d.ts\r\nnpm notice 1.2kB dist/index.d.mts\r\nnpm notice 1.2kB dist/index.d.ts\r\nnpm notice 101.1kB dist/index.js\r\nnpm notice 85.7kB dist/index.js.map\r\nnpm notice 100.5kB dist/index.mjs\r\nnpm notice 85.4kB dist/index.mjs.map\r\nnpm notice 11B dist/Package.test.d.ts\r\nnpm notice 720B dist/Plugins/FilterPlugin.d.ts\r\nnpm notice 1.4kB dist/Plugins/IResponsiveTablePlugin.d.ts\r\nnpm notice 512B dist/Plugins/SelectionPlugin.d.ts\r\nnpm notice 1.3kB dist/Plugins/SortPlugin.d.ts\r\nnpm notice 11B dist/Plugins/SortPlugin.test.d.ts\r\nnpm notice 687B dist/UI/DesktopView.d.ts\r\nnpm notice 375B dist/UI/DetailRow.d.ts\r\nnpm notice 36B dist/UI/DetailRow.test.d.ts\r\nnpm notice 36B dist/UI/ExpandCollapse.test.d.ts\r\nnpm notice 36B dist/UI/FirstRowDefaultOpen.test.d.ts\r\nnpm notice 98B dist/UI/LoadingSpinner.d.ts\r\nnpm notice 1.0kB dist/UI/MobileDetailChrome.d.ts\r\nnpm notice 36B dist/UI/MobileExpandChrome.test.d.ts\r\nnpm notice 375B dist/UI/MobileView.d.ts\r\nnpm notice 36B dist/UI/MobileView.test.d.ts\r\nnpm notice 104B dist/UI/NoMoreDataMessage.d.ts\r\nnpm notice 6.6kB dist/UI/ResponsiveTable.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.onDataSourceStateChange.test.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.test.d.ts\r\nnpm notice 36B dist/UI/ResponsiveTable.theme.test.d.ts\r\nnpm notice 36B dist/UI/ScrollPosition.test.d.ts\r\nnpm notice 312B dist/UI/SkeletonView.d.ts\r\nnpm notice 36B dist/UI/SmartDataSource.test.d.ts\r\nnpm notice 11B dist/UI/SortIconHidden.test.d.ts\r\nnpm notice 322B dist/UI/TableBodyCell.d.ts\r\nnpm notice 1.7kB dist/UI/TableBodyRow.d.ts\r\nnpm notice 312B dist/UI/TableHeaderCell.d.ts\r\nnpm notice 526B dist/UI/TableSentinel.d.ts\r\nnpm notice 36B dist/UI/TableSentinel.test.d.ts\r\nnpm notice 317B dist/UI/ThemeRoot.d.ts\r\nnpm notice 17.0kB docs/api.md\r\nnpm notice 2.4kB docs/breaking-changes.md\r\nnpm notice 4.4kB docs/configuration.md\r\nnpm notice 4.8kB docs/custom-plugin-example.md\r\nnpm notice 2.4kB docs/development.md\r\nnpm notice 14.4kB docs/examples.md\r\nnpm notice 38.7kB docs/expand-collapse.md\r\nnpm notice 4.5kB docs/features.md\r\nnpm notice 2.9kB docs/handling-interactive-elements.md\r\nnpm notice 15.0kB docs/recommendations.md\r\nnpm notice 17.2kB docs/scroll-position.md\r\nnpm notice 3.9kB package.json\r\nnpm notice Tarball Details\r\nnpm notice name: jattac.libs.web.responsive-table\r\nnpm notice version: 0.21.0\r\nnpm notice filename: jattac.libs.web.responsive-table-0.21.0.tgz\r\nnpm notice package size: 134.7 kB\r\nnpm notice unpacked size: 548.1 kB\r\nnpm notice shasum: c3ccc2f5e5c2a997eaa86ba5757033ebf5f223f4\r\nnpm notice integrity: sha512-nR0zIwWM9DYeL[...]WpxUkHhHyNZzA==\r\nnpm notice total files: 65\r\nnpm notice",
+      "rules": []
+    },
+    {
+      "id": "lib-size",
+      "name": "Size budget",
+      "passed": false,
+      "seconds": 0.0946949,
+      "notRun": true,
+      "flaky": false,
+      "partial": false,
+      "tier": "full",
+      "output": "Not set up in this project: The project has no .size-limit.json, so this check has nothing to run.",
+      "rules": [
+        "EFF-001"
+      ]
+    },
+    {
+      "id": "lib-consumer-smoke",
+      "name": "Install and import the packed library",
+      "passed": false,
+      "seconds": 0.3647784,
+      "notRun": true,
+      "flaky": false,
+      "partial": false,
+      "tier": "full",
+      "output": "Not set up in this project: Nothing installs the packed library into a scratch project and imports it  no scripts/consumer-smoke.mjs .",
+      "rules": [
+        "LIB-003",
+        "LIB-004",
+        "LIB-005"
+      ]
+    },
+    {
+      "id": "lib-docs",
+      "name": "Documentation is complete",
+      "passed": false,
+      "seconds": 0.0974817,
+      "notRun": true,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "Not set up in this project: The project has no scripts/check-docs.mjs, so this check has nothing to run.",
+      "rules": [
+        "DOC-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-1",
+      "name": "No native button (use zest-button)",
+      "passed": true,
+      "seconds": 0.0417522,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "No forbidden pattern in the files this change touched.\r\nAlso found in 5 file(s) this change did not touch (not counted against it): src/Data/IResponsiveTableColumnDefinition.tsx, src/UI/MobileView.test.tsx, src/UI/ResponsiveTable.test.tsx, src/UI/ResponsiveTable.tsx, src/UI/TableBodyRow.tsx.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-2",
+      "name": "No native textarea (use zest-textbox)",
+      "passed": true,
+      "seconds": 0.0435982,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-3",
+      "name": "No native text input (use zest-textbox)",
+      "passed": true,
+      "seconds": 0.0507271,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    },
+    {
+      "id": "rule-USR-001-4",
+      "name": "No native file input (use zest-file-upload)",
+      "passed": true,
+      "seconds": 0.0642228,
+      "notRun": false,
+      "flaky": false,
+      "partial": false,
+      "tier": "fast",
+      "output": "No forbidden pattern found.",
+      "rules": [
+        "USR-001"
+      ]
+    }
+  ],
+  "checkPassedOn": {
+    "lib-typecheck": "3DDBBFF3E678D4C935F72A40BFF0326EE8C7F1DCB61BDAAD4F1339F672D547AB",
+    "lib-tests": "0572789F7FCB5A3DCF5E4C555C40BBF3F18EF2E519C458A468317ACEDA2BA654",
+    "lib-build": "25432B34033F5AE5614FBDBED9498D9AA7CA4AF58A4D74763F4D5C72FC63D32C",
+    "lib-validate-package": "5105DCF817E2D636892A424D3D2AF95337120691474C94A9C7B66DE99F94F53B",
+    "lib-pack": "5DE7C093C998CD1563156228D7762672F6DC96411E825254148A1C456905AB3C"
+  },
+  "checkFailedOn": {},
+  "generatedByChecks": [],
+  "ignoredPaths": [],
+  "acceptedGaps": [],
+  "convertedFindings": [],
+  "scopeExtensions": [],
+  "rulings": [],
+  "shortcuts": 0,
+  "routeHistory": [],
+  "amendments": [],
+  "scopeSeen": {},
+  "scopeRequestsMade": 0,
+  "skippedFolders": [],
+  "skippedFiles": [],
+  "skippedWhy": [],
+  "blockerRepeats": 0,
+  "pendingAdditionIds": [],
+  "acceptedAdditions": [],
+  "designSeeded": false,
+  "preflightAnswered": false,
+  "analystQuestions": 0,
+  "analysisClosed": false,
+  "youDecided": 0,
+  "requirementsApproved": true,
+  "seriesProposed": false,
+  "seriesDeclined": false,
+  "revisionNumber": 0,
+  "title": "",
+  "subtitle": "",
+  "seriesBoundaryAnswered": false,
+  "signOffRounds": 1,
+  "changedFiles": [
+    "docs/expand-collapse.md",
+    "src/Styles/ResponsiveTable.module.css",
+    "src/UI/MobileChevronPlacement.test.tsx",
+    "src/UI/MobileView.tsx"
+  ]
+}

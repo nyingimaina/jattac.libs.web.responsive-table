@@ -1,0 +1,452 @@
+{
+  "facts": [
+    {
+      "text": "mobile chevron row (styles.mobileExpandRow) renders at lines 176-193 inside the .card div, before the card-body div (line 194); MobileDetailSection renders after the card at 237-252 under the same \u0060expandRowRenderer \u0026\u0026 rowHasContent\u0060 condition.",
+      "role": "architect",
+      "stage": "Design",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/UI/MobileView.tsx",
+          "hash": "3f90821fb3bbde75772b"
+        }
+      ],
+      "at": "2026-11-17T20:08:34.034861+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "\u0060.mobileExpandRow\u0060 is lines 558-566 with margin-bottom 0.25rem and border-bottom 1px solid var(--table-border-color); it is the only place the class is styled and only MobileView uses it, so desktop is unaffected.",
+      "role": "architect",
+      "stage": "Design",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/Styles/ResponsiveTable.module.css",
+          "hash": "2a2de1f8e4d21b58f704"
+        }
+      ],
+      "at": "2026-11-17T20:08:34.0531597+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "\u0060.card-row:last-child\u0060 (line 101) zeroes the last data row\u0027s bottom margin, so spacing between the last data row and a bottom chevron row comes only from \u0060.mobileExpandRow\u0060.",
+      "role": "architect",
+      "stage": "Design",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/Styles/ResponsiveTable.module.css",
+          "hash": "2a2de1f8e4d21b58f704"
+        }
+      ],
+      "at": "2026-11-17T20:08:34.0676763+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "line 980 is the only doc row describing \u0060.mobileExpandRow\u0060 position (\u0022Chevron row at top of mobile card ... bottom border separator\u0022); line 4 describes the desktop chevron column and does not claim top-of-card.",
+      "role": "architect",
+      "stage": "Design",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "docs/expand-collapse.md",
+          "hash": "0755878f653eb2c7a9d8"
+        }
+      ],
+      "at": "2026-11-17T20:08:34.0851156+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "mobile tests set viewport with global.innerWidth \u002B fireEvent resize; chevrons are found via role button with aria-expanded; window.HTMLElement.prototype.scrollIntoView is stubbed.",
+      "role": "architect",
+      "stage": "Design",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/UI/MobileExpandChrome.test.tsx",
+          "hash": "3204211fe1a1629e596b"
+        }
+      ],
+      "at": "2026-11-17T20:08:34.0983207+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "jest preset ts-jest, jsdom, moduleNameMapper maps CSS to identity-obj-proxy, so CSS values cannot be asserted through computed styles - a CSS contract test must read the module.css file (pattern already used by src/Build.test.ts).",
+      "role": "architect",
+      "stage": "Design",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "package.json",
+          "hash": "d4a7986d8efb746ff261"
+        }
+      ],
+      "at": "2026-11-17T20:08:34.1112188+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "The design puts MobileView at src/UI/MobileView.tsx.",
+      "role": "planchecker",
+      "stage": "Design",
+      "source": "engine",
+      "anchors": [
+        {
+          "path": "src/UI/MobileView.tsx",
+          "hash": "3f90821fb3bbde75772b"
+        }
+      ],
+      "at": "2026-11-17T20:09:27.4435626+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "The design puts ResponsiveTableStyles at src/Styles/ResponsiveTable.module.css.",
+      "role": "planchecker",
+      "stage": "Design",
+      "source": "engine",
+      "anchors": [
+        {
+          "path": "src/Styles/ResponsiveTable.module.css",
+          "hash": "2a2de1f8e4d21b58f704"
+        }
+      ],
+      "at": "2026-11-17T20:09:27.4579077+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "The design puts ExpandCollapseDocs at docs/expand-collapse.md.",
+      "role": "planchecker",
+      "stage": "Design",
+      "source": "engine",
+      "anchors": [
+        {
+          "path": "docs/expand-collapse.md",
+          "hash": "0755878f653eb2c7a9d8"
+        }
+      ],
+      "at": "2026-11-17T20:09:27.4929564+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": ".mobileExpandRow is now the last child of each .card div (after .card-body); the MobileDetailSection is the card\u0027s next sibling under the same guard.",
+      "role": "developer",
+      "stage": "Build",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/UI/MobileView.tsx",
+          "hash": "a8dac1ec46468f332946"
+        }
+      ],
+      "at": "2026-11-17T20:18:12.5936288+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": ".mobileExpandRow (only rule, ~line 558) uses margin-top/border-top; .card-row:last-child has no bottom margin so the top separator is the only divider above the chevron.",
+      "role": "developer",
+      "stage": "Build",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/Styles/ResponsiveTable.module.css",
+          "hash": "3cc45bc46d2c976ccd3b"
+        }
+      ],
+      "at": "2026-11-17T20:18:12.6096167+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "mobile tests set global.innerWidth \u002B fireEvent resize; CSS modules are identity-obj-proxy so the contract test reads the module.css file from disk.",
+      "role": "developer",
+      "stage": "Build",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/UI/MobileChevronPlacement.test.tsx",
+          "hash": "900ef082b7f19bf270aa"
+        }
+      ],
+      "at": "2026-11-17T20:18:12.626085+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "17 tests, all pass; mobile via global.innerWidth=400 \u002B fireEvent resize, desktop 1024; CSS contract parsed from module.css, selectors use identity-obj-proxy class names (.card, .mobileExpandRow, .card-row).",
+      "role": "reviewer",
+      "stage": "Challenge",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/UI/MobileChevronPlacement.test.tsx",
+          "hash": "900ef082b7f19bf270aa"
+        }
+      ],
+      "at": "2026-11-17T20:28:18.1989361+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "fails on this machine independently of this change - \u0060npm run validate-package\u0060 exits 3 because attw --pack cannot find jattac.libs.web.responsive-table-0.21.0.tgz; the two failing tests are R2 publishable-package checks, unrelated to the chevron move.",
+      "role": "reviewer",
+      "stage": "Challenge",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/Package.test.ts",
+          "hash": "6041c02e7191fc759c4d"
+        }
+      ],
+      "at": "2026-11-17T20:28:18.2137726+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": ".card-row:last-child (line 101) zeroes the last stacked row\u0027s bottom margin, so .mobileExpandRow border-top at line 565 is the only divider above the chevron; card itself keeps border-bottom: 3px solid from line 64, no double border at the panel boundary.",
+      "role": "reviewer",
+      "stage": "Challenge",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/Styles/ResponsiveTable.module.css",
+          "hash": "3cc45bc46d2c976ccd3b"
+        }
+      ],
+      "at": "2026-11-17T20:28:18.229425+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "chevron row lines 218-235 is the single .mobileExpandRow, last child of .card and before the closing div at 236; MobileDetailSection (237-252) is the next sibling, so chevron sits directly above the panel.",
+      "role": "reviewer",
+      "stage": "Challenge",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/UI/MobileView.tsx",
+          "hash": "a8dac1ec46468f332946"
+        }
+      ],
+      "at": "2026-11-17T20:28:18.2428741+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "the mobileExpandRow block now sits after .card-body (lines ~218-235) and is the last child of .card; MobileDetailSection follows the card under the same guard.",
+      "role": "qa",
+      "stage": "Challenge",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/UI/MobileView.tsx",
+          "hash": "a8dac1ec46468f332946"
+        }
+      ],
+      "at": "2026-11-17T20:28:43.526328+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "only one .mobileExpandRow rule (line 559) with margin-top 0.25rem \u002B border-top; .card-row has no borders, so no double separator above the chevron.",
+      "role": "qa",
+      "stage": "Challenge",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/Styles/ResponsiveTable.module.css",
+          "hash": "3cc45bc46d2c976ccd3b"
+        }
+      ],
+      "at": "2026-11-17T20:28:43.5406976+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "17 tests (R1-R5); chevrons are found as role=button with aria-expanded; CSS and docs are read from disk because CSS modules map to identity-obj-proxy.",
+      "role": "qa",
+      "stage": "Challenge",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/UI/MobileChevronPlacement.test.tsx",
+          "hash": "900ef082b7f19bf270aa"
+        }
+      ],
+      "at": "2026-11-17T20:28:43.5549809+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "line 4 (\u0022chevron in a dedicated 2rem left column ... behaves identically in desktop and mobile\u0022) and the Visual Anatomy caption at line 900 (\u0022mobile uses the same visual model\u0022) still describe the old desktop-style chevron placement.",
+      "role": "qa",
+      "stage": "Challenge",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "docs/expand-collapse.md",
+          "hash": "b2d84530561f9e8f1a0d"
+        }
+      ],
+      "at": "2026-11-17T20:28:43.5693953+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "fails on this machine because \u0060attw --pack .\u0060 reports ENOENT for jattac.libs.web.responsive-table-0.21.0.tgz even though \u0060npm pack --dry-run\u0060 and \u0060npm run build\u0060 succeed; no packaging file is in this diff.",
+      "role": "qa",
+      "stage": "Challenge",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/Package.test.ts",
+          "hash": "6041c02e7191fc759c4d"
+        }
+      ],
+      "at": "2026-11-17T20:28:43.5865968+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": ".mobileExpandRow is the last child of .card (lines 218-235), rendered after .card-body; MobileDetailSection (lines 237-252) follows the card under the same expandRowRenderer \u0026\u0026 rowHasContent guard.",
+      "role": "documenter",
+      "stage": "Prove",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/UI/MobileView.tsx",
+          "hash": "a8dac1ec46468f332946"
+        }
+      ],
+      "at": "2026-11-17T20:34:51.0534379+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": ".mobileExpandRow (line 559) uses margin-top 0.25rem \u002B border-top 1px solid var(--table-border-color), padding 0 0 0.25rem 0, justify-content flex-start; no bottom border or bottom margin.",
+      "role": "documenter",
+      "stage": "Prove",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/Styles/ResponsiveTable.module.css",
+          "hash": "3cc45bc46d2c976ccd3b"
+        }
+      ],
+      "at": "2026-11-17T20:34:51.0675368+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": ".card-row:last-child (line 101) sets margin-bottom: 0, so the chevron row\u0027s border-top is the only divider above it.",
+      "role": "documenter",
+      "stage": "Prove",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/Styles/ResponsiveTable.module.css",
+          "hash": "3cc45bc46d2c976ccd3b"
+        }
+      ],
+      "at": "2026-11-17T20:34:51.0819892+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "the only line containing \u0060.mobileExpandRow\u0060 is the CSS reference row (line 1007); the R5 test reads that line.",
+      "role": "documenter",
+      "stage": "Prove",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "docs/expand-collapse.md",
+          "hash": "37b522f417a7e273ed7b"
+        }
+      ],
+      "at": "2026-11-17T20:34:51.0988257+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "R5 test requires the \u0060.mobileExpandRow\u0060 line to match /bottom of (the )?mobile card/i, /above the detail panel/i and /top border separator/i, and to not match /top of (the )?mobile card/i or /bottom border separator/i.",
+      "role": "documenter",
+      "stage": "Prove",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "src/UI/MobileChevronPlacement.test.tsx",
+          "hash": "900ef082b7f19bf270aa"
+        }
+      ],
+      "at": "2026-11-17T20:34:51.1128449+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "describes chevron placement in the expandRowRenderer text (~line 144) and the Behaviour list (~line 180); both now qualify desktop vs mobile.",
+      "role": "documenter",
+      "stage": "Prove",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "docs/api.md",
+          "hash": "1814da2f214fc9cdf79d"
+        }
+      ],
+      "at": "2026-11-17T20:34:51.1273951+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    },
+    {
+      "text": "the \u0060.mobileExpandRow\u0060 CSS reference row is at line 1008 and already reads \u0022Chevron row at bottom of mobile card, above the detail panel ... top border separator\u0022; every other chevron mention in the page already says last row / below the data rows.",
+      "role": "documenter",
+      "stage": "Prove",
+      "source": "agent",
+      "anchors": [
+        {
+          "path": "docs/expand-collapse.md",
+          "hash": "ff02fd7c07e851ddffbc"
+        }
+      ],
+      "at": "2026-11-17T20:37:55.9407253+00:00",
+      "runs": [
+        "20261117-200102"
+      ]
+    }
+  ]
+}

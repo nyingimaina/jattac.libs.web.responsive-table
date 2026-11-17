@@ -1,0 +1,50 @@
+{
+  "overall": 2,
+  "headline": "Not fully proven: some parts could not be checked, so they are not counted as passed.",
+  "items": [
+    {
+      "id": "boot",
+      "title": "The packed library installs and imports",
+      "status": 2,
+      "evidence": "The installed-library check could not run here (it is not set up in this project yet, or there is no internet connection to install into a scratch project), so the library has not been proven to work for the people who install it."
+    },
+    {
+      "id": "tests",
+      "title": "Automated tests and checks pass",
+      "status": 2,
+      "evidence": "Not counted as passed: not set up in this project yet (devteam adopt doctor can set them up): lib-size, lib-consumer-smoke, lib-docs."
+    },
+    {
+      "id": "requirements",
+      "title": "Every requirement has a test that names it",
+      "status": 0,
+      "evidence": "5 of 5 requirements have a test."
+    },
+    {
+      "id": "findings",
+      "title": "No problems left open by review, QA or security",
+      "status": 0,
+      "evidence": "None open. 0 fixed along the way, 6 note(s) recorded."
+    },
+    {
+      "id": "coverage-library",
+      "title": "The tests run the code (Library)",
+      "status": 0,
+      "evidence": "84% of lines run by the tests; 90% of the lines changed in this build; up 2.1 points since the last build."
+    },
+    {
+      "id": "skipped",
+      "title": "Nothing was skipped",
+      "status": 0,
+      "evidence": "Every check that applies was run."
+    }
+  ],
+  "notes": [
+    {
+      "id": "browser",
+      "title": "Real browser journeys",
+      "status": 2,
+      "evidence": "Not run: this stack has no browser journeys. Not counted for or against the verdict."
+    }
+  ]
+}

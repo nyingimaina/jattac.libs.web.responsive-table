@@ -1,3 +1,9 @@
+---
+title: API Reference
+covers: src/UI/ResponsiveTable.tsx, src/Context/TableContext.tsx, src/Data/IResponsiveTableColumnDefinition.tsx, src/Data/ResponsiveTableTheme.ts
+covers-hash: d0c0b89f0e47bdac8122
+---
+
 # API Reference
 ## Technical Specification for the ResponsiveTable Component
 
@@ -141,7 +147,7 @@ interface IResponsiveTableColumnDefinition<TData> {
 expandRowRenderer?: (row: TData, rowIndex: number) => ReactNode
 ```
 
-Attaches a collapsible detail panel below each row. A chevron in a dedicated 2rem left column indicates state (▶ collapsed, ▾ expanded). The renderer is called for every row — return `null` or `undefined` to suppress the toggle entirely for that row.
+Attaches a collapsible detail panel below each row. On desktop the state is shown by a chevron in a dedicated 2rem left column (▶ collapsed, ▾ expanded); on mobile each card shows a chevron row at the bottom, directly above the panel. The renderer is called for every row — return `null` or `undefined` to suppress the toggle entirely for that row.
 
 ```tsx
 // All rows expandable
@@ -177,16 +183,16 @@ Attaches a collapsible detail panel below each row. A chevron in a dedicated 2re
 - Nested tables or charts scoped to a single row
 
 **Behaviour**
-- Chevron sits in a dedicated 2rem left column — not as an overlay or pseudo-element — keeping data columns structurally aligned.
+- On desktop, the chevron sits in a dedicated 2rem left column — not as an overlay or pseudo-element — keeping data columns structurally aligned. On mobile it is a left-aligned chevron row inside the card, below the data rows and directly above the panel.
 - **Idle:** chevron at 25% opacity, rotated right (`-90deg`). Quiet and non-intrusive.
 - **Hover:** chevron smooths to 60% opacity, subtle border accent on the row.
-- **Expanded:** chevron rotates down (`0deg`), full opacity. A toggle bar slides in (0→2rem) at the top of the detail pane.
+- **Expanded:** chevron rotates down (`0deg`), full opacity. On desktop a toggle bar slides in (0→2rem) at the top of the detail pane; on mobile the detail panel opens below the card with its own breadcrumb header and footer (see [Mobile Orientation Chrome](./expand-collapse.md#mobile-orientation-chrome)).
 - **Greeting animation:** on mount, chevrons pop in with a staggered multi-pulse wave (2.2s), then settle to idle. Plays once per component lifecycle.
 - Detail content is **lazy-mounted**: the panel component is not created until first expand, then stays mounted so the collapse animation plays correctly. Heavy components are instantiated on demand.
 - Expand state is keyed by `selectionProps.rowIdKey` when provided, otherwise falls back to array index. A stable key survives re-sorts and filter changes.
 - `rowIndex` is the **display-order** index (post-sort, post-filter) — not a stable identifier. Use the row object's own field for cross-render correlation.
 - The chevron carries `data-rt-ignore-row-click` — tapping the toggle never fires `onRowClick`.
-- Works identically in desktop (table `<tr>`) and mobile (card) layouts.
+- Works in both desktop (table `<tr>`) and mobile (card) layouts; expand/collapse behaves the same, only the chevron's position differs — first column of the row on desktop, last row of the card on mobile.
 - Expansion can be driven programmatically via the ref API (`expandRows`, `collapseRows`, `toggleRows`) — see [Imperative Handle](#imperative-handle-responsivettablehandle) and the [Programmatic Control guide](./expand-collapse.md#programmatic-control-ref-api).
 
 #### `expandChevronClassName`
@@ -316,3 +322,11 @@ import { useTableContext } from 'jattac.libs.web.responsive-table';
 
 ---
 **Previous:** [Functional Capabilities](./features.md) | **Next:** [Configuration Specification](./configuration.md)
+
+---
+
+## See also
+
+- [Row Expansion and Collapse](./expand-collapse.md) — mobile and desktop chevron placement, detail panels and the ref API.
+- [Configuration Specification](./configuration.md) — responsive breakpoints and theme setup.
+- [Handling Interactive Elements](./handling-interactive-elements.md) — keeping buttons and inputs inside cells from triggering row clicks.
