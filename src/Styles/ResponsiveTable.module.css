@@ -221,7 +221,10 @@
   white-space: nowrap;
 }
 
+/* Only drawn for a column that can be sorted. The icon is a coloured box under a mask, and the mask only exists for
+   sortable columns, so on any other column the box used to show as a solid grey square in the header. */
 .sortIcon {
+  display: none;
   width: 1rem;
   height: 1rem;
   background-color: var(--rt-sort-icon-color);
@@ -238,6 +241,12 @@
 
 .sortable:hover .sortIcon {
   opacity: 0.8;
+}
+
+.sortable .sortIcon,
+.sorted-asc .sortIcon,
+.sorted-desc .sortIcon {
+  display: block;
 }
 
 .sortable .sortIcon {
