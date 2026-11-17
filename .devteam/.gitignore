@@ -19,3 +19,12 @@ rules/*/live.js
 metrics/
 runs/*/telemetry.json
 local-env.json
+# Added by DevTeam: volatile files that must never make a merge or a switch refuse to start.
+runs/*/heartbeat.js
+merge/
+session.json
+knowledge/index.json
+knowledge/annotate-*
+runs/*/knowledge/
+metrics/ai-durations.json
+archive/
