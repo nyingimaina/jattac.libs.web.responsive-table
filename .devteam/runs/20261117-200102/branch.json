@@ -1,7 +1,7 @@
 {
   "Branch": "devteam/20261117-230101-move-mobile-chevron-row-below-the-card",
   "Base": "master",
-  "Commit": null,
+  "Commit": "106e6b56f53175bb1e94a26bd1e7717357a71a60",
   "Left": [
     "overage/clover.xml",
     "coverage/coverage-final.json",
