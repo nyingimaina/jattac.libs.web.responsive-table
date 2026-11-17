@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.21.0] - Unreleased
+## [0.21.0] - 2026-11-17
 
 ### Added
 - **`firstRowDefaultOpen`** — discoverability aid: opens the first expandable row once so first-time users see that rows expand. **Defaults to `false`; we recommend setting it to `true`** wherever `expandRowRenderer` is used. Ignored when `defaultExpandedIds` is provided; applies once (also for data that arrives after mount); never scrolls or moves focus.
