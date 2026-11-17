@@ -143,7 +143,7 @@ function DesktopView<TData>(props: DesktopViewProps) {
 
             const chevronClasses = [
               styles.expandChevron,
-              greetingActive && rowHasContent ? styles.expandChevronGreeting : '',
+              greetingActive && rowHasContent && !isExpanded ? styles.expandChevronGreeting : '',
               isExpanded ? styles.expandChevronExpanded : '',
               isHovered && !isExpanded ? styles.expandChevronHovered : '',
               expandChevronClassName ?? '',

@@ -555,3 +555,127 @@
   margin-bottom: 0.25rem;
   border-bottom: 1px solid var(--table-border-color);
 }
+/* ---- Mobile expanded-section chrome: rail + sticky breadcrumb header + footer ---- */
+
+/* `overflow: clip` keeps the open/close clipping but, unlike `hidden`, is not a scroll container,
+   so the sticky header can stick to the real scroller. Older browsers keep `hidden` (no sticky). */
+.mobileDetailOuter {
+  overflow: hidden;
+  overflow: clip;
+}
+.mobileDetailOuter .detailContentInner {
+  overflow: hidden;
+  overflow: clip;
+  padding-left: 0;
+}
+
+.mobileDetailPane {
+  display: flex;
+  align-items: stretch;
+  background: var(--rt-detail-bg);
+}
+
+/* Rail: a full-height, tappable strip. The visible line is a 2px pseudo-element. */
+.mobileDetailRail {
+  flex: 0 0 1.5rem;
+  position: relative;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.mobileDetailRail::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  border-radius: 1px;
+  background: var(--primary-color, #3b82f6);
+  opacity: 0.6;
+  transition: opacity 0.15s ease, width 0.15s ease;
+}
+.mobileDetailRail:active::before {
+  opacity: 1;
+  width: 4px;
+}
+
+.mobileDetailMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobileDetailHeader,
+.mobileDetailFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 2.75rem; /* 44px touch target */
+  padding: 0 0.75rem;
+  border: none;
+  background: var(--rt-detail-bg);
+  color: var(--primary-color, #3b82f6);
+  font: inherit;
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.mobileDetailHeader:active,
+.mobileDetailFooter:active {
+  opacity: 0.7;
+}
+.mobileDetailHeader:focus-visible,
+.mobileDetailFooter:focus-visible,
+.mobileDetailRail:focus-visible {
+  outline: 2px solid var(--primary-color, #3b82f6);
+  outline-offset: -2px;
+}
+
+.mobileDetailHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-bottom: 1px solid var(--table-border-color);
+}
+.mobileDetailFooter {
+  justify-content: center;
+  border-top: 1px solid var(--table-border-color);
+}
+
+.mobileDetailBreadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.mobileDetailTitle {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mobileDetailSeparator {
+  opacity: 0.6;
+}
+.mobileDetailBody {
+  padding: 0.5rem 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detailContentWrapper,
+  .expandChevron,
+  .mobileDetailRail::before {
+    transition: none;
+  }
+  .expandChevronGreeting {
+    animation: none;
+  }
+}

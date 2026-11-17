@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { MobileDetailChrome } from './MobileDetailChrome';
 import { MdArrowDropDown } from 'react-icons/md';
 import styles from '../Styles/ResponsiveTable.module.css';
 import { useTableContext } from '../Context/TableContext';
@@ -67,9 +68,28 @@ function MobileView<TData>(props: MobileViewProps) {
     mobileCardClassName,
     expandRowRenderer,
     expandChevronClassName,
+    mobileExpandTitle,
   } = useTableContext<TData>();
 
   const isClickable = onRowClick || selectionProps;
+
+  const cardRefs = useRef(new Map<string | number, HTMLDivElement>());
+
+  // Collapse from the section chrome (rail / header / footer), then bring the card back into view
+  // so a tall pane disappearing doesn't strand the user mid-list.
+  const collapseFromChrome = (rowId: string | number) => {
+    toggleExpanded(rowId);
+    cardRefs.current.get(rowId)?.scrollIntoView?.({ block: 'nearest' });
+  };
+
+  const getExpandTitle = (row: TData, rowIndex: number): React.ReactNode => {
+    if (mobileExpandTitle) return mobileExpandTitle(row);
+    const first = visibleColumns[0];
+    if (!first) return '';
+    const colDef = getColumnDefinition(first, rowIndex);
+    if (colDef.dataKey) return String((row as Record<string, unknown>)[colDef.dataKey as string] ?? '');
+    return colDef.cellRenderer(row);
+  };
 
   const [hoveredRowId, setHoveredRowId] = useState<string | number | null>(null);
   const [greetingActive, setGreetingActive] = useState(true);
@@ -123,7 +143,7 @@ function MobileView<TData>(props: MobileViewProps) {
 
         const chevronClasses = [
           styles.expandChevron,
-          greetingActive && rowHasContent ? styles.expandChevronGreeting : '',
+          greetingActive && rowHasContent && !isExpanded ? styles.expandChevronGreeting : '',
           isExpanded ? styles.expandChevronExpanded : '',
           hoveredRowId === rowId && !isExpanded ? styles.expandChevronHovered : '',
           expandChevronClassName ?? '',
@@ -132,6 +152,7 @@ function MobileView<TData>(props: MobileViewProps) {
         return (
           <React.Fragment key={rowId}>
           <div
+            ref={(el) => { if (el) cardRefs.current.set(rowId, el); else cardRefs.current.delete(rowId); }}
             className={`${styles.card} ${isClickable ? styles.clickableRow : ''} ${animationProps?.animateOnLoad ? styles.animatedRow : ''} ${rowProps.className || ''} ${mobileCardClassName || ''}`.trim()}
             style={{ animationDelay: `${rowIndex * 0.05}s` }}
             tabIndex={isClickable ? 0 : undefined}
@@ -217,7 +238,15 @@ function MobileView<TData>(props: MobileViewProps) {
             <MobileDetailSection
               row={row}
               rowIndex={rowIndex}
-              expandRowRenderer={expandRowRenderer}
+              expandRowRenderer={(r, i) => (
+                <MobileDetailChrome
+                  title={getExpandTitle(r, i)}
+                  isExpanded={isExpanded}
+                  onCollapse={() => collapseFromChrome(rowId)}
+                >
+                  {expandRowRenderer(r, i)}
+                </MobileDetailChrome>
+              )}
               isExpanded={isExpanded}
             />
           )}

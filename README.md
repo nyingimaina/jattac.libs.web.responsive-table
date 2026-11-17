@@ -211,6 +211,21 @@ expandRowRenderer={(row, rowIndex) => (
 }
 ```
 
+**Help users discover it — we recommend `firstRowDefaultOpen`.** Off by default (so upgrading never changes what existing tables look like), but we encourage you to turn it on wherever you use `expandRowRenderer`: the first expandable row opens once, so first-time users see immediately that rows expand.
+
+```tsx
+<ResponsiveTable
+  firstRowDefaultOpen                 // recommended
+  discoveryStorageKey="orders-table"  // optional: stop auto-opening once the user has toggled any row
+  expandRowRenderer={(order) => <OrderLineItems order={order} />}
+  ...
+/>
+```
+
+It is ignored when `defaultExpandedIds` is set, applies only once (never re-opens after the user collapses it or the data refreshes), and never scrolls or moves focus. See the [guide](./docs/expand-collapse.md#discoverability-firstrowdefaultopen).
+
+**Mobile orientation** — an expanded card section shows a tappable left rail, a sticky "Title › Details" breadcrumb header and a "Hide details" footer; any of them collapses the section and returns you to the card. Set the title with `mobileExpandTitle={(row) => row.name}` (defaults to the first column's value).
+
 **Behaviour**
 - Chevron sits in a dedicated 2rem left column — not as an overlay or pseudo-element — keeping the data columns aligned.
 - **Idle:** chevron at 25% opacity, rotates right (`-90deg`). Quiet, non-intrusive.

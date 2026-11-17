@@ -36,6 +36,9 @@ This document contains the exhaustive technical specification for the Responsive
 | `expandRowRenderer` | `(row: TData, rowIndex: number) => ReactNode` | Renders collapsible detail content below a row. Return `null`/`undefined` for no toggle on that row. |
 | `expandChevronClassName` | `string` | Custom CSS class applied to the chevron icon `<span>`. Use to override color, size, or any other style. |
 | `defaultExpandedIds` | `(string \| number)[]` | Row IDs to expand on initial render. Read once at mount — not reactive after mount. Use `ref.expandRows()` for post-mount control. |
+| `firstRowDefaultOpen` | `boolean` | Default `false` — **recommended: `true`.** Opens the first expandable row once so first-time users discover that rows expand. Ignored when `defaultExpandedIds` is set. See the [expand/collapse guide](./expand-collapse.md#discoverability-firstrowdefaultopen). |
+| `discoveryStorageKey` | `string` | With `firstRowDefaultOpen`: once the user toggles any row, store a `localStorage` flag under this key and stop auto-opening on later visits. Opt-in. |
+| `mobileExpandTitle` | `(row: TData) => ReactNode` | Mobile only. Title in the breadcrumb header of an expanded section. Defaults to the first column's value. |
 | `onScrollPositionChange` | `(scrollTop: number) => void` | Fired on each scroll event with the current pixel offset. Reports `scrollTop` of the internal container when `maxHeight` is set, or `window.scrollY` otherwise. Pair with `ref.scrollTo()` to save and restore position. |
 | `theme` | `'light' \| 'dark' \| 'system'` | Appearance of the table. When omitted (or unrecognised), the table follows `body.dark` and is light otherwise. An explicit value wins over `body.dark`. `'system'` follows the device preference and shows light where it is unavailable (server render). The type is exported as `ResponsiveTableTheme`. |
 

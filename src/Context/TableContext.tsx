@@ -85,6 +85,8 @@ interface TableContextValue<TData> {
   expandRowRenderer?: (row: TData, rowIndex: number) => React.ReactNode;
   /** Custom CSS class applied to the chevron icon span. */
   expandChevronClassName?: string;
+  /** Mobile breadcrumb title for an expanded section. Defaults to the row's first column value. */
+  mobileExpandTitle?: (row: TData) => React.ReactNode;
 
   // Helper Functions (Logic)
   getRawColumnDefinition: (colDef: ColumnDefinition<TData>) => IResponsiveTableColumnDefinition<TData>;

@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.21.0] - Unreleased
+
+### Added
+- **`firstRowDefaultOpen`** — discoverability aid: opens the first expandable row once so first-time users see that rows expand. **Defaults to `false`; we recommend setting it to `true`** wherever `expandRowRenderer` is used. Ignored when `defaultExpandedIds` is provided; applies once (also for data that arrives after mount); never scrolls or moves focus.
+- **`discoveryStorageKey`** — with `firstRowDefaultOpen`, stops the auto-open for returning users once they have toggled any row (flag stored in `localStorage` as `rt-discovery:<key>`). Opt-in.
+- **Mobile orientation chrome** — expanded mobile sections now show a tappable left rail, a sticky "Title › Details" breadcrumb header and a "Hide details" footer; each collapses the section and scrolls the card back into view. New optional `mobileExpandTitle` prop sets the title (defaults to the first column's value).
+- Expand/collapse animations respect `prefers-reduced-motion`.
+
+### Fixed
+- The mount greeting pulse no longer plays on a row that is already expanded (it forced the chevron to `-90deg` while open).
+
+### Notes
+- Not a breaking change: both new behaviours are additive and `firstRowDefaultOpen` is off by default.
+
+---
+
 ## [0.20.0] - 2026-10-08
 
 ### Added

@@ -12,6 +12,7 @@ import MobileView from './MobileView';
 import SkeletonView from './SkeletonView';
 import { useResponsiveTable } from '../Hooks/useResponsiveTable';
 import { useTablePlugins } from '../Hooks/useTablePlugins';
+import { useFirstRowAutoExpand, markDiscovered } from '../Hooks/useFirstRowAutoExpand';
 import { TableProvider, ColumnDefinition, DataSource } from '../Context/TableContext';
 import { useTableDataSource, DataSourceState } from '../Hooks/useTableDataSource';
 
@@ -111,6 +112,25 @@ interface IProps<TData> {
   /** Row IDs to expand on initial render. Passed once at mount; does not sync after mount. */
   defaultExpandedIds?: (string | number)[];
   /**
+   * Discoverability aid: when true, the first row that has expandable content opens automatically,
+   * once, the first time rows are available — so first-time users see that rows expand.
+   * Defaults to false. **Recommended: set to true** wherever `expandRowRenderer` is used.
+   * Ignored when `defaultExpandedIds` is provided (explicit wins). Never re-applies after the user
+   * collapses the row or the data refreshes, and never scrolls or moves focus.
+   */
+  firstRowDefaultOpen?: boolean;
+  /**
+   * With `firstRowDefaultOpen`, stops the auto-open for returning users: once the user toggles any
+   * row, a flag is stored in localStorage under this key and the first row stays closed on later
+   * visits. Opt-in — nothing is stored unless a key is supplied.
+   */
+  discoveryStorageKey?: string;
+  /**
+   * Mobile only. Title for the breadcrumb header shown at the top of an expanded section
+   * ("Title › Details"). Defaults to the first column's value for the row.
+   */
+  mobileExpandTitle?: (row: TData) => React.ReactNode;
+  /**
    * Fired on scroll with the current vertical pixel offset of the table's scroll container.
    * When `maxHeight` is set this reflects the internal container's `scrollTop`; otherwise it
    * reflects `window.scrollY`. Use with `ref.scrollTo()` to save and restore position.
@@ -152,6 +172,9 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
     expandRowRenderer,
     expandChevronClassName,
     defaultExpandedIds,
+    firstRowDefaultOpen = false,
+    discoveryStorageKey,
+    mobileExpandTitle,
     onScrollPositionChange,
     theme,
   } = props;
@@ -285,6 +308,27 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
     columnDefinitions,
     getScrollableElement,
   });
+
+  // Discoverability: open the first expandable row once (see firstRowDefaultOpen).
+  const rowIdKey = selectionProps?.rowIdKey;
+  const getAutoExpandRowId = useCallback(
+    (row: TData, index: number): string | number =>
+      rowIdKey ? ((row as Record<keyof TData, unknown>)[rowIdKey] as string | number) : index,
+    [rowIdKey]
+  );
+  useFirstRowAutoExpand({
+    enabled: firstRowDefaultOpen && defaultExpandedIds === undefined,
+    rows: processedData,
+    expandRowRenderer,
+    getRowId: getAutoExpandRowId,
+    storageKey: discoveryStorageKey,
+    setExpandedIds,
+  });
+  // User-initiated toggles (chevron, header, rail, footer) remember discovery; imperative ref calls do not.
+  const toggleExpandedByUser = useCallback((id: string | number) => {
+    markDiscovered(discoveryStorageKey);
+    toggleExpanded(id);
+  }, [discoveryStorageKey, toggleExpanded]);
 
   // Callers (e.g. ExpenseList.tsx) commonly pass these as fresh inline
   // arrow functions every render, and their handlers often trigger a
@@ -480,6 +524,7 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
         mobileCardClassName,
         expandRowRenderer,
         expandChevronClassName,
+        mobileExpandTitle,
       }}
     >
       <div>
@@ -491,7 +536,7 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
           <MobileView
             mobileFooter={mobileFooter}
             expandedIds={expandedIds}
-            toggleExpanded={toggleExpanded}
+            toggleExpanded={toggleExpandedByUser}
             maxHeight={maxHeight}
             tableContainerRef={tableContainerRef}
           />
@@ -506,7 +551,7 @@ function ResponsiveTableInner<TData>(props: IProps<TData>, ref: ForwardedRef<Res
             renderPluginFooters={renderPluginFooters}
             onScroll={onScrollPositionChange ? handleContainerScroll : undefined}
             expandedIds={expandedIds}
-            toggleExpanded={toggleExpanded}
+            toggleExpanded={toggleExpandedByUser}
           />
         )}
       </div>

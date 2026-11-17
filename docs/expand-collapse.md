@@ -21,6 +21,8 @@ Expandable rows reveal arbitrary content below any row on demand. A chevron in a
   - [Overriding Color](#overriding-color)
   - [Overriding Size](#overriding-size)
   - [Combining Overrides](#combining-overrides)
+- [Discoverability: firstRowDefaultOpen](#discoverability-firstrowdefaultopen)
+- [Mobile Orientation Chrome](#mobile-orientation-chrome)
 - [Expansion State and Row Identity](#expansion-state-and-row-identity)
 - [Lazy Mounting](#lazy-mounting)
 - [Multiple Rows Expanded Simultaneously](#multiple-rows-expanded-simultaneously)
@@ -54,6 +56,9 @@ Expandable rows reveal arbitrary content below any row on demand. A chevron in a
 | `expandRowRenderer` | `(row: TData, rowIndex: number) => ReactNode` | — | Renderer for the detail panel. Return `null` or `undefined` to suppress the toggle on that row. |
 | `expandChevronClassName` | `string` | — | CSS class applied to the chevron `<span>`. Use to override color, size, or other styles. Do not override `transform` or `transition`. |
 | `defaultExpandedIds` | `(string \| number)[]` | — | Row IDs to expand on initial render. Read once at mount; changes after mount have no effect. |
+| `firstRowDefaultOpen` | `boolean` | `false` | **Recommended: set to `true`.** Opens the first expandable row once so first-time users discover that rows expand. See [Discoverability](#discoverability-firstrowdefaultopen). |
+| `discoveryStorageKey` | `string` | — | With `firstRowDefaultOpen`: once the user toggles any row, remember it in `localStorage` and stop auto-opening on later visits. |
+| `mobileExpandTitle` | `(row: TData) => ReactNode` | first column value | Mobile only. Title in the breadcrumb header of an expanded section. |
 
 **Imperative handle methods** (via `ref` — see [Programmatic Control](#programmatic-control-ref-api)):
 
@@ -211,6 +216,57 @@ Multiple style properties can be applied in a single class:
   columnDefinitions={columns}
 />
 ```
+
+---
+
+## Discoverability: firstRowDefaultOpen
+
+Chevrons are subtle. `firstRowDefaultOpen` opens the first expandable row once, so first-time users see that rows expand. **It defaults to `false`** so that upgrading never changes existing tables, but **we recommend setting it to `true`** wherever `expandRowRenderer` is used.
+
+```tsx
+<ResponsiveTable
+  firstRowDefaultOpen
+  discoveryStorageKey="orders-table"
+  expandRowRenderer={(order) => <OrderLineItems order={order} />}
+  ...
+/>
+```
+
+**Rules**
+
+| Rule | Behaviour |
+| :--- | :--- |
+| Which row | The first row (display order) whose renderer returns non-null. Rows without content are skipped. |
+| When | Once, the first time rows exist — including data that arrives after mount (`dataSource`, async `data`). The row is already open on first paint, with no opening animation. |
+| Never again | After that single application it never re-runs: collapsing the row, sorting, filtering, paging or refreshing data will not re-open it. |
+| `defaultExpandedIds` | Wins. When it is provided (even `[]`), `firstRowDefaultOpen` is ignored. |
+| No side effects | No scrolling, no focus change, and no greeting pulse on the opened row. |
+| Ref API | Programmatic `expandRows`/`collapseRows`/`toggleRows` still work on the opened row. |
+
+**`discoveryStorageKey`** — for returning users. Once the user toggles any row (chevron, mobile header, rail or footer), the table stores a flag in `localStorage` under `rt-discovery:<key>` and the first row stays closed on later visits. The auto-open itself never writes the flag, and programmatic ref calls do not count as the user's toggles. It is opt-in: nothing is stored unless you pass a key. If storage is unavailable (private mode, quota), the table silently behaves as if no flag were set.
+
+**Gotchas**
+- Row identity follows the usual rule: with `selectionProps.rowIdKey` the row is keyed by that field, otherwise by display index.
+- The renderer is invoked for the first rows to find one with content, in addition to normal rendering. Keep it cheap or memoised.
+- On mobile an open first card pushes the rest of the list down. That is the point, but keep the first row's detail reasonably compact.
+
+---
+
+## Mobile Orientation Chrome
+
+In the mobile card layout an expanded section shows three tappable signals so the user always knows they are inside a detail view and can leave it fast:
+
+- **Rail** — a full-height line down the left edge that indents the content. Tapping it collapses the section.
+- **Breadcrumb header** — a sticky "Title › Details" bar (44px tall) at the top of the section; tapping it collapses. The title comes from `mobileExpandTitle(row)`, falling back to the first column's value.
+- **Footer** — a "Hide details" button at the bottom, so the control is never a long scroll away.
+
+Collapsing from any of these scrolls the card back into view (`scrollIntoView({ block: 'nearest' })`).
+
+Accessibility: the header is the exposed control (`aria-expanded`); the rail is pointer-only (`aria-hidden`); the footer is a plain action button. While collapsed, none of them are focusable. Animations respect `prefers-reduced-motion`.
+
+The header's stickiness relies on `overflow: clip` (Chrome 90+, Safari 16+, Firefox 81+); on older browsers it simply scrolls with the content.
+
+Desktop is unchanged — the persistent chevron column already provides the signal.
 
 ---
 
